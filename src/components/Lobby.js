@@ -7,6 +7,7 @@ import Setting from './Setting';
 
 const Lobby = () => {
     const btnStart = () => {
+        document.location.replace("/ingame");
         console.log("start button");
     };
     const btnMake = () => {
@@ -48,9 +49,14 @@ const Lobby = () => {
 }
 
 const Left = styled.div`
+    position: fixed;
+    width: 30%;
+
 `
 
 const Right = styled.div`
+    position: fixed;
+    left: 400px;
 `
 
 const BigButton = styled.button`
