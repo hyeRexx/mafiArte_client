@@ -17,7 +17,7 @@ const Lobby = () => {
         console.log("logout button");
     };
     return (
-        <div id="lobby">
+        <div id="lobby" style={{padding:"2em"}}>
             여기는 로비
             <Left>
                 <BigButton id="start" onClick={btnStart}>START</BigButton>
@@ -56,7 +56,7 @@ const Left = styled.div`
 
 const Right = styled.div`
     position: fixed;
-    left: 400px;
+    left: 250px;
 `
 
 const BigButton = styled.button`
