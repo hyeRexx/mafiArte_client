@@ -1,7 +1,9 @@
-import {React, useState} from 'react';
+import {React, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {Link, Route, Routes} from 'react-router-dom';
+import io from 'socket.io-client';
+import axios from 'axios';
 import Login from './Login';
+const socket = io.connect("http://localhost:3000");
 
 const Main = () => {
     const [login, setLogin] = useState(false);
@@ -19,14 +21,32 @@ const Main = () => {
 }
 
 const MainBtns = (props) => {
+    useEffect(() => {
+        socket.on("test", (test) => {
+            console.log(test);
+        });
+    }, []);
+
     const btnLogin = () => {
         props.flipLogin();
     }
-    
+    const hi = () => {
+        axios.get("/api/canvas/home")
+            .then((res) => {
+            console.log(res.data);
+        });
+
+        axios.get("/api/member/home").then((res) => {
+            console.log(res.data);
+        });
+
+        socket.emit("test")
+    }
     return (
         <>
             <Button id="join">JOIN</Button>
             <Button id="login" onClick={btnLogin}>LOGIN</Button>
+            <Button onClick={hi}>test</Button>
         </>
     );
 }
