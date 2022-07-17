@@ -1,9 +1,13 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Video from './Video';
 
 const Ingame = () => {
     return (
         <div>
-            여기는 게임창이 될거임
+            <Routes>
+                <Route path="/" element={<Video />} />
+            </Routes>
         </div>
     );
 }
