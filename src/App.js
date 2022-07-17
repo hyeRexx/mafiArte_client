@@ -6,6 +6,7 @@ import {Routes, Route} from "react-router-dom";
 import Ingame from './components/Ingame';
 import Lobby from './components/Lobby';
 import Main from './components/Main';
+import './css/App.css'
 import {RequireAuth} from './script/auth';
 
 /**
