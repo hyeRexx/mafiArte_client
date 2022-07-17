@@ -1,0 +1,34 @@
+.Main {
+    width: 100%;
+    height: 100%;
+    background-color: #121212;
+}
+
+.mainLogo {
+    display: block;
+    margin: auto ;
+    padding-top: 150px;
+    width: 1350px;
+    margin-bottom: 90px;
+}
+
+.mainBtns {
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+.mainBtn {
+    cursor: pointer;
+    display: inline-block;
+    margin: 10px;
+    width: 120px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 20px;
+    font-weight: 900;
+}
+
+.mainBtn:hover {
+    background-color: #FFE600;
+}

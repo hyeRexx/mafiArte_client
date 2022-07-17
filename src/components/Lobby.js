@@ -1,20 +1,29 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useInRouterContext } from 'react-router-dom';
 import styled from 'styled-components';
 import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
+import axios from 'axios';
+import { setUserId } from '../store';
+import { useDispatch } from 'react-redux';
 
 const Lobby = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const btnStart = () => {
-        document.location.replace("/ingame");
+        navigate("/ingame");
         console.log("start button");
     };
     const btnMake = () => {
         console.log("make button");
     };
     const btnLogout = ()=>{
-        console.log("logout button");
+        axios.post('/api/auth/logout').finally(()=>{
+            dispatch(setUserId(""));
+            sessionStorage.removeItem('userid');
+            navigate('/');
+        });
     };
     return (
         <div id="lobby" style={{padding:"2em"}}>

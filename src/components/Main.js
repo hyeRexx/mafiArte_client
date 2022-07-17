@@ -4,18 +4,29 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import Login from './Login';
 const socket = io.connect("http://localhost:3000");
+import Join from './Join';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import style from "../css/Main.module.css"
 
 const Main = () => {
     const [login, setLogin] = useState(false);
+    const [join, setJoin] = useState(false);
+
     const flipLogin = () => {
         setLogin(!login);
     }
+    const flipJoin = () => {
+        setJoin(!join);
+    }
+
     return (
-        <div id="main">
-            <h1>메인화면임</h1>
-            <h1>메인 화면 및 소셜 로그인 들어가야함</h1>
-            <h1>로그인 완료시 로비로 이동</h1>
-            {login? <Login/> : <MainBtns flipLogin={flipLogin}/>}
+        <div className={style.Main}>
+            <img className={style.mainLogo} src='/img/mainLogo.png'></img>
+            <div className={style.mainBtns}> 
+                <MainBtns flipLogin={flipLogin} flipJoin={flipJoin}/>
+                {login ? <Login/> : null}
+                {join ? <Join/> : null}
+            </div>
         </div>
     );
 }
@@ -30,29 +41,17 @@ const MainBtns = (props) => {
     const btnLogin = () => {
         props.flipLogin();
     }
-    const hi = () => {
-        axios.get("/api/canvas/home")
-            .then((res) => {
-            console.log(res.data);
-        });
 
-        axios.get("/api/member/home").then((res) => {
-            console.log(res.data);
-        });
-
-        socket.emit("test")
+    const btnJoin = () => {
+        props.flipJoin();
     }
+    
     return (
         <>
-            <Button id="join">JOIN</Button>
-            <Button id="login" onClick={btnLogin}>LOGIN</Button>
-            <Button onClick={hi}>test</Button>
+            <button className={style.mainBtn} id="join" onClick={btnJoin}>JOIN</button>
+            <button className={style.mainBtn} id="login" onClick={btnLogin}>LOGIN</button>
         </>
     );
 }
-
-const Button = styled.button`
-    padding: 2em;
-`
 
 export default Main;
