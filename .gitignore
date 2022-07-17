@@ -24,3 +24,5 @@ yarn-error.log*
 
 # jack
 react.basic.md
+
+package-lock.json

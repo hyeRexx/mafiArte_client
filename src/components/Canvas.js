@@ -224,6 +224,7 @@ const Canvas = () => {
         socket.on("canvasTest1", (test) => {
             console.log(socket);
         });
+        // component unmount 시 event remove 하는 것 고려해볼 것 성능 개선 문제
     }, []);
 
     const canvastest = () => {
