@@ -8,6 +8,12 @@ import Lobby from './components/Lobby';
 import Main from './components/Main';
 import {RequireAuth} from './script/auth';
 
+/**
+ * Jack
+ * Login하지 않은 상태로 lobby, ingame 등으로의 접근을 막기위해
+ * RequireAuth 컴포넌트 추가함
+ */
+
 function App() {
   return (
     <div>

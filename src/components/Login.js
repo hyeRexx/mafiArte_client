@@ -10,14 +10,15 @@ import { NotRequireAuth } from '../script/auth';
 
 // Login 컴포넌트 - Jack
 const Login = () => {
-    const [id, setId] = useState("");
-    const [phId, setPhId] = useState("ID");
-    const [pw, setPw] = useState("");
-    const [phPw, setPhPw] = useState("PASSWORD");
+    const [id, setId] = useState("");               // id 입력 저장
+    const [lableId, setLableId] = useState("ID");   // id 입력칸 lable 저장
+    const [pw, setPw] = useState("");               // pw 입력 저장
+    const [lablePw, setLablePw] = useState("PASSWORD"); // pw 입력칸 lable 저장
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     
+    // 로그인 필요한 페이지로 접근해서 넘어온 경우
     const from = location.state?.from?.pathname || "/lobby";
 
     const onSubmit = (e) => {
@@ -25,14 +26,14 @@ const Login = () => {
         axios.post('/api/auth/login', {userid: id, password: pw})
             .then(async (res)=>{
                 if (res.data === 'success') {
-                    await dispatch(setUserId(id));
-                    sessionStorage.setItem('userid', id);
-                    navigate(from, { replace: true });
+                    await dispatch(setUserId(id));          // login 정보 redux에 저장
+                    sessionStorage.setItem('userid', id);   // login 정보 sessionStorage에 저장
+                    navigate(from, { replace: true });      // 접근했던 페이지 또는 로비로 이동
                 } else if (res.data === 'INVALID_ID') {
-                    setPhId('ID : 유효하지 않은 ID 입니다');
+                    setLableId('ID : 유효하지 않은 ID 입니다');
                 } else if (res.data === 'INVALID_PW') {
-                    setPhId('ID');
-                    setPhPw('PASSWORD : 유효하지 않은 PASSWORD 입니다');
+                    setLableId('ID');
+                    setLablePw('PASSWORD : 유효하지 않은 PASSWORD 입니다');
                 }
             });
     };
@@ -42,7 +43,7 @@ const Login = () => {
             <Form onSubmit={onSubmit}>
                 <FloatingLabel
                     controlId="floatingInput"
-                    label={phId}
+                    label={lableId}
                     className="mb-3"
                 >
                     <Form.Control type="userid" placeholder="ID" onChange={(e) => setId(e.target.value)} required autoFocus/>
@@ -50,7 +51,7 @@ const Login = () => {
 
                 <FloatingLabel
                     controlId="floatingPassword"
-                    label={phPw}
+                    label={lablePw}
                     className="mb-3"
                 >
                     <Form.Control type="password" placeholder="PW" onChange={(e) => setPw(e.target.value)} required/>
