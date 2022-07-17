@@ -26,13 +26,14 @@ const Join = () => {
     const [cNickname, setCNickname] = useState(false);
     const [cEmail, setCEmail] = useState(false);
 
+    // for error message
     const [eId, setEId] = useState('')
     const [ePass, setEPass] = useState('')
     const [ePassCheck, setEPassCheck] = useState('')
     const [eNickname, setENickname] = useState('')
     const [eEmail, setEEmail] = useState('')
     
-
+    // submit > post + 중복 검사
     const handleOnSubmit = async () => {
         console.log(cId, cPass, cPassCheck, cNickname, cEmail)
         if (cId && cPass && cPassCheck && cNickname && cEmail){
@@ -61,6 +62,7 @@ const Join = () => {
         }
     }
 
+    // 유효성 검사 : id, pass, passcheck(일치), nickname, 
     useEffect (() => {
         const idRegex = /^(?=.*[a-zA-Z0-9-_]).{8,16}$/
         // idRegex.test(id) ? setCId(true) : setCId(false)
