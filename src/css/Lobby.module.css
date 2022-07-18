@@ -1,0 +1,130 @@
+
+.MainLobby{
+    display: flex;
+    background-color: #888888;
+    height: 1080px;
+    width: 1920px;
+    padding: 10px;
+    gap: 5px;
+    justify-content: center;
+    margin: auto;
+}
+
+.MainLobbyHeader {
+    display: flex;
+    background-color: #000000;
+    flex-direction: column;
+    flex: 1;
+}
+
+.MainLobbyContent {
+    display: flex;
+    background-color: #92264c;
+    flex: 2.5;
+    flex-direction: column;
+}
+
+.MainLobbyTap {
+    flex: 1;
+    display: flex;
+    background-color: #202020;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.MainLobbyTapContents {
+    flex: 5;
+    background-color: #ffffff;
+}
+
+.HeaderLogo {
+    background: #020202;
+    flex: 2;
+    object-fit: cover;
+    width: 550px;
+    height: 150px;
+    margin: auto;
+
+}
+
+.test {
+    width: 300;
+    height: 250;
+}
+
+.HeaderImage {
+    background: #2e2e2e;
+    flex: 1.8;
+    border: 10px solid rgb(32, 32, 32);
+}
+
+.Headername {
+    background: #000000;
+    flex: 0.5;
+    color: #ffffff;
+    font-size:50px;
+    text-align: center;
+}
+
+.HeaderIngameButton {
+    display: flex;
+    background: #5b5a5b;
+    flex: 1.9;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.TapButton {
+    padding: 1rem;
+    margin: 1rem;
+    border: 1px solid black;
+    height: fit-content;
+}
+
+.IngameButton {
+    padding: 1rem;
+    border: 1px solid black;
+    width: fit-content;
+    margin: 1rem;
+}
+
+.flexboxRow{
+    display: flex;
+    background-color: #ffecb3;
+    flex-direction: column;
+}
+
+.flexcontainer > div{
+  background: #ffecb3;
+  border: 3px solid #ffcc80;
+  border-radius: 5px;
+  padding: 8px;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Amatic+SC');
+
+body {
+  margin: 0;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.button_container {
+  position: relative;
+  left: 0;
+  right: 0;
+  top: 30%;
+}
+
+.description, .link {
+  font-family: 'Amatic SC', cursive;
+  text-align: center;
+}
+
+.description {
+  font-size: 35px;
+}
+
