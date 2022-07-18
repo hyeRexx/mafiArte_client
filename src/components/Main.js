@@ -1,9 +1,7 @@
 import {React, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import io from 'socket.io-client';
 import axios from 'axios';
 import Login from './Login';
-const socket = io.connect("http://localhost:3000");
 import Join from './Join';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import style from "../css/Main.module.css"
@@ -23,7 +21,7 @@ const Main = () => {
         <div className={style.Main}>
             <img className={style.mainLogo} src='/img/mainLogo.png'></img>
             <div className={style.mainBtns}> 
-                <MainBtns flipLogin={flipLogin} flipJoin={flipJoin}/>
+                {login ? <></> : <MainBtns flipLogin={flipLogin} flipJoin={flipJoin}/>}
                 {login ? <Login/> : null}
                 {join ? <Join/> : null}
             </div>
@@ -32,11 +30,11 @@ const Main = () => {
 }
 
 const MainBtns = (props) => {
-    useEffect(() => {
-        socket.on("test", (test) => {
-            console.log(test);
-        });
-    }, []);
+    // useEffect(() => {
+    //     socket.on("test", (test) => {
+    //         console.log(test);
+    //     });
+    // }, []);
 
     const btnLogin = () => {
         props.flipLogin();

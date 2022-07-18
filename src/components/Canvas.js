@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import style from '../css/Canvas.module.css'
 import io from 'socket.io-client';
-const socket = io.connect("http://localhost:3000");
+// const socket = io.connect("http://localhost:3000");
+import {socket} from '../script/socket';
 
 
 const Canvas = () => {

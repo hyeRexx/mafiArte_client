@@ -1,19 +1,24 @@
-import React from 'react';
-import { Routes, Route, Link, useNavigate, useInRouterContext } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
 import { setUserId } from '../store';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import connectSocket, {socket} from '../script/socket';
 
 const Lobby = () => {
+    useEffect( ()=> {
+        if (!socket) connectSocket();
+    }, []);
+
+    const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const btnStart = () => {
-        navigate("/ingame");
-        console.log("start button");
+        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
     };
     const btnMake = () => {
         console.log("make button");
@@ -25,6 +30,7 @@ const Lobby = () => {
             navigate('/');
         });
     };
+    
     return (
         <div id="lobby" style={{padding:"2em"}}>
             여기는 로비
