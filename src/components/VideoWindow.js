@@ -165,7 +165,7 @@ const VideoWindow = () => {
                 // const h3 = room.querySelector("h3");
                 // h3.innerText = `Room ${roomName} (${newCount})`;
                 const timer = (timeDelay) => new Promise((resolve) => setTimeout(resolve, timeDelay)); // debugging - 지금은 
-                await timer(500);
+                await timer(1000);
                 const offer = await makeConnection(newbieID, newbieSocket);
                 socket.emit("offer", offer, socket.id, newbieSocket, myId); // 일단 바로 연결. 추후 게임 start시 (or ready버튼 클릭시) offer주고받도록 바꾸면 좋을듯
                 // addMessage(`${user} arrived!`);

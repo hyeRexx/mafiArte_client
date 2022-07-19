@@ -22,7 +22,9 @@ const Lobby = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const btnStart = () => {
-        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
+        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{
+            console.log(`로비에서 ${roomNumber}`);
+            navigate(`/ingame/${roomNumber}`);});
     };
     const btnMake = () => {
         console.log("make button");

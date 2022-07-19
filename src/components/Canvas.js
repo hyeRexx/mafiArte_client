@@ -4,12 +4,12 @@ import {socket} from '../script/socket';
 import {Whiteboard} from '../script/whiteboard'
 
 let whiteboard;
-const Canvas = ({roomName}) => {
-
+const Canvas = ({roomId}) => {
     const canvasElement = useRef();
 
     useEffect(() => {
-        whiteboard = new Whiteboard(canvasElement.current, socket, roomName);
+        // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
+        whiteboard = new Whiteboard(canvasElement.current, socket, Number(roomId));
         console.log("test");
         socket.on("canvasTest1", (test) => {
             console.log(socket);
