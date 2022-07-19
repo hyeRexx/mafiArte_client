@@ -7,66 +7,7 @@ const socket = io.connect("http://localhost:3000");
 
 
 
-const Chat = (props) => {
-
-    // props로 전달 받은 roomName
-    let roomName = props.roomName;
-
-    // 나중에 nickname 전송해주는 곳
-    // function handleNicknameSubmit(event) {
-    //     event.preventDefault();
-    //     const input = welcome.querySelector("#name input");
-    //     const value = input.value;
-    //     socket.emit("nickname", value);
-    //     input.value = ""; // aSync
-    // }
-
-    // 임의의 닉네임 전송
-    socket.emit("nickname", '닉넴');
-
-    async function handleRoomName(event) {
-        // event.preventDefault();
-        // js object를 보낼 수 있음 (msg 아님!), emit의 마지막 argument가 function일때 : back button어쩌구
-
-        // 나중에 roomName 지정해줘야 할 곳
-        // const input = welcome.querySelector("#roomname input");
-
-        // await initCall();
-
-        // 나중에 roomName 지정해줘야 할 곳
-        // socket.emit("enter_room", input.value, socket.id, showRoom); 
-        socket.emit("enter_room", roomName, socket.id, showRoom); 
-   
-    }
-    
-    function showRoom() {
-        // welcome.hidden = true;
-        // room.hidden = false;
-        // header.hidden = true;
-        // camerasSelect.hidden = true;
-        // muteBtn.hidden = true;
-    
-        // container.hidden = false;
-        // canvas add 
-        // const socket = io();
-        // const canvas = document.getElementById('myCanvas');
-    
-        // const canvas = document.createElement("canvas");
-        // canvas.setAttribute("id", "myCanvas");
-        // canvas.setAttribute("style", 'background: #ddd;');
-        // container.appendChild(canvas);
-        // const whiteboard = new Whiteboard(canvas, socket, roomName);
-        // socket.emit("newCanvas", whiteboard);
-        // whiteboard.addEventListener("click", handleDrawing);
-        // console.log("__debug", whiteboard);
-    
-        const h3 = room.querySelector("h3");
-        h3.innerText = `Room ${roomName}`;
-        
-        const msgform = room.querySelector("#msg");
-        msgform.addEventListener("submit", handleMessageSubmit);
-    
-    }
+const Chat = ({roomName}) => {
 
     socket.on("new_message", addMessage);
 
@@ -94,6 +35,7 @@ const Chat = (props) => {
         }
 
         socket.emit("new_message", value, roomName, () => {
+            console.log(`RoomName1 : ${roomName}`);
             addMessage(`You : ${value}`);
         });
         input.value = ""; // aSync
@@ -107,7 +49,8 @@ const Chat = (props) => {
     }
 
     useEffect(()=> {
-        handleRoomName();
+        const msgform = room.querySelector("#msg");
+        msgform.addEventListener("submit", handleMessageSubmit);
     },[]);
 
     return (
