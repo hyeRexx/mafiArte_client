@@ -17,7 +17,7 @@ import {RequireAuth} from './script/auth';
 
 function App() {
   return (
-    <div>
+    <div style={{margin: "2em"}}>
       <Routes>
         <Route path="/" element={<Main />}/>
         <Route path="lobby/*" element={
@@ -25,7 +25,7 @@ function App() {
             <Lobby />
           </RequireAuth>
         }/>
-        <Route path="ingame" element={
+        <Route path="ingame/:roomName" element={
         <RequireAuth>
           <Ingame />
         </RequireAuth>
