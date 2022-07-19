@@ -1,12 +1,8 @@
 import React from 'react';
 import Canvas from './Canvas';
 import Video from './Video';
-import Videotest from './videotest';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-// import Nav from 'react-bootstrap/Nav';
-// import Navbar from 'react-bootstrap/Navbar';
-// import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -54,8 +50,6 @@ const Ingame = () => {
                     <Chat roomName={2}/>
                 </div> 
             </div>
-            {/* <Videotest/> */}
-            {/* <Chat className={style.chat} roomName={2}/> */}
         </div>
     );
 }
