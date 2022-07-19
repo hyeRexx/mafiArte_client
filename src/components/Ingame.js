@@ -15,13 +15,16 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
 
-const Ingame = () => {
-    const { roomNumber } = useParams();
+const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
+    console.log(roomId);
+
     const myId = useSelector(state => state.user.id);
     useEffect(()=>{
     //socket event name 변경 필요
-        socket.emit("enterRoom", myId, socket.id, roomNumber, ()=>{
+        console.log(roomId);
+        socket.emit("enterRoom", myId, socket.id, 0, ()=>{
+            console.log(roomId);
             setRoomEntered(true);
         });
     },[]);
@@ -35,6 +38,7 @@ const Ingame = () => {
                 function () {
                     return (
                         <div className={style.flexBox}>
+                            <p>룸넘버 {roomId}</p>
                             <div className={style.item1}>
                                 <VideoWindow />
                             </div>
@@ -62,11 +66,11 @@ const Ingame = () => {
                                 </div>
                                 <div className={style.canvaschat}>
                                     <div className={style.canvas}>
-                                        <Canvas roomName={roomNumber}/>
+                                        <Canvas roomId={roomId}/>
                                     </div>
                                 </div>
                                 <div className={style.chat}>
-                                    <Chat roomName={roomNumber}/>
+                                    <Chat roomId={roomId}/>
                                 </div>
                             </div>
                         </div>

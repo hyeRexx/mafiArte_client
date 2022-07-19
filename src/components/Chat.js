@@ -1,15 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-// import style from '../css/Chat.module.css'
-import io from 'socket.io-client';
-import Card from 'react-bootstrap/Card';
 import style from "../css/Chat.module.css"
-const socket = io.connect("http://localhost:3000");
+import {socket} from '../script/socket';
 
-
-
-const Chat = ({roomName}) => {
-
-    socket.on("new_message", addMessage);
+const Chat = ({roomId}) => {
 
     function handleMessageSubmit(event) {
         event.preventDefault();
@@ -34,8 +27,9 @@ const Chat = ({roomName}) => {
             }
         }
 
-        socket.emit("new_message", value, roomName, () => {
-            console.log(`RoomName1 : ${roomName}`);
+        // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
+        socket.emit("new_message", value, Number(roomId), () => {
+            console.log(`RoomName1 : ${roomId}`);
             addMessage(`You : ${value}`);
         });
         input.value = ""; // aSync
@@ -51,6 +45,7 @@ const Chat = ({roomName}) => {
     useEffect(()=> {
         const msgform = room.querySelector("#msg");
         msgform.addEventListener("submit", handleMessageSubmit);
+        socket.on("new_message", addMessage);
     },[]);
 
     return (
@@ -59,10 +54,6 @@ const Chat = ({roomName}) => {
             <div className={style.chat}>
                 <h3 style={{ color: "black" }}></h3>
                 <ul style={{ color: "black" }}> </ul>
-                {/* <form id="msg">
-                    <input placeholder="message" required type="text" />
-                    <button onClick={handleMessageSubmit}>Send</button>
-                </form> */}
             </div>
             <form id="msg">
                 <input placeholder="message" required type="text" style={{"width":"1320px"}} />

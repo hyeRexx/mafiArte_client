@@ -21,14 +21,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />}/>
         <Route path="lobby/*" element={
-          <RequireAuth>
-            <Lobby />
-          </RequireAuth>
+          <RequireAuth Component={Lobby} />
         }/>
-        <Route path="ingame/:roomName" element={
-        <RequireAuth>
-          <Ingame />
-        </RequireAuth>
+        <Route path="/ingame/:roomId" element={
+          <RequireAuth Component={Ingame} />
         }/>
         <Route path="*" element={
           <main style={{ padding: "1rem"}}>
