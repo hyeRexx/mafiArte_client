@@ -1,6 +1,80 @@
 
 .myCanvas {
-    width: 800px; 
-    height: 600px;
+    /* width: 800px; 
+    height: 600px; */
+    width: 1300px; 
+    height: 740px;
     background: #ddd;
+}
+
+.item2 { 
+    /* flex:2 1 auto; */
+    display: flex;
+    flex-grow:2;
+    /* flex-direction: column; */
+  }
+	
+.canvas {
+    flex:0.4;
+}
+
+.draw {
+    background-color: white;
+    width:100%;
+    height:740px;
+}
+
+.colorButtons1 {
+    background-color: #d93434;
+}
+
+.colorButtons2 {
+    background-color: #48abe0;
+}
+
+.colorButtons3 {
+    background-color: #f0e73a;
+}
+
+.colorButtons4 {
+    background-color: #9bf03a;
+}
+
+.colorButtons5 {
+    background-color: #ff7f00;
+}
+
+.colorButtons6 {
+    background-color: #a243ff;
+}
+
+.colorButtons7 {
+    background-color: #000000;
+}
+
+.colorButtons8 {
+    background-color: #ffffff;
+}
+
+.draw button:active {
+    background-color: #48abe0;
+    box-shadow: 0 0 2px darkslategray;
+    transform: translateY(2px);
+}
+
+.draw button {
+    color: white;
+    border: none;
+    padding: 5px;
+    font-size: 31px;
+    height: 80px;
+    width: 80px;
+    box-shadow: 0 2px 4px darkslategray;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 70%;
+}
+
+.draw button:not(:first-child) {
+    margin-top: 10px;
 }
