@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
-const socket = io.connect("http://localhost:3000");
-
+// const socket = io.connect("http://localhost:3000"); // props로 socket받아옴
+import {socket} from '../script/socket';
 
 const Videotest = () => {
 
@@ -55,14 +55,7 @@ const Videotest = () => {
      initCall();
     }, [])
 
-  return (
-      <div>
-        비디오테스트할곳
-        <video ref={myvideo} autoPlay playsInline width="400px" height="250px">
-
-        </video>
-      </div>
-  );
+  return <video ref={myvideo} autoPlay playsInline width="400px" height="250px" />
 };
 
 export default Videotest;

@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Canvas from './Canvas';
+import VideoWindow from './VideoWindow';
+import connectSocket, {socket} from '../script/socket';
 import Video from './Video';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
@@ -10,11 +14,32 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
+
 const Ingame = () => {
+    const { roomNumber } = useParams();
+    const [ roomEntered, setRoomEntered ] = useState(false);
+    const myId = useSelector(state => state.user.id);
+    useEffect(()=>{
+    //socket event name 변경 필요
+        socket.emit("enterRoom", myId, socket.id, roomNumber, ()=>{
+            setRoomEntered(true);
+        });
+    },[]);
+
     return (
+
+        <div>
+            {
+            // 서버쪽에서 접속확인하고 처리
+            roomEntered?
+             <VideoWindow/> 
+             : null
+             }
+
+//분기
         <div className={style.flexBox}>
             <div className={style.item1}>
-                <Video/>
+                <VideoWindow/> 
             </div>
             <div className={style.item2}>
                 <div>

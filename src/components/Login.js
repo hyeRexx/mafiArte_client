@@ -45,6 +45,7 @@ const Login = () => {
                     controlId="floatingInput"
                     label={lableId}
                     className="mb-3"
+                    style={{width: "500px", margin: "auto"}}
                 >
                     <Form.Control type="userid" placeholder="ID" onChange={(e) => setId(e.target.value)} required autoFocus/>
                 </FloatingLabel>
@@ -53,6 +54,7 @@ const Login = () => {
                     controlId="floatingPassword"
                     label={lablePw}
                     className="mb-3"
+                    style={{width: "500px", margin: "auto"}}
                 >
                     <Form.Control type="password" placeholder="PW" onChange={(e) => setPw(e.target.value)} required/>
                 </FloatingLabel>
