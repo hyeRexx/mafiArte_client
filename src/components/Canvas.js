@@ -1,12 +1,70 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import style from '../css/Canvas.module.css'
 import io from 'socket.io-client';
 // const socket = io.connect("http://localhost:3000");
 import {socket} from '../script/socket';
 
+let whiteboard;
+const Canvas = (props) => {
 
-const Canvas = () => {
+    // props로 전달 받은 roomName
+    let roomName = props.roomName;
 
+    // 나중에 nickname 전송해주는 곳
+    // function handleNicknameSubmit(event) {
+    //     event.preventDefault();
+    //     const input = welcome.querySelector("#name input");
+    //     const value = input.value;
+    //     socket.emit("nickname", value);
+    //     input.value = ""; // aSync
+    // }
+
+    // 임의의 닉네임 전송
+    socket.emit("nickname", '닉넴');
+
+    async function handleRoomName(event) {
+        // event.preventDefault();
+        // js object를 보낼 수 있음 (msg 아님!), emit의 마지막 argument가 function일때 : back button어쩌구
+
+        // 나중에 roomName 지정해줘야 할 곳
+        // const input = welcome.querySelector("#roomname input");
+
+        // await initCall();
+
+        // 나중에 roomName 지정해줘야 할 곳
+        // socket.emit("enter_room", input.value, socket.id, showRoom); 
+        socket.emit("enter_room", roomName, socket.id, showRoom); 
+
+    }
+
+    function showRoom() {
+      // welcome.hidden = true;
+      // room.hidden = false;
+      // header.hidden = true;
+      // camerasSelect.hidden = true;
+      // muteBtn.hidden = true;
+  
+      // container.hidden = false;
+      // canvas add 
+      // const socket = io();
+      // const canvas = document.getElementById('myCanvas');
+  
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("id", "myCanvas");
+      canvas.setAttribute("style", 'background: #ddd;');
+      // container.appendChild(canvas);
+      // const whiteboard = new Whiteboard(canvas, socket, roomName);
+      // socket.emit("newCanvas", whiteboard);
+      // whiteboard.addEventListener("click", handleDrawing);
+      // console.log("__debug", whiteboard);
+  
+      // const h3 = room.querySelector("h3");
+      // h3.innerText = `Room ${roomName}`;
+      
+      // const msgform = room.querySelector("#msg");
+      // msgform.addEventListener("submit", handleMessageSubmit);
+  
+  }
 
     class Whiteboard {
         /**
@@ -110,13 +168,16 @@ const Canvas = () => {
                 color,
                 thickness,
             }
+
+            // data.color = '#6b6cc2';
+            data.thickness = 6;
     
             // Emit drawing data to other people
             socket.emit(socketEvents.DRAW, data);
     
             // const { ctx } = this;
             
-            // ctx.beginPath();
+            // ctx.beginPath();+
             // ctx.strokeStyle = color;
             // ctx.lineWidth = thickness;
             // ctx.moveTo(x, y);
@@ -220,7 +281,8 @@ const Canvas = () => {
     const canvasElement = useRef();
 
     useEffect(() => {
-        const WhiteBoard = new Whiteboard(canvasElement.current, socket, "adsfwef");
+        handleRoomName();
+        whiteboard = new Whiteboard(canvasElement.current, socket, roomName);
         console.log("test");
         socket.on("canvasTest1", (test) => {
             console.log(socket);
@@ -228,19 +290,38 @@ const Canvas = () => {
         // component unmount 시 event remove 하는 것 고려해볼 것 성능 개선 문제
     }, []);
 
-    const canvastest = () => {
-        socket.emit("canvasTest")
-    }
+    // 색 변경 useStatte
+    let [pickColor, colorChange] = useState('#4d4d4d');
+    
+    // 색 변경 함수
+    useEffect(() => {
+      console.log(pickColor);
+      console.log(whiteboard);
+      whiteboard.color = pickColor;
+    }, [pickColor]);
     
     return (
-        <div>
-            캔버스 들어갈 곳
-            <canvas ref={canvasElement} className={`${style.myCanvas}`}>
-            </canvas>
-
-            <button onClick={canvastest}>test</button>
-
-        </div>
+        <>
+          <div className={style.item2}>
+            <div className={style.canvas}>
+              <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{"background":"#fff"}}>
+              </canvas>
+            </div>
+            <div className={style.draw}>
+              <div className={style.buttons}>
+                <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
+                <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
+                <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
+                <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
+                <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
+                <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
+                <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
+                <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
+                {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}
+              </div>
+            </div>
+          </div>
+        </>
     );
 };
 

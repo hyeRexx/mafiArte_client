@@ -1,0 +1,43 @@
+  .flexBox {
+    justify-content: center;     
+    align-content: center;
+    height: 1080px;
+    width: 1920px; 
+    display: flex;
+    background-color: black;
+    padding: 15px;
+    gap: 5px;
+
+  }
+
+  .item1 { 
+    /* flex:1 1 auto; */
+    flex-grow: 0.1;
+    /* background-color: yellow; */
+  }
+			
+  .item2 { 
+    /* flex:2 1 auto; */
+    display: flex;
+    flex-grow:2;
+    flex-direction: column;
+  }
+			
+.canvas {
+    flex:0.4;
+}
+  
+.chat {
+    flex: 0;
+}
+  
+/* .canvaschat {
+    display:flex;
+    flex-direction: row;
+} */
+
+/* .draw {
+    background-color: yellow;
+    width:100%;
+} */
+

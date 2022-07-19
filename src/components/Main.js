@@ -30,11 +30,7 @@ const Main = () => {
 }
 
 const MainBtns = (props) => {
-    // useEffect(() => {
-    //     socket.on("test", (test) => {
-    //         console.log(test);
-    //     });
-    // }, []);
+
 
     const btnLogin = () => {
         props.flipLogin();
