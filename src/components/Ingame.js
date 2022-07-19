@@ -29,8 +29,7 @@ const Ingame = () => {
                             <Nav
                                 className="me-auto my-2 my-lg-0"
                                 style={{ maxHeight: '100px' }}
-                                navbarScroll
-                            >
+                                navbarScroll>
                                 <Nav.Link href="#action1">INVITATION</Nav.Link>
                                 <Nav.Link href="#action2">REPORT</Nav.Link>
                                 <Nav.Link href="#action3">SETTING</Nav.Link>
