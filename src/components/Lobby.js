@@ -21,14 +21,26 @@ const Lobby = () => {
     const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
     const btnStart = () => {
-        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{
-            console.log(`로비에서 ${roomNumber}`);
-            navigate(`/ingame/${roomNumber}`);});
+        // socket && socket.emit("checkEnterableRoom", (roomId)=>{
+        //     console.log(`로비에서 ${roomId}`);
+        //     navigate(`/ingame/${roomId}`);});
+        
+        /*** gamemode hyeRexx ***/
+        socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
+            console.log("__debug : get this game id? :", thisGameId);
+            navigate(`/ingame/${thisGameId}`);
+        });
     };
+
     const btnMake = () => {
-        console.log("make button");
+        const gameId = Date.now();
+        socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
+            navigate(`/ingame/${thisGameId}`);
+        });
     };
+
     const btnLogout = ()=>{
         axios.post('/api/auth/logout').finally(()=>{
             dispatch(setUserId(""));
@@ -48,53 +60,47 @@ const Lobby = () => {
     let [imgURL, imgURLstate] = useState("");
     
     useEffect(() => {
-        // userinfo 저장을 위한 우회용 api 요청
-        axios.get('api/lobby/userinfo')
-        .then((result)=>{ 
-        console.log(result.data)
-        })
-        .catch((e)=>{
-            console.log(e)
-        })
-        .then(()=> {
+        connectSocket().then(()=>{
+            // userinfo 에 socket 저장을 위한 emit
             socket.emit("userinfo", id);
-        })
+        });
         // profile 이미지 정보
-        axios.get('api/lobby/userimg')
+        axios.get('api/lobby/profile_img')
         .then(res => { 
-            img = res.data[0][0].profile_img;
+            img = res.data.profile_img;
             imgURLstate("/img/" + img)
         })
         .catch(()=>{
             console.log('실패함')
         })
-
     }, [])
 
 
     return (
-        <div id="lobby" style={{padding:"2em"}}>
+        <div id="lobby" style={{padding:"0em"}}>
             여기는 로비
             
-            <div className={style.MainLobby}>
+            <div className={style.mainLobby}>
  
-                <div className={style.MainLobbyHeader}>
+                <div className={style.lobbyleft}>
+                    <div className={style.profileSection}>
+                        <img className={style.lobbyLogo} src='/img/smallLogo.png'>
+                        </img>
+                        <div className={style.prifileImg}>
+                            {/* imgURL 갈아야 함 */}
+                            {/* <img src='/img/AudreyHepburnToyFace.jpg' className={style.test}> */}
+                        {/* </img> */}
+                        </div>
 
-                    <img className={style.HeaderLogo} src='/img/mainLogo.png'>
-                    </img>
-                    <div className={style.HeaderImage}>
-                    <img src={imgURL} className={style.test}>
-                    </img>
+                        <div className={style.nickname}>
+                            해인이
+                        </div>
                     </div>
 
-                    <div className={style.Headername}>
-                        해인이
-                    </div>
+                    <div className={style.lobbyGameBtns}>
 
-                    <div className={style.HeaderIngameButton}>
-
-                        <button className={style.IngameButton} onClick={btnStart}><span>Start</span></button>
-                        <button className={style.IngameButton} onClick={btnMake}><span>Make a game</span></button>
+                        <button className={`${style.GameBtn} ${style.startBtn}`} onClick={btnStart}><span>GAME START</span></button>
+                        <button className={`${style.GameBtn} ${style.makeBtn}`} onClick={btnMake}><span>MAKE A GAME</span></button>
 
                     </div>
 
@@ -107,15 +113,15 @@ const Lobby = () => {
                         <button id="citizen" className={style.TapButton} onClick={() => {tapChange(1)}}>CITIZEN</button>
                         <button id="citizen" className={style.TapButton} onClick={() => {tapChange(2)}}>Setting</button> */}
                         <Link to="/lobby/">
-                        <button id="rank">RANKING</button>
+                        <button className={style.utilityBtn} id="rank">RANKING</button>
                         </Link>
                         <Link to="/lobby/citizen">
-                        <button id="citizen">CITIZEN</button>
+                        <button className={style.utilityBtn} iid="citizen">CITIZEN</button>
                         </Link>
                         <Link to="/lobby/setting">
-                        <button id="setting">SETTING</button>
+                        <button className={style.utilityBtn} iid="setting">SETTING</button>
                         </Link>
-                        <button id="logout" onClick={btnLogout}>LOGOUT</button>
+                        <button className={style.utilityBtn} iid="logout" onClick={btnLogout}>LOGOUT</button>
                     
                     </div>
 
