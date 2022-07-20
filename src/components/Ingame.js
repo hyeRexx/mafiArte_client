@@ -13,21 +13,21 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import axios from 'axios';
 
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
     console.log(roomId);
-
+    let friendlist;
     const myId = useSelector(state => state.user.id);
     useEffect(()=>{
-    //socket event name 변경 필요
-        console.log(roomId);
-        socket.emit("enterRoom", myId, socket.id, 0, ()=>{
-            console.log(roomId);
-            setRoomEntered(true);
-        });
-    },[]);
+        //socket event name 변경 필요
+            socket.emit("enterRoom", myId, socket.id, Number(roomId), ()=>{
+                setRoomEntered(true);
+            });
+    
+        },[]);
 
     return (
 

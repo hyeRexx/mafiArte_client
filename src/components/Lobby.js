@@ -5,7 +5,7 @@ import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
-import { setUserId } from '../store';
+import { setUserId, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
 import io from 'socket.io-client';
@@ -14,10 +14,8 @@ import { Container } from 'react-bootstrap';
 
 
 const Lobby = () => {
-    useEffect( ()=> {
-        if (!socket) connectSocket();
-    }, []);
 
+    
     const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -31,34 +29,35 @@ const Lobby = () => {
     };
     const btnLogout = ()=>{
         axios.post('/api/auth/logout').finally(()=>{
+            socket.emit('loginoutAlert', myId, 0);
             dispatch(setUserId(""));
+            dispatch(FriendInfoReset(""));
+            socket = 0;
             sessionStorage.removeItem('userid');
             navigate('/');
         });
     };
 
-    let [tap, tapChange] = useState(0);
-
- 
-
-    const userid = useSelector((user) => user.user)
-    const id = userid.id;
 
     let img = "";
     let [imgURL, imgURLstate] = useState("");
+
+    // const test = useSelector((FriendInfo) => FriendInfo.FriendInfo);
+
+    // console.log('리덕스 친구리스트', test);
     
     useEffect(() => {
-        // userinfo 저장을 위한 우회용 api 요청
-        axios.get('api/lobby/userinfo')
-        .then((result)=>{ 
-        console.log(result.data)
+        
+        !socket && connectSocket().then(() => {
+            socket.on("friendList", (userid, status) => {
+                console.log("friend수정확인",userid, status)
+                dispatch(FriendInfoChange([userid, status]));
+            })
+            socket.emit("userinfo", myId);
+            socket.emit('loginoutAlert', myId, 1);
+            console.log('login 변경사항 확인')
         })
-        .catch((e)=>{
-            console.log(e)
-        })
-        .then(()=> {
-            socket.emit("userinfo", id);
-        })
+        
         // profile 이미지 정보
         axios.get('api/lobby/userimg')
         .then(res => { 
@@ -69,6 +68,25 @@ const Lobby = () => {
             console.log('실패함')
         })
 
+        axios.post('/api/lobby/friendinfo', {userid: myId})
+            .then((res) => {
+                let FriList = res.data[0]; // user의 전체 친구 목록
+                let onlineList = res.data[1]; // 현재 접속중인 user 목록
+                console.log('onlinelist', onlineList);
+                onlineList = { testid : 1,  jack: 1}; // 임시 접속 user 목록
+                for (var i = 0; i < Object.keys(FriList).length; i++){
+                    let key = FriList[i].userid;
+                    if (!onlineList[key]){
+                        dispatch(FriendInfoSet([key, 0]))
+                    } else {
+                        dispatch(FriendInfoSet([key, 1]))
+                    }
+                }
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+        
     }, [])
 
 
