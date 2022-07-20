@@ -56,7 +56,7 @@ const Lobby = () => {
             
             //const gameId = Date.now();
             //socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
-            navigate(`/ingame/${thisGameId}`);
+            // navigate(`/ingame/${thisGameId}`);
         });
     };
 
@@ -78,34 +78,6 @@ const Lobby = () => {
     let [newRoomId, roomidstate] = useState(0);
     let [sender, senderstate] = useState("");
 
-    useEffect(() => {
-
-        !socket && connectSocket().then(()=>{
-        
-            socket.on("friendList", (userid, status) => {
-                console.log("friend수정확인",userid, status)
-                dispatch(FriendInfoChange([userid, status]));
-            })
-            socket.emit("userinfo", myId);
-            socket.emit('loginoutAlert', myId, 1);
-            console.log('login 변경사항 확인')
-            
-            socket.on("getinvite", (roomId, myId)=> {
-                console.log('초대장을 받았습니다!');
-                
-                roomidstate(roomId);
-                senderstate(myId);
-
-                // 모달창 띄워주기
-                invitestate(true);
-
-                // "초대 수락" 시 해당 roomId의 방으로 이동시키기
-            });
-        });
-
-    let img = "";
-    let [imgURL, imgURLstate] = useState("");
-
     // const test = useSelector((FriendInfo) => FriendInfo.FriendInfo);
 
     // console.log('리덕스 친구리스트', test);
@@ -118,7 +90,20 @@ const Lobby = () => {
             })
             socket.emit("userinfo", myId);
             socket.emit('loginoutAlert', myId, 1);
-            console.log('login 변경사항 확인')
+            console.log('login 변경사항 확인');
+
+            socket.on("getinvite", (roomId, myId)=> {
+                console.log('초대장을 받았습니다!');
+                
+                roomidstate(roomId);
+                senderstate(myId);
+
+                // 모달창 띄워주기
+                invitestate(true);
+
+                // "초대 수락" 시 해당 roomId의 방으로 이동시키기
+            });
+
         })
         
         // profile 이미지 정보
@@ -171,7 +156,7 @@ const Lobby = () => {
                         </div>
 
                         <div className={style.nickname}>
-                            {id}
+                            {myId}
                         </div>
                     </div>
 
@@ -195,12 +180,12 @@ const Lobby = () => {
                         <button className={style.utilityBtn} id="rank">RANKING</button>
                         </Link>
                         <Link to="/lobby/citizen">
-                        <button className={style.utilityBtn} iid="citizen">CITIZEN</button>
+                        <button className={style.utilityBtn} id="citizen">CITIZEN</button>
                         </Link>
                         <Link to="/lobby/setting">
-                        <button className={style.utilityBtn} iid="setting">SETTING</button>
+                        <button className={style.utilityBtn} id="setting">SETTING</button>
                         </Link>
-                        <button className={style.utilityBtn} iid="logout" onClick={btnLogout}>LOGOUT</button>
+                        <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
                     
                     </div>
 
@@ -220,8 +205,8 @@ const Lobby = () => {
         </div>
         </>
     );
+ 
 }
-
 
 function InviteModal(props){
     const navigate = useNavigate();
@@ -244,6 +229,6 @@ function InviteModal(props){
         </Modal.Dialog>
     </>
     )
-  }
+};
 
 export default Lobby;
