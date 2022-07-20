@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { paddr, reqHeaders } from '../proxyAddr';
 import Table from 'react-bootstrap/Table';
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -154,8 +155,8 @@ const VideoWindow = () => {
     useEffect( ()=> {
         const initialize = async () => {
             peerConnections[myId] = {vIdx: 1};
-            axios.get('/api/ingame/video').then(res => {
-                const img = res.data[0][0].profile_img;       // 파일명.png 받아옴
+            axios.get(`${paddr}api/ingame/profile_img`, reqHeaders).then(res => {
+                const img = res.data.profile_img;       // 파일명.png 받아옴
                 imgURLstate("/img/" + img);             // imgURL state 변경
             });
             await initCall();
@@ -165,7 +166,7 @@ const VideoWindow = () => {
                 // const h3 = room.querySelector("h3");
                 // h3.innerText = `Room ${roomName} (${newCount})`;
                 const timer = (timeDelay) => new Promise((resolve) => setTimeout(resolve, timeDelay)); // debugging - 지금은 
-                await timer(1000);
+                await timer(300);
                 const offer = await makeConnection(newbieID, newbieSocket);
                 socket.emit("offer", offer, socket.id, newbieSocket, myId); // 일단 바로 연결. 추후 게임 start시 (or ready버튼 클릭시) offer주고받도록 바꾸면 좋을듯
                 // addMessage(`${user} arrived!`);
@@ -226,6 +227,11 @@ const VideoWindow = () => {
                 track.stop();
             });
             socket.emit('exit');
+            socket.off("welcome");
+            socket.off("offer");
+            socket.off("answer");
+            socket.off("ice");
+            socket.off("roomExit");
         };
     }, []);
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Link, useNavigate, useInRouterContext } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
+import { paddr, reqHeaders } from '../proxyAddr';
 import { setUserId, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
@@ -14,7 +15,6 @@ import style from '../css/Lobby.module.css'
 
 const Lobby = () => {
 
-    
     const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -22,8 +22,9 @@ const Lobby = () => {
 
     // START 버튼 - 랜덤 매칭 
     const btnStart = () => {
+        // socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
         /*** gamemode hyeRexx ***/
-        socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
+        socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
             navigate(`/ingame/${thisGameId}`);
         });
@@ -60,7 +61,8 @@ const Lobby = () => {
     };
 
     const btnLogout = ()=>{
-        axios.post('/api/auth/logout').finally(()=>{
+    
+        axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             dispatch(setUserId(""));
             // dispatch(FriendInfoReset(""));
@@ -120,7 +122,7 @@ const Lobby = () => {
         })
         
         // profile 이미지 정보
-        axios.get('api/lobby/profile_img')
+        axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
         .then(res => { 
             img = res.data.profile_img;
             imgURLstate("/img/" + img)
