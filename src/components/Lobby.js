@@ -31,8 +31,8 @@ const Lobby = () => {
         axios.post('/api/auth/logout').finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             dispatch(setUserId(""));
-            dispatch(FriendInfoReset(""));
-            socket = 0;
+            // dispatch(FriendInfoReset(""));
+            // socket.close();
             sessionStorage.removeItem('userid');
             navigate('/');
         });
@@ -47,6 +47,8 @@ const Lobby = () => {
     // console.log('리덕스 친구리스트', test);
     
     useEffect(() => {
+
+        // console.log("useeffect:", socket);
         
         !socket && connectSocket().then(() => {
             socket.on("friendList", (userid, status) => {
