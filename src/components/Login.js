@@ -4,6 +4,7 @@ import { Button, Form, FloatingLabel } from 'react-bootstrap';
 // import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { paddr, reqHeaders } from '../proxyAddr';
 import { setUserId } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { NotRequireAuth } from '../script/auth';
@@ -20,13 +21,15 @@ const Login = () => {
     
     // 로그인 필요한 페이지로 접근해서 넘어온 경우
     const from = location.state?.from?.pathname || "/lobby";
-
+    
     const onSubmit = (e) => {
         e.preventDefault();
-        axios.post('/api/auth/login', {userid: id, password: pw})
-            .then(async (res)=>{
+        axios.post(`${paddr}api/auth/login`, {userid: id, password: pw}, reqHeaders)
+            .then( (res)=>{
                 if (res.data === 'success') {
-                    await dispatch(setUserId(id));          // login 정보 redux에 저장
+                    // document.cookie = "connect.sid" + '=' + res.headers['set-cookie'];
+                    console.log(res.headers);
+                    dispatch(setUserId(id));          // login 정보 redux에 저장
                     sessionStorage.setItem('userid', id);   // login 정보 sessionStorage에 저장
                     navigate(from, { replace: true });      // 접근했던 페이지 또는 로비로 이동
                 } else if (res.data === 'INVALID_ID') {

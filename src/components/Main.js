@@ -1,6 +1,4 @@
 import {React, useEffect, useState} from 'react';
-import styled from 'styled-components';
-import axios from 'axios';
 import Login from './Login';
 import Join from './Join';
 // import 'bootstrap/dist/css/bootstrap.min.css';

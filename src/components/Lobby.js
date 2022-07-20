@@ -1,36 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Link, useNavigate, useInRouterContext } from 'react-router-dom';
-import styled from 'styled-components';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
+import { paddr, reqHeaders } from '../proxyAddr';
+
 import { setUserId } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
-import io from 'socket.io-client';
 import style from '../css/Lobby.module.css'
-import { Container } from 'react-bootstrap';
 
 
 const Lobby = () => {
-    useEffect( ()=> {
-        if (!socket) connectSocket();
-    }, []);
-
     const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const btnStart = () => {
-        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{
-            console.log(`로비에서 ${roomNumber}`);
-            navigate(`/ingame/${roomNumber}`);});
+        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
     };
     const btnMake = () => {
         console.log("make button");
     };
     const btnLogout = ()=>{
-        axios.post('/api/auth/logout').finally(()=>{
+        axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
             dispatch(setUserId(""));
             sessionStorage.removeItem('userid');
             navigate('/');
@@ -39,8 +32,6 @@ const Lobby = () => {
 
     let [tap, tapChange] = useState(0);
 
- 
-
     const userid = useSelector((user) => user.user)
     const id = userid.id;
 
@@ -48,27 +39,19 @@ const Lobby = () => {
     let [imgURL, imgURLstate] = useState("");
     
     useEffect(() => {
-        // userinfo 저장을 위한 우회용 api 요청
-        axios.get('api/lobby/userinfo')
-        .then((result)=>{ 
-        console.log(result.data)
-        })
-        .catch((e)=>{
-            console.log(e)
-        })
-        .then(()=> {
+        !socket && connectSocket().then(()=>{
+            // userinfo 에 socket 저장을 위한 emit
             socket.emit("userinfo", id);
-        })
+        });
         // profile 이미지 정보
-        axios.get('api/lobby/userimg')
+        axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
         .then(res => { 
-            img = res.data[0][0].profile_img;
+            img = res.data.profile_img;
             imgURLstate("/img/" + img)
         })
         .catch(()=>{
             console.log('실패함')
         })
-
     }, [])
 
 

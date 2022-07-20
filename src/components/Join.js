@@ -1,6 +1,7 @@
 /* join */
 import {React, useState, useEffect} from 'react';
 import axios from 'axios';
+import {paddr, reqHeaders} from '../proxyAddr';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
@@ -38,12 +39,12 @@ const Join = () => {
         console.log(cId, cPass, cPassCheck, cNickname, cEmail)
         if (cId && cPass && cPassCheck && cNickname && cEmail){
             try {
-                await axios.post('/api/auth/user/join', {
+                await axios.post(`${paddr}api/auth/user/join`, {
                     id: id,
                     pass: pass,
                     nickname: nickname,
                     email: email
-                })
+                }, reqHeaders)
                 .then((res) => {
                     const data = res.data
                     if (data.result) {

@@ -23,7 +23,7 @@ const Ingame = ({roomId}) => {
     useEffect(()=>{
     //socket event name 변경 필요
         console.log(roomId);
-        socket.emit("enterRoom", myId, socket.id, 0, ()=>{
+        socket.emit("enterRoom", myId, socket.id, Number(roomId), ()=>{
             console.log(roomId);
             setRoomEntered(true);
         });
