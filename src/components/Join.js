@@ -65,10 +65,10 @@ const Join = () => {
 
     // 유효성 검사 : id, pass, passcheck(일치), nickname, 
     useEffect (() => {
-        const idRegex = /^(?=.*[a-zA-Z0-9-_]).{8,16}$/
+        const idRegex = /^(?=.*[a-zA-Z0-9-_]).{4,16}$/
         // idRegex.test(id) ? setCId(true) : setCId(false)
         if (!idRegex.test(id)) {
-            setEId('8~16 자리의 영문자 또는 숫자를 입력하세요.')
+            setEId('4~16 자리의 영문자 또는 숫자를 입력하세요.')
             setCId(false)
         } else {
             setEId('')
@@ -77,9 +77,11 @@ const Join = () => {
     }, [id])
     
     useEffect (() => {
-        const passwordRegex = /^(?=.*[a-zA-Z]*[!@#$%^*+=-]*[0-9]).{8,25}$/
+        const passwordRegex = /^(?=.*[a-zA-Z0-9]).{3,25}$/
+        // const passwordRegex = /^(?=.*[a-zA-Z]*[!@#$%^*+=-]*[0-9]).{8,25}$/
         if (!passwordRegex.test(pass)) {
-            setEPass('숫자와 영문자, 특수문자를 조합해 8자리 이상 입력하세요.')
+            setEPass('3자리 이상은 성의')
+            // setEPass('숫자와 영문자, 특수문자를 조합해 8자리 이상 입력하세요.')
             setCPass(false)
 
         } else {

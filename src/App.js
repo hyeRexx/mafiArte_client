@@ -17,7 +17,7 @@ import {RequireAuth} from './script/auth';
 
 function App() {
   return (
-    <div style={{margin: "2em"}}>
+    <div style={{margin: "0em"}}>
       <Routes>
         <Route path="/" element={<Main />}/>
         <Route path="lobby/*" element={
