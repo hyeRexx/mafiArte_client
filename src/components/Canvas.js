@@ -12,7 +12,8 @@ const Canvas = ({roomId}) => {
         whiteboard = new Whiteboard(canvasElement.current, socket, Number(roomId));
         console.log("test");
         socket.on("canvasTest1", (test) => {
-            console.log(socket);
+            // console.log(socket);
+            console.log("__debug", socket.id);
         });
         // component unmount 시 event remove 하는 것 고려해볼 것 성능 개선 문제
     }, []);
