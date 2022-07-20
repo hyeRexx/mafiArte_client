@@ -21,14 +21,21 @@ const Lobby = () => {
     const myId = useSelector(state => state.user.id);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
     const btnStart = () => {
-        socket && socket.emit("checkEnterableRoom", (roomNumber)=>{
-            console.log(`로비에서 ${roomNumber}`);
-            navigate(`/ingame/${roomNumber}`);});
+        socket && socket.emit("checkEnterableRoom", (roomId)=>{
+            console.log(`로비에서 ${roomId}`);
+            navigate(`/ingame/${roomId}`);});
+        
+        /*** gamemode hyeRexx ***/
+        socket.emit("joinGame", {gameId : 0, userId : userid.id});
     };
+
     const btnMake = () => {
-        console.log("make button");
+        const gameId = Date.now();
+        socket.emit("makeGame", {gameId : gameId, userId : userid.id});
     };
+
     const btnLogout = ()=>{
         axios.post('/api/auth/logout').finally(()=>{
             dispatch(setUserId(""));

@@ -23,62 +23,94 @@ const Ingame = ({roomId}) => {
     useEffect(()=>{
     //socket event name 변경 필요
         console.log(roomId);
-        socket.emit("enterRoom", myId, socket.id, 0, ()=>{
+        socket.emit("enterRoom", myId, socket.id, Number(roomId), ()=>{
             console.log(roomId);
             setRoomEntered(true);
         });
     },[]);
 
+    const readyBtn = () => {
+        console.log("ready?")
+        socket.emit("singleReady", {gameId: roomId, userId: myId});
+    }
+
+    const startBtn = () => {
+        socket.emit("startupRequest", {gameId: roomId, userId: myId});
+    }
+
+    const openTurnBtn = () => {
+        socket.emit("openTurn", {gameId: roomId, userId: myId});
+    }
+
+    const nightBtn = () => {
+        socket.emit("nightEvent", {gameId: roomId, userId: myId});
+    }
+
+    const newCycleBtn = () => {
+        socket.emit("newCycleRequest", {gameId: roomId, userId: myId});
+    }
+
     return (
 
-     <>
-        {
-            // 서버쪽에서 접속확인하고 처리
-            roomEntered ?
-                function () {
-                    return (
-                        <div className={style.flexBox}>
-                            <p>룸넘버 {roomId}</p>
-                            <div className={style.item1}>
-                                <VideoWindow />
-                            </div>
-                            <div className={style.item2}>
-                                <div>
-                                    <Navbar bg="light" expand="lg">
-                                        <Container fluid>
-                                            <Navbar.Toggle aria-controls="navbarScroll" />
-                                            <Navbar.Collapse id="navbarScroll">
-                                            <Nav
-                                                className="me-auto my-2 my-lg-0"
-                                                style={{ maxHeight: '100px' }}
-                                                navbarScroll>
-                                                <Nav.Link href="#action1">INVITATION</Nav.Link>
-                                                <Nav.Link href="#action2">REPORT</Nav.Link>
-                                                <Nav.Link href="#action3">SETTING</Nav.Link>
-                                            </Nav>
-                                            <div className="d-flex">
-                                                <Nav.Link>WORD(제시어)</Nav.Link>
-                                                <Nav.Link>TIMER(타이머)</Nav.Link>
-                                            </div>
-                                            </Navbar.Collapse>
-                                        </Container>
-                                    </Navbar>
+    <>
+    {
+        // 서버쪽에서 접속확인하고 처리
+        roomEntered ?
+        function () {
+            return (
+                <div className={style.flexBox}>
+                    <p>룸넘버 {roomId}</p>
+                    <div className={style.item1}>
+                        <VideoWindow />
+                    </div>
+                    <div className={style.item2}>
+                        <div>
+                        <Navbar bg="light" expand="lg">
+                            <Container fluid>
+                                <Navbar.Toggle aria-controls="navbarScroll" />
+                                <Navbar.Collapse id="navbarScroll">
+                                <Nav
+                                    className="me-auto my-2 my-lg-0"
+                                    style={{ maxHeight: '100px' }}
+                                    navbarScroll>
+                                    <Nav.Link href="#action1">INVITATION</Nav.Link>
+                                    <Nav.Link href="#action2">REPORT</Nav.Link>
+                                    <Nav.Link href="#action3">SETTING</Nav.Link>
+                                </Nav>
+                                <div className="d-flex">
+                                    <Nav.Link>WORD(제시어)</Nav.Link>
+                                    <Nav.Link>TIMER(타이머)</Nav.Link>
                                 </div>
-                                <div className={style.canvaschat}>
-                                    <div className={style.canvas}>
-                                        <Canvas roomId={roomId}/>
-                                    </div>
-                                </div>
-                                <div className={style.chat}>
-                                    <Chat roomId={roomId}/>
-                                </div>
+                                </Navbar.Collapse>
+                            </Container>
+                        </Navbar>
+                        </div>
+                        <div className={style.canvaschat}>
+                            <div className={style.canvas}>
+                                <Canvas roomId={roomId}/>
                             </div>
                         </div>
-                    );
-                }()
-                : null
-        }
-        </>
+
+                        {/* for gamelogic test */}
+                        <div className="btnbox" style={{position: 'absolute', top: '34%', left: '32%'}}>
+                            <button style={{fontSize: 40, margin: 30}} onClick={readyBtn}> READY </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={startBtn}> START </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={openTurnBtn}> OPEN TURN </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={nightBtn}> NIGHT </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={newCycleBtn}> NEW CYCLE </button>
+                        </div>
+                        {/* for gamelogic test */}
+
+                        <div className={style.chat}>
+                            <Chat roomId={roomId}/>
+                        </div>
+                    </div>
+                </div>
+            );
+        }()
+        : null
+    }
+    </>
     );
 }
 
