@@ -43,6 +43,7 @@ const Chat = ({roomId}) => {
     }
 
     useEffect(()=> {
+        console.log(socket);
         const msgform = room.querySelector("#msg");
         msgform.addEventListener("submit", handleMessageSubmit);
         socket.on("new_message", addMessage);

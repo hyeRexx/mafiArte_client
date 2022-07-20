@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Link, useNavigate, useInRouterContext } from 'react-router-dom';
-import styled from 'styled-components';
 import Rank from './Rank';
 import Citizen from './Citizen';
 import Setting from './Setting';
@@ -8,10 +7,10 @@ import axios from 'axios';
 import { setUserId, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
-import io from 'socket.io-client';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css'
-import { Container } from 'react-bootstrap';
-
 
 const Lobby = () => {
 
@@ -20,21 +19,42 @@ const Lobby = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+
+    // START 버튼 - 랜덤 매칭 
     const btnStart = () => {
-        // socket && socket.emit("checkEnterableRoom", (roomId)=>{
-        //     console.log(`로비에서 ${roomId}`);
-        //     navigate(`/ingame/${roomId}`);});
-        
         /*** gamemode hyeRexx ***/
         socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
             navigate(`/ingame/${thisGameId}`);
         });
     };
+    
+    // // 초대 보낸 사람의 id
+    // let [sender, senderstate] = useState('');
 
+    // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
-        const gameId = Date.now();
-        socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
+        let listuserid = new Array();
+        
+        listuserid.push("haein");
+
+        socket.emit("listuserinfo", listuserid);
+
+        socket.on("listsocketid", (listsocketid) => {
+            console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
+
+            let roomId = + new Date();
+
+            // 초대장 전송
+            socket.emit("sendinvite", listsocketid, roomId, myId,(roomId)=> {
+                console.log(`초대장 전송 시 ${roomId}`);
+
+                // HOST가 방으로 이동
+                navigate(`/ingame/${roomId}`);
+            });
+            
+            //const gameId = Date.now();
+            //socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
             navigate(`/ingame/${thisGameId}`);
         });
     };
@@ -50,6 +70,36 @@ const Lobby = () => {
         });
     };
 
+    let img = "";
+    let [imgURL, imgURLstate] = useState("");   
+    let [invite, invitestate] = useState(false);
+    let [newRoomId, roomidstate] = useState(0);
+    let [sender, senderstate] = useState("");
+
+    useEffect(() => {
+
+        !socket && connectSocket().then(()=>{
+        
+            socket.on("friendList", (userid, status) => {
+                console.log("friend수정확인",userid, status)
+                dispatch(FriendInfoChange([userid, status]));
+            })
+            socket.emit("userinfo", myId);
+            socket.emit('loginoutAlert', myId, 1);
+            console.log('login 변경사항 확인')
+            
+            socket.on("getinvite", (roomId, myId)=> {
+                console.log('초대장을 받았습니다!');
+                
+                roomidstate(roomId);
+                senderstate(myId);
+
+                // 모달창 띄워주기
+                invitestate(true);
+
+                // "초대 수락" 시 해당 roomId의 방으로 이동시키기
+            });
+        });
 
     let img = "";
     let [imgURL, imgURLstate] = useState("");
@@ -99,10 +149,12 @@ const Lobby = () => {
             })
     }, [])
 
-
     return (
+        <>
         <div id="lobby" style={{padding:"0em"}}>
-            여기는 로비
+             {
+                invite === true ? <InviteModal sender={sender} roomId={newRoomId} className={style.inviteModal} /> : null
+            }
             
             <div className={style.mainLobby}>
  
@@ -117,7 +169,7 @@ const Lobby = () => {
                         </div>
 
                         <div className={style.nickname}>
-                            해인이
+                            {id}
                         </div>
                     </div>
 
@@ -131,6 +183,7 @@ const Lobby = () => {
                 </div>
 
                 <div className={style.MainLobbyContent}>
+                    
                     <div className={style.MainLobbyTap}>
                     
                         {/* <button id="rank" className={style.TapButton} onClick={() => {tapChange(0)}}>RANKING</button>
@@ -150,27 +203,45 @@ const Lobby = () => {
                     </div>
 
                     <div className={style.MainLobbyTapContents}>
+                        
                         <Routes>
                             <Route path="/" element={<Rank/>}/>
                             <Route path="citizen" element={<Citizen/>}/>
                             <Route path="setting" element={<Setting/>}/>
                         </Routes>
                     </div>
-
+                        
                 </div>
-
-            </div>
-
-            {/* <div className={style.flexbox2}>
-            
-                <div className={style.item11}>aelfjhawbefljhawebflh</div>
-                <div className={style.item22}>aelfjhawbefljhawebflh</div>
                 
-            </div> */}
-            
-            
+                <button onClick={navigate}>LOGOUT</button>
+            </div>
         </div>
+        </>
     );
 }
+
+
+function InviteModal(props){
+    const navigate = useNavigate();
+    return(
+    <>
+        <Modal.Dialog className={style.modal} style={{ top: "650px" }}>
+            <Modal.Header closeButton>
+                <Modal.Title>INVITATION</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body className={style.modalBody}>
+                <p>{props.sender}님이 당신을 초대했습니다!</p>
+                <p>게임에 참가하시겠습니까?</p>
+            </Modal.Body>
+
+            <Modal.Footer className={style.modalFooter}>
+                <Button variant="secondary">CANCEL</Button>
+                <Button variant="primary" onClick={()=> (navigate(`/ingame/${props.roomId}`))}>ACCEPT</Button>
+            </Modal.Footer>
+        </Modal.Dialog>
+    </>
+    )
+  }
 
 export default Lobby;

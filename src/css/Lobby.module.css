@@ -135,6 +135,65 @@
     align-items: flex-end;
 }
 
+.modal {
+    top: 15%;
+}
+
+.modalBody {
+    padding: 15px 25px;
+    text-align : center;
+}
+
+.label {
+    font-size: 15px;
+    font-weight: 900;
+    margin-bottom: 3px;
+    padding-left: 3px;
+}
+
+.error {
+    display: block;
+    /* display: none; */
+    padding-top : 5px;
+    padding-left: 10px;
+    color : red;
+    font-size: 13px;
+}
+
+.joinForm {
+    border : 1px solid #dedede;
+}
+
+.mb3 {
+    padding: 0 0 10px;
+    margin-bottom: 10px;
+}
+
+.okMsg{
+    padding-top : 5px;
+    padding-left: 10px;
+    font-size: 13px;
+    color: #fff;
+}
+
+.errMsg{
+    padding-top : 5px;
+    padding-left: 10px;
+    font-size: 13px;
+    color: red;
+}
+
+.inviteModal{
+    top: 650px;
+}
+
+.modal {
+    font-size: 1.8rem;
+}
+
+.modalFooter {
+    margin: auto;
+
 .MainLobbyTapContents {
     flex: 5;
 }

@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
 import connectSocket, {socket} from '../script/socket';
-import Video from './Video';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
@@ -18,12 +14,14 @@ import axios from 'axios';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
-    console.log(roomId);
+
     let friendlist;
+
     const myId = useSelector(state => state.user.id);
+    
     useEffect(()=>{
     //socket event name 변경 필요
-        console.log(roomId);
+        console.log(`${myId}, ${socket.id}, ${roomId}, Number(${roomId})`);
         socket.emit("enterRoom", myId, socket.id, Number(roomId), ()=>{
             console.log(roomId);
             setRoomEntered(true);
