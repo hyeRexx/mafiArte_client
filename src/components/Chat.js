@@ -42,6 +42,7 @@ const Chat = ({roomId}) => {
         ul.append(li);
     }
 
+
     useEffect(()=> {
         console.log(socket);
         const msgform = room.querySelector("#msg");

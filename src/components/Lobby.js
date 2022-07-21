@@ -5,7 +5,7 @@ import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
 import { paddr, reqHeaders } from '../proxyAddr';
-import { setUserId, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
+import { setUserId, setProfileImg, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
 import Button from 'react-bootstrap/Button';
@@ -16,6 +16,7 @@ import style from '../css/Lobby.module.css'
 const Lobby = () => {
 
     const myId = useSelector(state => state.user.id);
+    const profile_img = useSelector(state => state.user.profile_img);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -51,14 +52,15 @@ const Lobby = () => {
                 console.log(`초대장 전송 시 ${roomId}`);
 
                 // HOST가 방으로 이동
-                navigate(`/ingame/${roomId}`);
+                // navigate(`/ingame/${roomId}`);
             });
             
             //const gameId = Date.now();
-            //socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
-            // navigate(`/ingame/${thisGameId}`);
+            socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
+            navigate(`/ingame/${thisGameId}`);
+            });
         });
-    };
+    }
 
     const btnLogout = ()=>{
     
@@ -73,7 +75,6 @@ const Lobby = () => {
     };
 
     let img = "";
-    let [imgURL, imgURLstate] = useState("");   
     let [invite, invitestate] = useState(false);
     let [newRoomId, roomidstate] = useState(0);
     let [sender, senderstate] = useState("");
@@ -107,14 +108,14 @@ const Lobby = () => {
         })
         
         // profile 이미지 정보
-        axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
+        axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
         .then(res => { 
             img = res.data.profile_img;
-            imgURLstate("/img/" + img)
+            dispatch(setProfileImg("/img/" + img));
         })
         .catch(()=>{
             console.log('실패함')
-        })
+        });
 
         axios.post('/api/lobby/friendinfo', {userid: myId})
             .then((res) => {
@@ -151,8 +152,7 @@ const Lobby = () => {
                         </img>
                         <div className={style.prifileImg}>
                             {/* imgURL 갈아야 함 */}
-                            {/* <img src='/img/AudreyHepburnToyFace.jpg' className={style.test}> */}
-                        {/* </img> */}
+                            <img src={profile_img} className={style.test}/>
                         </div>
 
                         <div className={style.nickname}>
