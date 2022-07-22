@@ -14,7 +14,7 @@ const peerConnections = {};
 const VideoWindow = ({newPlayer, isReady}) => {
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
-
+    const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
     const [videos , setVideos] = useState([
         {userid: null, stream: null, image: null, isReady: false},
         {userid: myId, stream: null, image: myImg, isReady: false},
@@ -163,6 +163,22 @@ const VideoWindow = ({newPlayer, isReady}) => {
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
         setVideo(myIdx, false, false, false, isReady);
     }, [isReady]);
+    
+    useEffect(() => {
+        let turnIdx = videos.findIndex(x => x.userid = gameUserInfo[0]);
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet')
+            changeVideo(turnIdx, 1);
+        }
+    }, [gameUserInfo[0]]);
+
+    useEffect(() => {
+        let turnIdx = videos.findIndex(x => x.userid = gameUserInfo[0]);
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet')
+            changeVideo(turnIdx, 1);
+        }
+    }, [gameUserInfo[1]]);
 
     useEffect( ()=> {
         const initialize = async () => {

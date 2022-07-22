@@ -13,6 +13,20 @@ let user = createSlice({
 }
 });
 
+let gameInfo = createSlice({
+  name : 'gameInfo',
+  initialState : [null, 1],
+  reducers : {
+    turnStatusChange(state, action){
+      state[0] = action.payload;
+      console.log(current(state));
+    },
+    surviveStatusChange(state, action){
+      state[1] = action.payload;
+    }
+}
+});
+
 let FriendInfo = createSlice({
   name : 'friendInfo',
   initialState: {},
@@ -28,7 +42,7 @@ let FriendInfo = createSlice({
       }
     },
     FriendInfoReset(state, action){
-      state = {};
+      return {};
     }
   }
 })
@@ -36,10 +50,13 @@ let FriendInfo = createSlice({
 const store = configureStore({
   reducer: {
     user : user.reducer,
-    FriendInfo : FriendInfo.reducer
+    FriendInfo : FriendInfo.reducer,
+    gameInfo : gameInfo.reducer
   }
 });
 
 export {store};
+
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
+export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
