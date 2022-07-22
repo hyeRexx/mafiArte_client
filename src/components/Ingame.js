@@ -217,7 +217,7 @@ const Ingame = ({roomId}) => {
                         </div>
 
                         {/* 게임 시작시 word 또는 역할 보여주는 용도 */}
-                        {!showWord? null: (word==="?")? <h3>당신은 마피아입니다</h3>: <h3>당신은 시민입니다 : 제시어 {word.word}</h3>}
+                        {!showWord? null: ((word.word==="?")? <h3>당신은 마피아입니다</h3>: <h3>당신은 시민입니다 : 제시어 {word.word}</h3>)}
 
                         <div className={style.chat}>
                             <Chat roomId={roomId} newPlayer={newPlayer}/>
