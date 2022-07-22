@@ -50,6 +50,7 @@ const Lobby = () => {
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
+    
         // 친구 리스트 상태 변경 -> 필요 없는 듯?
         console.log(`choosestate 상태 ${choose}`)
         console.log(`MAKE A GAME 눌렀을 때 친구 리스트 ${friends}`);
@@ -87,11 +88,13 @@ const Lobby = () => {
                 console.log("friend수정확인",userid, status)
                 dispatch(FriendInfoChange([userid, status]));
             })
-            socket.emit("userinfo", myId);
-            socket.emit('loginoutAlert', myId, 1);
-            console.log('login 변경사항 확인');
+        socket.emit("userinfo", myId);
+        socket.emit('loginoutAlert', myId, 1);
+        console.log('login 변경사항 확인');
+        console.log(socket);
+        console.log('connectsocket test: ', socket['connected']);
 
-            socket.on("getinvite", (roomId, myId)=> {
+        socket.on("getinvite", (roomId, myId)=> {
                 console.log('초대장을 받았습니다!');
                 
                 roomidstate(roomId);
@@ -103,6 +106,7 @@ const Lobby = () => {
             });
 
         })
+
         
         // profile 이미지 정보
         axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
