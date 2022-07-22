@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
 import connectSocket, {socket} from '../script/socket';
@@ -10,6 +10,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import axios from 'axios';
+import { turnStatusChange, surviveStatusChange } from '../store';
 
 
 const Ingame = ({roomId}) => {
@@ -18,7 +19,13 @@ const Ingame = ({roomId}) => {
     let friendlist;
 
     const myId = useSelector(state => state.user.id);
-    
+
+    const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
+
+    const dispatch = useDispatch();
+
+    // console.log('gameuserInfo test: ', gameUserInfo);
+
     useEffect(()=>{
     //socket event name 변경 필요
         console.log(roomId);
@@ -60,6 +67,8 @@ const Ingame = ({roomId}) => {
         socket.on("singleTurnInfo", (data) => {
             // data : userId : 진행할 플레이어 userId
             //        isMafia : 진행할 플레이여 mafia binary
+            dispatch(turnStatusChange(data.userId));
+
             console.log("debug : singleTurnInfo :", data);
         });
 
@@ -123,7 +132,7 @@ const Ingame = ({roomId}) => {
                 <div className={style.flexBox}>
                     <p>룸넘버 {roomId}</p>
                     <div className={style.item1}>
-                        <VideoWindow />
+                        <VideoWindow id={myId} />
                     </div>
                     <div className={style.item2}>
                         <div>

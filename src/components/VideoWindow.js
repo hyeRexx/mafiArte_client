@@ -11,8 +11,10 @@ import { useSelector } from 'react-redux';
 let myStream;
 const peerConnections = {};
 
-const VideoWindow = () => {
+const VideoWindow = ({id}) => {
     const myId = useSelector(state => state.user.id);
+
+    const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
 
     const [imgURL , imgURLstate] = useState("");
     const [videos , setVideos] = useState([
@@ -68,6 +70,7 @@ const VideoWindow = () => {
                 video: deviceId ? { deviceId } : true
             });
             setVideo(1, myId, myStream);
+            console.log('stream 뭔지 궁금함;', myStream);
             // if(!deviceId) { // 여기서 하는게 아니라, 세팅 버튼 클릭했을 때 띄워줘야 할 듯. 
             //     getCameras();
             // }
@@ -151,6 +154,22 @@ const VideoWindow = () => {
 
         return answer || offer;
     }
+
+    useEffect(() => {
+        let turnIdx = videos.findIndex(x => x.userid = gameUserInfo[0]);
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet')
+            changeVideo(turnIdx, 1);
+        }
+    }, [gameUserInfo[0]]);
+
+    useEffect(() => {
+        let turnIdx = videos.findIndex(x => x.userid = gameUserInfo[0]);
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet')
+            changeVideo(turnIdx, 1);
+        }
+    }, [gameUserInfo[1]]);
 
     useEffect( ()=> {
         const initialize = async () => {

@@ -35,38 +35,39 @@ const Lobby = () => {
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
-        let listuserid = new Array();
+        // let listuserid = new Array();
         
-        listuserid.push("haein");
+        // listuserid.push("haein");
 
-        socket.emit("listuserinfo", listuserid);
+        // socket.emit("listuserinfo", listuserid);
 
-        socket.on("listsocketid", (listsocketid) => {
-            console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
+        // socket.on("listsocketid", (listsocketid) => {
+        //     console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
 
-            let roomId = + new Date();
+        //     let roomId = + new Date();
 
-            // 초대장 전송
-            socket.emit("sendinvite", listsocketid, roomId, myId,(roomId)=> {
-                console.log(`초대장 전송 시 ${roomId}`);
-
-                // HOST가 방으로 이동
-                navigate(`/ingame/${roomId}`);
-            });
+        //     // 초대장 전송
+        //     socket.emit("sendinvite", listsocketid, roomId, myId,(roomId)=> {
+        //         console.log(`초대장 전송 시 ${roomId}`);
+                
+        //         // HOST가 방으로 이동
+        //         // navigate(`/ingame/${roomId}`);
+        //     });
             
-            //const gameId = Date.now();
-            //socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
-            // navigate(`/ingame/${thisGameId}`);
+        // });
+        const gameId = Date.now();
+            socket.emit("makeGame", {gameId : gameId, userId : myId}, (thisGameId) => {
+            navigate(`/ingame/${thisGameId}`);
         });
-    };
+    }
 
     const btnLogout = ()=>{
     
         axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             dispatch(setUserId(""));
-            // dispatch(FriendInfoReset(""));
-            // socket.close();
+            dispatch(FriendInfoReset());
+            socket.close();
             sessionStorage.removeItem('userid');
             navigate('/');
         });
@@ -83,16 +84,18 @@ const Lobby = () => {
     // console.log('리덕스 친구리스트', test);
     
     useEffect(() => {
-        !socket && connectSocket().then(() => {
+        (!socket || !socket['connected']) && connectSocket().then(() => {
             socket.on("friendList", (userid, status) => {
                 console.log("friend수정확인",userid, status)
                 dispatch(FriendInfoChange([userid, status]));
             })
-            socket.emit("userinfo", myId);
-            socket.emit('loginoutAlert', myId, 1);
-            console.log('login 변경사항 확인');
+        socket.emit("userinfo", myId);
+        socket.emit('loginoutAlert', myId, 1);
+        console.log('login 변경사항 확인');
+        console.log(socket);
+        console.log('connectsocket test: ', socket['connected']);
 
-            socket.on("getinvite", (roomId, myId)=> {
+        socket.on("getinvite", (roomId, myId)=> {
                 console.log('초대장을 받았습니다!');
                 
                 roomidstate(roomId);
@@ -105,6 +108,7 @@ const Lobby = () => {
             });
 
         })
+
         
         // profile 이미지 정보
         axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
