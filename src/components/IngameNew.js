@@ -113,65 +113,23 @@ const Ingame = ({roomId}) => {
     }
 
     return (
-
     <>
     {
-        // 서버쪽에서 접속확인하고 처리
-        roomEntered ?
-        function () {
-            return (
-                <div class={style.outbox}>
-                    <div className={style.flexBox}>
-                        <div className={style.item1}>
-                            <VideoWindow />
-                        </div>
-                        <div className={style.item2}>
-
-                            <div className={style.canvas}>
-                                <Canvas roomId={roomId}/>
-                            </div>
-
-                            <div className={style.chat}>
-                                <Chat roomId={roomId}/>
-                            </div>
-
-                            {/* for gamelogic test */}
-                            {/* <div className="btnbox" style={{position: 'absolute', top: '34%', left: '32%'}}>
-                                <button style={{fontSize: 40, margin: 30}} onClick={readyBtn}> READY </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={startBtn}> START </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={openTurnBtn}> OPEN TURN </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={nightBtn}> NIGHT </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={newCycleBtn}> NEW CYCLE </button>
-                            </div> */}
-                            {/* for gamelogic test */}
-
-                        </div>
-                    </div>
-                    <div className={style.topSection}>
-                        <div className={style.utility}>
-                            <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button>
-                            <button className={`${style.utilityBtn} ${style.exit}`}>EXIT</button>
-                        </div>                    
-                        <div className={style.wordTimer}>
-                            <div className={style.wordBox}>
-                                <span className={style.wordBoxLabel}>제시어</span>
-                                <span className={style.wordBoxWord}>얼룩말얼룩말얼</span>
-                            </div>
-                            <div className={style.timer}>
-                                <span className={style.timerIco}></span>
-                                <span className={style.timerText}>30</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="btn">Hover to Shine</a>
-                </div>
-            );
-        }()
-        : null
-
+    roomEntered ?
+    function () {
+    return (
+        <>
+        <div className={style.ingameBox}>
+            <Canvas></Canvas>
+            안녕~
+        </div>
+        </>
+    );
+    }()
+    : null
     }
     </>
-    );
+);
 }
 
 export default Ingame;

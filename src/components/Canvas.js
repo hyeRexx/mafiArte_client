@@ -30,25 +30,25 @@ const Canvas = ({roomId}) => {
     
     return (
         <>
-          <div className={style.item2}>
+        <div className={style.canvasBox}>
             <div className={style.canvas}>
               <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{"background":"#fff"}}>
               </canvas>
             </div>
-            <div className={style.draw}>
-              <div className={style.buttons}>
-                <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
-                <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
-                <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
-                <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
-                <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
-                <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
-                <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
-                <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
-                {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}
-              </div>
+            <div className={style.canvasTool}>
+                <div className={style.canvasToolBox}>
+                    <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
+                    <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
+                    <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
+                    <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
+                    <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
+                    <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
+                    <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
+                    <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
+                    {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}
+                </div>
             </div>
-          </div>
+        </div>
         </>
     );
 };
