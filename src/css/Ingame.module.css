@@ -7,8 +7,8 @@
     background-color: black;
     padding: 15px;
     gap: 5px;
-
   }
+
 
   .item1 { 
     /* flex:1 1 auto; */
@@ -41,3 +41,141 @@
     width:100%;
 } */
 
+/* 밤이 되었습니다 */
+.topright {
+  position: absolute;
+  top: 4em;
+  padding: 4px;
+  background-color: #fff;
+  font-weight: bold;
+  font-size: 50px;
+  left: 800px;
+}
+
+
+.title h1{
+  font-size: 36px;
+  font-family: 'Lato', sans-serif;
+  margin-top:10em;
+  margin-left: auto;
+  margin-right:auto;
+  text-align: center;
+
+  /* Stryling the text and giving it gradiant */
+  color:#ffffff;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 6px 6px 0px rgba(0,0,0,0.2);
+
+  /* Make sure text is infront of background images */
+  display:block;
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes move-twink-back {
+  from {background-position:0 0;}
+  to {background-position:-10000px 5000px;}
+}
+
+@keyframes move-clouds-back {
+  from {background-position:0 0;}
+  to {background-position:10000px 0;}
+}
+
+.stars, .twinkling, .clouds {
+position:absolute;
+top:0;
+left:0;
+right:0;
+bottom:0;
+width:100%;
+height:100%;
+display:block;
+}
+
+.stars {
+background:#000 url(../../public/img/stars.png) repeat top center;
+z-index:0;
+}
+
+.twinkling{
+background:transparent url(../../public/img/twinkling.png) repeat top center;
+z-index:1;
+animation:move-twink-back 200s linear infinite;
+}
+
+.clouds{
+  background:transparent url(../../public/img/clouds.png) repeat top center;
+  z-index:2;
+  opacity: .4;
+  animation:move-clouds-back 200s linear infinite;
+}
+
+
+/* 제시어 제출 모달 */
+
+.modal {
+  top: 15%;
+}
+
+.modalBody {
+  padding: 15px 25px;
+  text-align : center;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 3px;
+  padding-left: 3px;
+}
+
+.error {
+  display: block;
+  /* display: none; */
+  padding-top : 5px;
+  padding-left: 10px;
+  color : red;
+  font-size: 13px;
+}
+
+.joinForm {
+  border : 1px solid #dedede;
+}
+
+.mb3 {
+  padding: 0 0 10px;
+  margin-bottom: 10px;
+}
+
+.okMsg{
+  padding-top : 5px;
+  padding-left: 10px;
+  font-size: 13px;
+  color: #fff;
+}
+
+.errMsg{
+  padding-top : 5px;
+  padding-left: 10px;
+  font-size: 13px;
+  color: red;
+}
+
+.inviteModal{
+  top: 650px;
+}
+
+.modal {
+  font-size: 1.8rem;
+}
+
+.modalFooter {
+  margin: auto;
+}
+
+.MainLobbyTapContents {
+  flex: 5;
+}

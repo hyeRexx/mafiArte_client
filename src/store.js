@@ -25,7 +25,7 @@ let FriendInfo = createSlice({
       }
     },
     FriendInfoReset(state, action){
-      state = {};
+      return {};
     }
   }
 })
