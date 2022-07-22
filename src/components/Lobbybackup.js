@@ -23,7 +23,7 @@ const Lobby = () => {
     let [invite, invitestate] = useState(false);   // 초대 알람 모달 생성
     let [newRoomId,roomidstate] = useState(0);
     let [sender, senderstate] = useState("");
-    let [friendlist, friendliststate] = useState(""); // 초대 가능한 친구 리스트
+    // let [friendlist, friendliststate] = useState(""); // 초대 가능한 친구 리스트
 
     const firstFriends = Object.entries(useSelector((FriendInfo) => FriendInfo.FriendInfo));
     const friends = [];
@@ -73,7 +73,7 @@ const Lobby = () => {
     
         axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
-            // dispatch(setUserId(""));
+            dispatch(setUserId(""));
             dispatch(FriendInfoReset());
             socket.close();
             sessionStorage.removeItem('userid');
@@ -122,7 +122,7 @@ const Lobby = () => {
                 let FriList = res.data[0]; // user의 전체 친구 목록
                 let onlineList = res.data[1]; // 현재 접속중인 user 목록
                 console.log('onlinelist', onlineList);
-                onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
+                // onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
                 for (var i = 0; i < Object.keys(FriList).length; i++){
                     let key = FriList[i].userid;
                     if (!onlineList[key]){
@@ -139,17 +139,21 @@ const Lobby = () => {
 
     return (
         <>
-        <div id="lobby">
-            { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
-                className={style.inviteModal} btnClose={btnClose} /> : null }
+        <div id="lobby" style={{padding:"0em"}}>
+            {
+                choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} className={style.inviteModal} btnClose={btnClose} /> : null
+            }
 
-            { invite === true ? <InviteModal myId={myId} roomId={newRoomId} className={style.inviteModal} 
-                btnInviteClose={btnInviteClose} /> : null }
-    
+            {
+                invite === true ? <InviteModal sender={sender} roomId={newRoomId} className={style.inviteModal} btnInviteClose={btnInviteClose} /> : null
+            }
+            
             <div className={style.mainLobby}>
+ 
                 <div className={style.lobbyleft}>
                     <div className={style.profileSection}>
-                        <img className={style.lobbyLogo} src='/img/smallLogo.png'></img>
+                        <img className={style.lobbyLogo} src='/img/smallLogo.png'>
+                        </img>
                         <div className={style.prifileImg}>
                             {/* imgURL 갈아야 함 */}
                             <img src={profile_img} className={style.test}/>
@@ -308,7 +312,7 @@ function InviteModal(props){
     const inviteMove = () => {
 
         // 게임 조인
-        socket.emit("joinGame", {gameId : props.roomId, userId : props.myId}, (thisGameId) => {
+        socket.emit("joinGame", {gameId : props.roomId, userId : props.sender}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
         });
 
@@ -337,3 +341,7 @@ function InviteModal(props){
 };
 
 export default Lobby;
+
+
+
+

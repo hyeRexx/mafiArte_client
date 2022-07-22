@@ -194,86 +194,101 @@ const Ingame = ({roomId}) => {
     };
 
     return (
-        <>
-        {
-            roomEntered ? 
-            function () { 
-                return (
-                    <>
-                    {/* night event */}
-                    { becomeNight ? <p className={style.topright}>밤이 되었습니다</p> : null }
 
-                    {/* mafia answer */}
-                    { answerModal ? <AnswerModal className={style.inviteModal} roomId={roomId} myId={myId}  
-                        btnAnswerClose={btnAnswerClose} /> : null }
-
-                    <div className={style.outbox}>
-                        <div className={style.flexBox}>
-                            <div className={style.item1}>
-                                <VideoWindow newPlayer={newPlayer} isReady={isReady}/>
-                            </div>
-
-                            <div className={style.item2}>
-                                <div className={style.flextest}>
-                                    <div className={style.canvas}>
-                                        <Canvas roomId={roomId}/>
-                                    </div>
-
-                                    <div className={style.chat}>
-                                        <Chat roomId={roomId}/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className={style.topSection}>
-                        <div className={style.utility}>
-                            <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button>
-                            <button className={`${style.utilityBtn} ${style.exit}`}>EXIT</button>
-                        </div>                    
-                        <div className={style.wordTimer}>
-                            <div className={style.wordBox}>
-                                <span className={style.wordBoxLabel}>제시어</span>
-                                <span className={style.wordBoxWord}>얼룩말얼룩말</span>
-                            </div>
-                            <div className={style.timer}>
-                                <span className={style.timerIco}></span>
-                                <span className={style.timerText}>30</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* <div className={style.chat}>
-                        <Chat roomId={roomId} newPlayer={newPlayer} />
-                    </div> */}
-
-
-                {/* ready & start button */}
-                <button className={isReady ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={readyBtn}> READY </button>
-                    <button className={readyToStart ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={startBtn}> START </button>  
-                    {/* <a href="#" class="btn">Hover to Shine</a>
-
-                    {/* for start loading */}
-                    {isStarted === null ? null : isStarted ? null : <div>로딩중입니다</div>}
-
-                    {/* 게임 시작시 turn 보여주는 용도 : start turn info all */}
-                    {/* <div>
-                        {turnQue === null ? null : turnQue.map((userid) => {
-                            return (
-                                <h4>{userid}</h4>
-                            );
-                        })}
-                    </div> */}
-
-                    {/* 게임 시작시 word 또는 역할 보여주는 용도 */}
-                    {/* {!showWord ? null : ((word.word === "?") ? <h3>당신은 마피아입니다</h3> : <h3>당신은 시민입니다 : 제시어 {word.word}</h3>)} */}
-                </>
-                ); 
-            }() : null
-        }
-        </>
-    );
+    <>
+            {
+                // 서버쪽에서 접속확인하고 처리
+roomEntered ?
+function () {
+return (
+<div>
+{becomeNight ? <p className={style.topright}>🌙밤이 되었습니다🌕</p> : null}
+{
+    answerModal ? <AnswerModal className={style.inviteModal} roomId={roomId} myId={myId} btnAnswerClose={btnAnswerClose} /> : null
 }
+<div className={style.flexBox}>
+    <div className={style.item1}>
+        <VideoWindow newPlayer={newPlayer} isReady={isReady} />
+    </div>
+
+
+
+    
+    <div className={style.item2}>
+        <div>
+            <Navbar bg="light" expand="lg">
+                <Container fluid>
+                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Navbar.Collapse id="navbarScroll">
+                        <Nav
+                            className="me-auto my-2 my-lg-0"
+                            style={{ maxHeight: '100px' }}
+                            navbarScroll>
+                            <Nav.Link href="#action1">INVITATION</Nav.Link>
+                            <Nav.Link href="#action2">REPORT</Nav.Link>
+                            <Nav.Link href="#action3">SETTING</Nav.Link>
+                        </Nav>
+                        <div className="d-flex">
+                            <Nav.Link>WORD(제시어)</Nav.Link>
+                            <Nav.Link>TIMER(타이머)</Nav.Link>
+                        </div>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </div>
+        <div>
+            <div className={style.canvaschat}>
+                <div className={style.canvas}>
+                    <Canvas roomId={roomId} />
+                </div>
+            </div>
+
+            {/* for gamelogic test */}
+            <div className="btnbox" style={{ position: 'absolute', top: '34%', left: '32%' }}>
+                <button className={isReady ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={readyBtn}> READY </button>
+                <button className={readyToStart ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={startBtn}> START </button>
+                <button style={{ fontSize: 40, margin: 30 }} onClick={openTurnBtn}> OPEN TURN </button>
+                <button style={{ fontSize: 40, margin: 30 }} onClick={nightBtn}> NIGHT </button>
+                <button style={{ fontSize: 40, margin: 30 }} onClick={newCycleBtn}> NEW CYCLE </button>
+            </div>
+            {/* for gamelogic test */}
+
+            {/* 게임 start 후 실제 게임시작(턴시작)되기 전까지 로딩 화면 띄우기용 */}
+            {isStarted === null ? null : isStarted ? null : <div>로딩중입니다</div>}
+
+            {/* 게임 시작시 turn 보여주는 용도 */}
+            <div>
+                {turnQue === null ? null : turnQue.map((userid) => {
+                    return (
+                        <h4>{userid}</h4>
+                    );
+                })}
+            </div>
+
+            {/* 게임 시작시 word 또는 역할 보여주는 용도 */}
+            {!showWord ? null : ((word.word === "?") ? <h3>당신은 마피아입니다</h3> : <h3>당신은 시민입니다 : 제시어 {word.word}</h3>)}
+
+            <div className={style.chat}>
+                <Chat roomId={roomId} newPlayer={newPlayer} />
+            </div>
+        </div>
+    </div>
+    </div>
+    {/* //     <>
+        //     <div className={style.stars}></div>
+        //     <div className={style.twinkling}></div> 
+        //    <div className={style.clouds}></div>
+        //    <div className={style.title}>
+        //     <h1>A Dark and Mysterious Night</h1>
+        //     </div>
+        //     </> */}
+);
+}()
+                                : null;
+    }
+                            </>
+                        );
+                    }
 
 // 마피아 정답 제출 모달
 function AnswerModal(props){

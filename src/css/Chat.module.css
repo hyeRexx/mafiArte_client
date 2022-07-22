@@ -1,7 +1,63 @@
-.chat {
-    background-color: #b7e2e2;
-    width: 1380px;
-    height: 165px;
+.chatBox {
+    background-color: #eeeeee;
+    display: flex;
+    height: 200px;
+    position: relative;
+    flex-direction: column;
+    border-radius: 20px 20px 0 0;
+    padding: 0 25px;
+}
+
+.chatLog {
+    flex: 5;
+    height: 155px;
+    padding: 20px 0 10px 0;
     border-radius: 10px;
     overflow-x:hidden;
+}
+
+.inputBox {
+    flex: 2.3;
+    align-items: center;
+}
+
+.inputForm {
+    width:1090px;
+    height: 36px;
+    margin-right: 10px;
+    border: none;
+    padding: 5px 15px;
+    font-size: 15px;
+    font-weight: 400;
+    color: #3f3f3f;
+}
+
+.inputForm:focus {
+    outline: none;
+}
+
+.sendBtn {
+    color: #fff;
+    margin-top: -1px;
+    height: 30px;
+    width: 55px;
+    font-size: 13px;
+    border: none;
+    background-color: #202020;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.sendBtn:hover {
+    background-color: #fff;
+    box-shadow: 0px 0px 7px #a5a5a579;
+    color: #121212;
+    transition: all 0.2s;
+}
+
+li {
+    color: rgb(63, 63, 63);
+    font-size: 15px;
+    font-weight: 400;
 }

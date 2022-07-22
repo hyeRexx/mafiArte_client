@@ -20,10 +20,10 @@ const NotRequireAuth = ({ children }) => {
     // redux 및 sessionStorage에서 userid 획득 및 인증 확인
     const dispatch = useDispatch();
     let user = useSelector((state) => state.user.id);
-    if (!user) {
-        user = sessionStorage.getItem('userid');
-        dispatch(setUserId(user));
-    }
+    // if (!user) {
+    //     user = sessionStorage.getItem('userid');
+    //     dispatch(setUserId(user));
+    // }
     const authenticated = user? true: false;
     
     // 인증이 이미 된 경우 로비로 이동
@@ -42,10 +42,10 @@ const RequireAuth = ({ Component }) => {
     const dispatch = useDispatch();
     const location = useLocation();
     let user = useSelector((state) => state.user.id);
-    if (!user) {
-        user = sessionStorage.getItem('userid');
-        dispatch(setUserId(user));
-    }
+    // if (!user) {
+    //     user = sessionStorage.getItem('userid');
+    //     dispatch(setUserId(user));
+    // }
     const authenticated = user? true: false;
 
     // 로그인이 안된 경우 메인으로 이동

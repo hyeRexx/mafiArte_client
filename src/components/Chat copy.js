@@ -2,9 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
 
-let room;
-
 const Chat = ({roomId}) => {
+
     function handleMessageSubmit(event) {
         event.preventDefault();
         const input = room.querySelector("#msg input");
@@ -38,38 +37,33 @@ const Chat = ({roomId}) => {
 
     function addMessage(message) {
         const ul = room.querySelector("ul");
-        const msg = document.createElement("li")
-        msg.innerText = message;
-        ul.append(msg);
+        const li = document.createElement("li");
+        li.innerText = message;
+        ul.append(li);
     }
 
-    // 재관이가 고칠 것임
+
     useEffect(()=> {
-        // room = document.getElementById('#room');
-        // console.log(socket);
-        // const msgform = room.querySelector("#msg");
-        // msgform.addEventListener("submit", handleMessageSubmit);
-        // socket.on("new_message", addMessage);
+        console.log(socket);
+        const msgform = room.querySelector("#msg");
+        msgform.addEventListener("submit", handleMessageSubmit);
+        socket.on("new_message", addMessage);
     },[]);
 
     return (
         <>
-        <div id="room" style={{height: '100%', padding: "0 50px"}}>
-            <div className={style.chatBox}>
-                <div className={style.chatLog}>
-                    <h3 style={{ color: "black" }}></h3>
-                    <ul style={{ color: "black", paddingLeft: 10}}>
-
-                    </ul>
-                </div>
-                <div className={style.inputBox}>
-                    <form id="msg">
-                        <input className={style.inputForm} placeholder="메세지를 입력하세요" required type="text"/>
-                        <button className={style.sendBtn} onClick={handleMessageSubmit}>SEND</button>
-                    </form>
-                </div>
+        <div id="room">
+            <div className={style.chat}>
+                <h3 style={{ color: "black" }}></h3>
+                <ul style={{ color: "black" }}> </ul>
             </div>
+            <form id="msg">
+                <input placeholder="message" required type="text" style={{"width":"1320px"}} />
+                <button onClick={handleMessageSubmit}>Send</button>
+            </form>
         </div>
+
+
         </>
     );
 };
