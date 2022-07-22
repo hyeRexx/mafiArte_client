@@ -2,10 +2,13 @@ import { configureStore, createSlice, current } from '@reduxjs/toolkit'
 
 let user = createSlice({
   name : 'user',
-  initialState : {id: ""},
+  initialState : {id: "", profile_img: ""},
   reducers : {
     setUserId(state, action){
         state.id = action.payload;
+    },
+    setProfileImg(state, action){
+        state.profile_img = action.payload;
     }
 }
 });
@@ -23,7 +26,6 @@ let gameInfo = createSlice({
     }
 }
 });
-
 
 let FriendInfo = createSlice({
   name : 'friendInfo',
@@ -45,8 +47,6 @@ let FriendInfo = createSlice({
   }
 })
 
-
-
 const store = configureStore({
   reducer: {
     user : user.reducer,
@@ -56,6 +56,7 @@ const store = configureStore({
 });
 
 export {store};
-export let { setUserId } = user.actions;
-export let { FriendInfoSet, FriendInfoChange, FriendInfoReset} = FriendInfo.actions;
+
+export let { setUserId, setProfileImg } = user.actions;
+export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;

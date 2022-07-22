@@ -5,7 +5,7 @@ import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
 import { paddr, reqHeaders } from '../proxyAddr';
-import { setUserId, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
+import { setUserId, setProfileImg, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
 import Button from 'react-bootstrap/Button';
@@ -16,10 +16,9 @@ import style from '../css/Lobby.module.css';
 const Lobby = () => {
 
     const myId = useSelector(state => state.user.id);
+    const profile_img = useSelector(state => state.user.profile_img);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    let img = "";
-    let [imgURL, imgURLstate] = useState("");
     let [choose, choosestate] = useState(false);   // 초대할 사람 고르는 모달 생성
     let [invite, invitestate] = useState(false);   // 초대 알람 모달 생성
     let [newRoomId,roomidstate] = useState(0);
@@ -81,7 +80,7 @@ const Lobby = () => {
             navigate('/');
         });
     };
-    
+
     useEffect(() => {
         (!socket || !socket['connected']) && connectSocket().then(() => {
             socket.on("friendList", (userid, status) => {
@@ -109,14 +108,14 @@ const Lobby = () => {
 
         
         // profile 이미지 정보
-        axios.get(`${paddr}api/lobby/profile_img`, reqHeaders)
+        axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
         .then(res => { 
             img = res.data.profile_img;
-            imgURLstate("/img/" + img)
+            dispatch(setProfileImg("/img/" + img));
         })
         .catch(()=>{
             console.log('실패함')
-        })
+        });
 
         axios.post('/api/lobby/friendinfo', {userid: myId})
             .then((res) => {
@@ -157,8 +156,7 @@ const Lobby = () => {
                         </img>
                         <div className={style.prifileImg}>
                             {/* imgURL 갈아야 함 */}
-                            {/* <img src='/img/AudreyHepburnToyFace.jpg' className={style.test}> */}
-                        {/* </img> */}
+                            <img src={profile_img} className={style.test}/>
                         </div>
 
                         <div className={style.nickname}>

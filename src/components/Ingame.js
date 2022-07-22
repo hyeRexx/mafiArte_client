@@ -18,6 +18,14 @@ import Modal from 'react-bootstrap/Modal';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
+    const [ newPlayer, setNewPlayer ] = useState(null);
+    
+    const [ readyToStart, setReadyToStart ] = useState(false);
+    const [ isReady, setReady ] = useState(false);
+    const [ isStarted, setStart ] = useState(null);
+    const [ turnQue, setTurnQue ] = useState(null);
+    const [ showWord, setShowWord ] = useState(false);
+    let word;
 
     let friendlist;
     let [becomeNight, becomeNightState] = useState(false); // 밤이 되었습니다
@@ -25,47 +33,60 @@ const Ingame = ({roomId}) => {
     let [answerModal, answerModalState] = useState(""); // 마피아 정답 작성 모달
 
     const myId = useSelector(state => state.user.id);
-
+    const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
-
     const dispatch = useDispatch();
-
-    // console.log('gameuserInfo test: ', gameUserInfo);
 
     useEffect(()=>{
     //socket event name 변경 필요
         console.log(roomId);
         console.log(`${myId}, ${socket.id}, ${roomId}, Number(${roomId})`);
-        socket.emit("enterRoom", myId, socket.id, Number(roomId), ()=>{
-            console.log(roomId);
+        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), ()=>{
             setRoomEntered(true);
         });
 
         /*** for game : hyeRexx ***/
 
-        // 새로운 유저 입장 알림
+        // 새로운 유저 입장 알림 => 기존에 welcome에서 방 입장 알려주는거랑 유사
         socket.on("notifyNew", (data) => {
             // data : userId : 입장 유저의 userId
             console.log("debug : notifyNew :", data);
+            setNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady});
+            setTimeout(()=>{
+                socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
+            }, 500);
         });
 
-        // 개별 유저의 ready 알림
-        socket.on("notifyReady", (data) => {
-            // data : userId : 입장 유저의 userId
-            //        isReady : userId의 Ready info (binary)
-            console.log("debug : notifyReady :", data);
+        socket.on("notifyOld", (data) => {
+            setNewPlayer(data);
         });
 
         // start 가능 알림 : for host 
         socket.on("readyToStart", (data) => {
             // data : readyToStart : true
-            console.log("debug : readyToStart :", data);
+            console.log("debug : reayToStart :", data);
+            setReadyToStart(true);
+        });
+
+        socket.on("waitStart", () => {
+            // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
+            setStart(false);
         });
 
         // game 시작 알림, 첫 번째 턴을 제공받음
         socket.on("gameStarted", (data) => {
-            // data : turn info Array
+            // data : {turnInfo : turn info Array, word : {category, word} Object}
             console.log("debug : gameStarted :", data);
+            setStart(true);
+            setTurnQue(data.turnInfo);
+            setTimeout(()=>{
+                setTurnQue(null);
+                word = data.word;
+                setShowWord(true);
+                setTimeout(()=>{
+                    setShowWord(false);
+                }, 2000);
+            }, 3000);
         })
 
         // turn 교체 요청에 대한 응답
@@ -114,6 +135,22 @@ const Ingame = ({roomId}) => {
         /*** for game : hyeRexx : end ***/
     },[]);
 
+    useEffect(()=>{
+        return () => {
+            // 방을 나가는 event를 보내줘야함
+
+            // 기존에 등록된 event listner 삭제
+            socket.off("notifyNew");
+            socket.off("notifyReady");
+            socket.off("readyToStart");
+            socket.off("gameStarted");
+            socket.off("singleTurnInfo");
+            socket.off("cycleClosed");
+            socket.off("nightResult");
+            socket.off("someoneExit");``
+        };
+    },[]);
+    
     /* 밤이 되었습니다 효과 3.5초간 지속 */
     useEffect(()=> {
         if (becomeNight) {
@@ -122,10 +159,10 @@ const Ingame = ({roomId}) => {
             }, 3500);
             return () => clearTimeout(showingTimer);
         }
-    }, [becomeNight])
-
+    }, [becomeNight]);
+    
     const readyBtn = () => {
-        console.log("ready?")
+        setReady(!isReady);
         socket.emit("singleReady", {gameId: roomId, userId: myId});
     }
 
@@ -171,7 +208,9 @@ const Ingame = ({roomId}) => {
                     } 
                 <div className={style.flexBox}>
                     <div className={style.item1}>
-                        <VideoWindow id={myId} />
+                    
+                        <VideoWindow newPlayer={newPlayer} isReady={isReady}/>
+                        
                     </div>
                     <div className={style.item2}>
                         <div>
@@ -202,19 +241,33 @@ const Ingame = ({roomId}) => {
                                 </div>
                             </div>
 
-                            {/* for gamelogic test */}
-                            <div className="btnbox" style={{position: 'absolute', top: '34%', left: '32%'}}>
-                                <button style={{fontSize: 40, margin: 30}} onClick={readyBtn}> READY </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={startBtn}> START </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={openTurnBtn}> OPEN TURN </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={nightBtn}> NIGHT </button>
-                                <button style={{fontSize: 40, margin: 30}} onClick={newCycleBtn}> NEW CYCLE </button>
-                            </div>
-                            {/* for gamelogic test */}
+                        {/* for gamelogic test */}
+                        <div className="btnbox" style={{position: 'absolute', top: '34%', left: '32%'}}>
+                            <button className={isReady? null: null} style={{fontSize: 40, margin: 30}} onClick={readyBtn}> READY </button>
+                            <button className={readyToStart? null: null} style={{fontSize: 40, margin: 30}} onClick={startBtn}> START </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={openTurnBtn}> OPEN TURN </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={nightBtn}> NIGHT </button>
+                            <button style={{fontSize: 40, margin: 30}} onClick={newCycleBtn}> NEW CYCLE </button>
+                        </div>
+                        {/* for gamelogic test */}
 
-                            <div className={style.chat}>
-                                <Chat roomId={roomId}/>
-                            </div>
+                        {/* 게임 start 후 실제 게임시작(턴시작)되기 전까지 로딩 화면 띄우기용 */}
+                        {isStarted===null? null: isStarted? null: <div>로딩중입니다</div>}
+                        
+                        {/* 게임 시작시 turn 보여주는 용도 */}
+                        <div>
+                            {turnQue===null? null: turnQue.map((userid)=>{
+                                return (
+                                    <h4>{userid}</h4>
+                                );
+                            })}
+                        </div>
+
+                        {/* 게임 시작시 word 또는 역할 보여주는 용도 */}
+                        {!showWord? null: ((word.word==="?")? <h3>당신은 마피아입니다</h3>: <h3>당신은 시민입니다 : 제시어 {word.word}</h3>)}
+
+                        <div className={style.chat}>
+                            <Chat roomId={roomId} newPlayer={newPlayer}/>
                         </div>
                     </div>
                 </div>
