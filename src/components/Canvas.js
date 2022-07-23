@@ -38,10 +38,10 @@ const Canvas = ({roomId}) => {
           <div className={style.canvasTool}>
               <div className={style.canvasToolBox}>
                   <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
-                  <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
-                  <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
-                  <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
-                  <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
+                  <button onClick={()=> (colorChange('#56acee'))} className={style.colorButtons2}></button>
+                  <button onClick={()=> (colorChange('#ffcc4d'))} className={style.colorButtons3}></button>
+                  <button onClick={()=> (colorChange('#64d726'))} className={style.colorButtons4}></button>
+                  <button onClick={()=> (colorChange('#ff9100'))} className={style.colorButtons5}></button>
                   <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
                   <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
                   <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>

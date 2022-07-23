@@ -14,7 +14,10 @@ import { turnStatusChange, surviveStatusChange } from '../store';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-
+import IngameLoader from '../subitems/IngameLoader';
+import EvilLoader from "../subitems/EvilLoader"
+import RoleCardHotSpot from '../subitems/RoleCardHotSpot';
+import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
@@ -200,6 +203,7 @@ const Ingame = ({roomId}) => {
             function () { 
                 return (
                     <>
+                   
                     {/* night event */}
                     { becomeNight ? <p className={style.topright}>밤이 되었습니다</p> : null }
 
@@ -214,7 +218,7 @@ const Ingame = ({roomId}) => {
                             </div>
 
                             <div className={style.item2}>
-                                <div className={style.flextest}>
+                                <div className={style.item2Flex}>
                                     <div className={style.canvas}>
                                         <Canvas roomId={roomId}/>
                                     </div>
@@ -223,14 +227,31 @@ const Ingame = ({roomId}) => {
                                         <Chat roomId={roomId}/>
                                     </div>
                                 </div>
+                            
+                            {/* design : ready button */}
+                            <button className=
+                                {isReady ? `${style.holdBtn} ${style.readyBtn}`: style.readyBtn} onClick={readyBtn}> {isReady ? 'READY!' : 'READY?'}
+                            </button>
+
+                            {/* design : start button */}
+                            <button className=
+                                {isReady ? style.startBtn : style.waitBtn} onClick={startBtn}> {isReady ? 'START!' : 'WAIT'}
+                            </button>
+                            
+                            
                             </div>
                         </div>
                     </div>
+
                     <div className={style.topSection}>
+                        {/* design : utility buttons */}
                         <div className={style.utility}>
                             <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button>
                             <button className={`${style.utilityBtn} ${style.exit}`}>EXIT</button>
                         </div>                    
+                        {/* design : utility buttons : END */}
+
+                        {/* design : word and Timer */}
                         <div className={style.wordTimer}>
                             <div className={style.wordBox}>
                                 <span className={style.wordBoxLabel}>제시어</span>
@@ -241,32 +262,40 @@ const Ingame = ({roomId}) => {
                                 <span className={style.timerText}>30</span>
                             </div>
                         </div>
+                        {/* design : word and Timer : END */}
                     </div>
-
+                    
                     {/* <div className={style.chat}>
                         <Chat roomId={roomId} newPlayer={newPlayer} />
                     </div> */}
 
+                    {/* design : Loader for start */}
+                    {isStarted === null ? null : (isStarted ? null : <EvilLoader/>)}
+                    {/* design : Loader for start : END */}
+                    {/* design : turn information */}
+                    <div className={style.turnBoard}>
+                        <div className={style.turnBoardTitle}> TURN </div>
+                        <div className={style.singleTurnInfo}>
+                            <span className={style.turnNum}>1</span>
+                            <span className={style.turnId}>hyerin108</span>
+                        </div>
+                        <div className={style.singleTurnInfo}>
+                            <span className={style.turnNum}>2</span>
+                            <span className={style.turnId}>haein2020</span>
+                        </div>
+                        <div className={style.singleTurnInfo}>
+                            <span className={style.turnNum}>3</span>
+                            <span className={style.turnId}>testtesttest</span>
+                        </div>
+                        <div className={style.singleTurnInfo}>
+                            <span className={style.turnNum}>4</span>
+                            <span className={style.turnId}>hellothere</span>
+                        </div>
+                    </div>
+                    {/* design : turn information : END*/}
 
-                {/* ready & start button */}
-                <button className={isReady ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={readyBtn}> READY </button>
-                    <button className={readyToStart ? null : null} style={{ fontSize: 40, margin: 30 }} onClick={startBtn}> START </button>  
-                    {/* <a href="#" class="btn">Hover to Shine</a>
-
-                    {/* for start loading */}
-                    {isStarted === null ? null : isStarted ? null : <div>로딩중입니다</div>}
-
-                    {/* 게임 시작시 turn 보여주는 용도 : start turn info all */}
-                    {/* <div>
-                        {turnQue === null ? null : turnQue.map((userid) => {
-                            return (
-                                <h4>{userid}</h4>
-                            );
-                        })}
-                    </div> */}
-
-                    {/* 게임 시작시 word 또는 역할 보여주는 용도 */}
-                    {/* {!showWord ? null : ((word.word === "?") ? <h3>당신은 마피아입니다</h3> : <h3>당신은 시민입니다 : 제시어 {word.word}</h3>)} */}
+                    {/* design : role card : Mafia */}
+                    {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> :  <RoleCardCitizen word={word.word}/>)}
                 </>
                 ); 
             }() : null
