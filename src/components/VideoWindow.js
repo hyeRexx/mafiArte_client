@@ -184,12 +184,12 @@ const VideoWindow = ({newPlayer, isReady}) => {
         }
     }, [gameUserInfo[0]]);
 
-    useEffect(() => {
-        let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[0]);
-        if (turnIdx !== -1){
-            console.log('testestsestsetsetsetsetsetsetet')
-        }
-    }, [gameUserInfo[1]]);
+    // useEffect(() => {
+    //     let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[0]);
+    //     if (turnIdx !== -1){
+    //         console.log('testestsestsetsetsetsetsetsetet')
+    //     }
+    // }, [gameUserInfo[1]]);
 
     useEffect( ()=> {
         const initialize = async () => {
