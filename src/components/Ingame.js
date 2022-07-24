@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
@@ -98,7 +98,6 @@ const Ingame = ({roomId}) => {
             // data : userId : 진행할 플레이어 userId
             //        isMafia : 진행할 플레이여 mafia binary
             dispatch(turnStatusChange(data.userId));
-
             console.log("debug : singleTurnInfo :", data);
         });
 
@@ -175,9 +174,9 @@ const Ingame = ({roomId}) => {
         });
     }
 
-    const openTurnBtn = () => {
-        socket.emit("openTurn", {gameId: roomId, userId: myId});
-    }
+    // const openTurnBtn = () => {
+    //     socket.emit("openTurn", {gameId: roomId, userId: myId});
+    // }
 
     /* 투표 완료 (nightWork)
        night work 마친 유저들이 클릭하는 버튼 이벤트
@@ -259,7 +258,7 @@ const Ingame = ({roomId}) => {
                             </div>
                             <div className={style.timer}>
                                 <span className={style.timerIco}></span>
-                                <span className={style.timerText}>30</span>
+                                <span className={style.timerText}><Timer nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
                             </div>
                         </div>
                         {/* design : word and Timer : END */}
@@ -305,6 +304,39 @@ const Ingame = ({roomId}) => {
         }
         </>
     );
+}
+
+function Timer(props){
+
+    const [timer, setTimer] = useState(0);
+
+    useEffect(() => {
+        if (props.nowplayer != null){
+            setTimer(15);
+        }
+    }, [props.nowplayer])
+
+    useEffect (() => {
+        if (props.nowplayer !== null){
+            console.log(props.myId, props.nowplayer);
+            console.log("timer 값 얼마니? ", timer);
+            if (timer !== 0) {
+                const tick = setInterval(() => {
+                    setTimer(value => value -1)
+                }, 1000);
+                return () => clearInterval(tick)
+            } else if (props.myId === props.nowplayer) {
+                console.log('host만 여기 통과해야함^^');
+                socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
+            }
+        }
+        }, [timer])
+
+    return (
+        <>
+        {timer}
+        </>
+    )
 }
 
 // 마피아 정답 제출 모달

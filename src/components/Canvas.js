@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import style from '../css/Canvas.module.css'
 import {socket} from '../script/socket';
 import {Whiteboard} from '../script/whiteboard'
@@ -6,6 +7,8 @@ import {Whiteboard} from '../script/whiteboard'
 let whiteboard;
 const Canvas = ({roomId}) => {
     const canvasElement = useRef();
+    const gameUserInfo = useSelector(state => state.gameInfo);
+    const myId = useSelector(state => state.user.id);
 
     useEffect(() => {
         // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
@@ -32,7 +35,7 @@ const Canvas = ({roomId}) => {
         <>
         <div className={style.canvasBox}>
             <div className={style.canvas}>
-              <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{"background":"#fff"}}>
+              <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{background:"#fff", pointerEvents: (gameUserInfo[0]===myId) ? "auto" : "none"}}>
               </canvas>
             </div>
             <div className={style.canvasTool}>
