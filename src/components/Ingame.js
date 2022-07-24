@@ -291,9 +291,12 @@ const Ingame = ({roomId}) => {
                             <span className={style.turnNum}>4</span>
                             <span className={style.turnId}>hellothere</span>
                         </div>
+                        <div className={style.singleTurnInfo}>
+                            <span className={style.turnNum}>4</span>
+                            <span className={style.turnId}>hellothere</span>
+                        </div>
                     </div>
                     {/* design : turn information : END*/}
-
                     {/* design : role card : Mafia */}
                     {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> :  <RoleCardCitizen word={word.word}/>)}
                 </>
