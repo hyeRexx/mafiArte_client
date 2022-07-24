@@ -32,7 +32,7 @@
 
 .line1 {
     position: absolute;
-    left: -10%;
+    left: 50%;
     animation: marquee 6s 2s linear infinite;
 }
 
