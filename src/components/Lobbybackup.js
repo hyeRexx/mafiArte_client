@@ -110,6 +110,7 @@ const Lobby = () => {
         // profile 이미지 정보
         axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
         .then(res => { 
+            console.log(res);
             img = res.data.profile_img;
             dispatch(setProfileImg("/img/" + img));
         })
@@ -117,7 +118,7 @@ const Lobby = () => {
             console.log('실패함')
         });
 
-        axios.post('/api/lobby/friendinfo', {userid: myId})
+        axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId})
             .then((res) => {
                 let FriList = res.data[0]; // user의 전체 친구 목록
                 let onlineList = res.data[1]; // 현재 접속중인 user 목록

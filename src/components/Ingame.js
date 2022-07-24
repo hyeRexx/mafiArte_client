@@ -2,49 +2,57 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
-import connectSocket, {socket} from '../script/socket';
+import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import axios from 'axios';
 import { turnStatusChange, surviveStatusChange } from '../store';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import { useNavigate } from 'react-router-dom';
+import { paddr, reqHeaders } from '../proxyAddr';
+import { FriendInfoReset } from '../store';
 import IngameLoader from '../subitems/IngameLoader';
 import EvilLoader from "../subitems/EvilLoader"
 import RoleCardHotSpot from '../subitems/RoleCardHotSpot';
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 
+let word;
+
 const Ingame = ({roomId}) => {
+    const [ isUnMounted , doUnMount ] = useState(false); // Exit 누르거나 새로고침/창닫기 시에도 동일하게 unmount 작동하도록 하기 위한 state 설정
+
     const [ roomEntered, setRoomEntered ] = useState(false);
     const [ newPlayer, setNewPlayer ] = useState(null);
+    const [ exiter, setExiter ] = useState(null);
     
-    const [ readyToStart, setReadyToStart ] = useState(false);
-    const [ isReady, setReady ] = useState(false);
-    const [ isStarted, setStart ] = useState(null);
-    const [ turnQue, setTurnQue ] = useState(null);
-    const [ showWord, setShowWord ] = useState(false);
-    let word;
+    const [ isHost, setHost ] = useState(false);
+    const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
+    const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
+    const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
+    const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
+    const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
 
     let friendlist;
     let [becomeNight, becomeNightState] = useState(false); // 밤이 되었습니다
     let [voteModal, voteModalState] = useState(false); // 투표 모달
     let [answerModal, answerModalState] = useState(""); // 마피아 정답 작성 모달
 
+    let [ endGame, setEndGame ] = useState(false);
+
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(()=>{
     //socket event name 변경 필요
         console.log(roomId);
         console.log(`${myId}, ${socket.id}, ${roomId}, Number(${roomId})`);
-        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), ()=>{
+        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
+            (myId === host) && setHost(true);
             setRoomEntered(true);
         });
 
@@ -68,28 +76,29 @@ const Ingame = ({roomId}) => {
         socket.on("readyToStart", (data) => {
             // data : readyToStart : true
             console.log("debug : reayToStart :", data);
-            setReadyToStart(true);
+            setReadyToStart(data.readyToStart);
         });
 
         socket.on("waitStart", () => {
             // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
-            setStart(false);
+            console.log("waitStart event received");
+            setStart(1);
         });
 
         // game 시작 알림, 첫 번째 턴을 제공받음
         socket.on("gameStarted", (data) => {
             // data : {turnInfo : turn info Array, word : {category, word} Object}
             console.log("debug : gameStarted :", data);
-            setStart(true);
+            word = data.word;
+            setStart(2);
             setTurnQue(data.turnInfo);
             setTimeout(()=>{
                 setTurnQue(null);
-                word = data.word;
                 setShowWord(true);
                 setTimeout(()=>{
                     setShowWord(false);
-                }, 2000);
-            }, 3000);
+                }, 7000);
+            }, 5000);
         })
 
         // turn 교체 요청에 대한 응답
@@ -135,12 +144,17 @@ const Ingame = ({roomId}) => {
         });
 
         /*** for game : hyeRexx : end ***/
+
+        socket.on("roomExit", (exiterId) => {
+            console.log(`${exiterId} is disconnected`);
+            setExiter(exiterId);
+        });
     },[]);
 
     useEffect(()=>{
         return () => {
             // 방을 나가는 event를 보내줘야함
-
+            socket.emit('exit', myId, Number(roomId));
             // 기존에 등록된 event listner 삭제
             socket.off("notifyNew");
             socket.off("notifyReady");
@@ -149,9 +163,33 @@ const Ingame = ({roomId}) => {
             socket.off("singleTurnInfo");
             socket.off("cycleClosed");
             socket.off("nightResult");
-            socket.off("someoneExit");``
+            socket.off("someoneExit");
         };
-    },[]);
+    },[isUnMounted]);
+
+    // Jack - 뒤로가기 버튼 막음. 새로고침/창닫기 시에는 게임 EXIT되도록 / 로그아웃 되도록 처리
+    useEffect(()=>{
+        history.pushState(null, "", location.href);
+        window.addEventListener("popstate", () => history.pushState(null, "", location.href));
+        const doExit = (e) => {
+            doUnMount(true);
+            axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
+                socket.emit('loginoutAlert', myId, 0);
+                // dispatch(setUserId(""));
+                dispatch(FriendInfoReset());
+                socket.close();
+                sessionStorage.removeItem('userid');
+            });
+        }
+        (()=>{
+            window.addEventListener("beforeunload", doExit);
+        })();
+
+        return () => {
+            window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
+            window.removeEventListener("beforeunload", doExit);
+        }
+    }, []);
     
     /* 밤이 되었습니다 효과 3.5초간 지속 */
     useEffect(()=> {
@@ -195,6 +233,13 @@ const Ingame = ({roomId}) => {
         answerModalState(false); 
     };
 
+    /* Exit Button */
+    const btnExit = (e) => {
+        e.preventDefault();
+        doUnMount(true);
+        navigate('/lobby');
+    };
+
     return (
         <>
         {
@@ -213,7 +258,7 @@ const Ingame = ({roomId}) => {
                     <div className={style.outbox}>
                         <div className={style.flexBox}>
                             <div className={style.item1}>
-                                <VideoWindow newPlayer={newPlayer} isReady={isReady}/>
+                                <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter}/>
                             </div>
 
                             <div className={style.item2}>
@@ -223,21 +268,27 @@ const Ingame = ({roomId}) => {
                                     </div>
 
                                     <div className={style.chat}>
-                                        <Chat roomId={roomId}/>
+                                        <Chat roomId={roomId} newPlayer={newPlayer} exiter={exiter}/>
                                     </div>
-                                </div>
-                            
-                            {/* design : ready button */}
-                            <button className=
-                                {isReady ? `${style.holdBtn} ${style.readyBtn}`: style.readyBtn} onClick={readyBtn}> {isReady ? 'READY!' : 'READY?'}
-                            </button>
-
-                            {/* design : start button */}
-                            <button className=
-                                {isReady ? style.startBtn : style.waitBtn} onClick={startBtn}> {isReady ? 'START!' : 'WAIT'}
-                            </button>
-                            
-                            
+                                </div>       
+                                {
+                                    isStarted === 0?
+                                        isHost?
+                                            /* design : start button */
+                                        (
+                                            readyToStart?
+                                            <button className={style.startBtn} onClick={startBtn}> START! </button>
+                                            :
+                                            <button className={style.waitBtn}> WAIT </button>
+                                        )
+                                        :
+                                            /* design : ready button */
+                                            <button className=
+                                                {isReady ? `${style.holdBtn} ${style.readyBtn}`: style.readyBtn} onClick={readyBtn}> {isReady ? 'READY!' : 'READY?'}
+                                            </button>
+                                    :
+                                    <></>
+                                }
                             </div>
                         </div>
                     </div>
@@ -246,7 +297,7 @@ const Ingame = ({roomId}) => {
                         {/* design : utility buttons */}
                         <div className={style.utility}>
                             <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button>
-                            <button className={`${style.utilityBtn} ${style.exit}`}>EXIT</button>
+                            <button className={`${style.utilityBtn} ${style.exit}`} onClick={btnExit}>EXIT</button>
                         </div>                    
                         {/* design : utility buttons : END */}
 
@@ -254,7 +305,7 @@ const Ingame = ({roomId}) => {
                         <div className={style.wordTimer}>
                             <div className={style.wordBox}>
                                 <span className={style.wordBoxLabel}>제시어</span>
-                                <span className={style.wordBoxWord}>얼룩말얼룩말</span>
+                                <span className={style.wordBoxWord}>{word?.word}</span>
                             </div>
                             <div className={style.timer}>
                                 <span className={style.timerIco}></span>
@@ -263,41 +314,35 @@ const Ingame = ({roomId}) => {
                         </div>
                         {/* design : word and Timer : END */}
                     </div>
-                    
-                    {/* <div className={style.chat}>
-                        <Chat roomId={roomId} newPlayer={newPlayer} />
-                    </div> */}
 
                     {/* design : Loader for start */}
-                    {isStarted === null ? null : (isStarted ? null : <EvilLoader/>)}
+                    {
+                        [null,
+                        <EvilLoader />,
+                        null][isStarted]
+                    }
                     {/* design : Loader for start : END */}
+                        
                     {/* design : turn information */}
+                    {turnQue?
                     <div className={style.turnBoard}>
                         <div className={style.turnBoardTitle}> TURN </div>
-                        <div className={style.singleTurnInfo}>
-                            <span className={style.turnNum}>1</span>
-                            <span className={style.turnId}>hyerin108</span>
-                        </div>
-                        <div className={style.singleTurnInfo}>
-                            <span className={style.turnNum}>2</span>
-                            <span className={style.turnId}>haein2020</span>
-                        </div>
-                        <div className={style.singleTurnInfo}>
-                            <span className={style.turnNum}>3</span>
-                            <span className={style.turnId}>testtesttest</span>
-                        </div>
-                        <div className={style.singleTurnInfo}>
-                            <span className={style.turnNum}>4</span>
-                            <span className={style.turnId}>hellothere</span>
-                        </div>
-                        <div className={style.singleTurnInfo}>
-                            <span className={style.turnNum}>4</span>
-                            <span className={style.turnId}>hellothere</span>
-                        </div>
+                        {turnQue.map((userId, idx) => {
+                            return (
+                                <div className={style.singleTurnInfo}>
+                                    <span className={style.turnNum}>{idx}</span>
+                                    <span className={style.turnId}>{userId}</span>
+                                </div>
+                            );
+                        })}
                     </div>
+                    :
+                    null
+                    }
                     {/* design : turn information : END*/}
+
                     {/* design : role card : Mafia */}
-                    {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> :  <RoleCardCitizen word={word.word}/>)}
+                    {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                 </>
                 ); 
             }() : null

@@ -23,4 +23,3 @@ const EvilLoader = () => {
 };
 
 export default EvilLoader;
-

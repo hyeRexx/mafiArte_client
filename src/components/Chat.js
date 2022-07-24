@@ -1,17 +1,34 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
+import { useSelector } from 'react-redux';
 
-let room;
+const Chat = ({roomId, newPlayer, exiter}) => {
+    const [ newMsg, setNewMsg ] = useState(null);
+    const [ chatWindow, setChatWindow ] = useState([`${roomId} 방에 입장하셨습니다.`]);
+    const [ input, setInput ] = useState("");
+    const inputBox = useRef();
+    const chatBox = useRef();
+    const isAlive = useSelector(state=>state.gameInfo[1]);
 
-const Chat = ({roomId}) => {
+    const myId = useSelector(state=>state.user.id);
+    
+    function handleMessageInput(event) {
+        event.preventDefault();
+        setInput(event.target.value);
+    }
+
+    function addMessage(message) {
+        let newChat = [...chatWindow];
+        newChat.push(message);
+        setChatWindow(newChat);
+    }
+
     function handleMessageSubmit(event) {
         event.preventDefault();
-        const input = room.querySelector("#msg input");
-        const value = input.value;
 
-        if (value == "" || value == null || value == undefined){
-            alert("채팅을 입력해주세요!");
+        if (input == "" || input == null || input == undefined){
+            // alert("채팅을 입력해주세요!");
             return;
         }
 
@@ -20,51 +37,72 @@ const Chat = ({roomId}) => {
                                 '존만한','호로','후레아들','호로새끼','후레자식','후래자식','병신');
         var Tmp;
         for(let i=0 ; i<YokList.length ; i++){
-            Tmp = value.toLowerCase().indexOf(YokList[i]);
+            Tmp = input.toLowerCase().indexOf(YokList[i]);
             if(Tmp >= 0){
                 alert('바른말 고운말을 사용해주세요!');
-                input.value = "";
+                inputBox.current.value = "";
+                setInput("");
                 return;
             }
         }
 
         // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
-        socket.emit("new_message", value, Number(roomId), () => {
-            console.log(`RoomName1 : ${roomId}`);
-            addMessage(`You : ${value}`);
+        const newMsg = `${myId} : ${input}`;
+        socket.emit("new_message", newMsg, Number(roomId), () => {
+            setNewMsg(`You : ${input}`);
         });
-        input.value = ""; // aSync
+        inputBox.current.value = "";
+        setInput("");
     }
 
-    function addMessage(message) {
-        const ul = room.querySelector("ul");
-        const msg = document.createElement("li")
-        msg.innerText = message;
-        ul.append(msg);
-    }
 
     // 재관이가 고칠 것임
     useEffect(()=> {
-        // room = document.getElementById('#room');
-        // console.log(socket);
-        // const msgform = room.querySelector("#msg");
-        // msgform.addEventListener("submit", handleMessageSubmit);
-        // socket.on("new_message", addMessage);
+        socket.on("new_message", setNewMsg);
     },[]);
+
+    useEffect(()=>{
+        return ()=>{
+            socket.off("new_message");
+        }
+    },[]);
+
+    useEffect(()=>{
+        newPlayer && addMessage(`${newPlayer.userId} 님이 게임에 들어오셨습니다.`);
+    },[newPlayer]);
+
+    useEffect(()=>{
+        exiter && addMessage(`${exiter} 님이 게임에서 나가셨습니다.`);
+    },[exiter]);
+
+    useEffect(()=>{
+        if (isAlive === 0) {
+            inputBox.current.disabled = true;
+        }
+    },[isAlive]);
+
+    useEffect(()=>{
+        newMsg && addMessage(newMsg);
+    },[newMsg]);
+
+    useEffect(()=>{
+        chatWindow && chatBox.current?.scrollIntoView(false ,{behavior: 'smooth'});
+    },[chatWindow]);
 
     return (
         <>
         <div id="room" style={{height: '100%', padding: "0 50px"}}>
             <div className={style.chatBox}>
                 <div className={style.chatLog}>
-                    <h3 style={{ color: "black" }}></h3>
-                    <ul style={{ color: "black", paddingLeft: 10}}>
-
+                    <ul ref={chatBox} style={{ color: "black", paddingLeft: 10}}>
+                        {chatWindow.map((message, idx) => {
+                            return <h5 key={idx}>{message}</h5>
+                        })}
                     </ul>
                 </div>
                 <div className={style.inputBox}>
                     <form id="msg">
-                        <input className={style.inputForm} placeholder="메세지를 입력하세요" required type="text"/>
+                        <input ref={inputBox} className={style.inputForm} placeholder="메세지를 입력하세요" onChange={handleMessageInput} required type="text"/>
                         <button className={style.sendBtn} onClick={handleMessageSubmit}>SEND</button>
                     </form>
                 </div>

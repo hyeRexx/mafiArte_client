@@ -4,6 +4,7 @@ const Video = ({stream, width, height, muted}) => {
   const ref = useRef();
   useEffect(()=>{
     ref.current.srcObject = stream;
+    ref.current.muted = muted;
   }, []);
   return (
     <div>

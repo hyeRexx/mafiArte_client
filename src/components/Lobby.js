@@ -46,42 +46,23 @@ const Lobby = () => {
             socket.emit("checkEnterableRoom", roomId);
             navigate(`/ingame/${thisGameId}`);
         });
-    }
-    
-    // // 초대 보낸 사람의 id
-    // let [sender, senderstate] = useState('');
+    };
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
-        // let listuserid = new Array();
-        // listuserid.push("haein");
-
-        // socket.emit("listuserinfo", listuserid);
-
-        // socket.on("listsocketid", (listsocketid) => {
-        //     console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
-
-            let roomId = + new Date();
-
-        //     // 초대장 전송
-        //     socket.emit("sendinvite", listsocketid, roomId, myId, (roomId) => {
-        //         console.log(`초대장 전송 시 ${roomId}`);
-
-        //         socket.emit("makeGame", {gameId : roomId, userId : myId}, (thisGameId) => {
-        //             navigate(`/ingame/${thisGameId}`);
-        //         });
-        //     });
-        // });
-
-        socket.emit("makeGame", {gameId : roomId, userId : myId}, (thisGameId) => {
-            navigate(`/ingame/${thisGameId}`);
-        });
-            
-    }
+    
+        // 친구 리스트 상태 변경 -> 필요 없는 듯?
+        console.log(`choosestate 상태 ${choose}`)
+        console.log(`MAKE A GAME 눌렀을 때 친구 리스트 ${friends}`);
+        // 초대할 사람 고르기
+        choosestate(true);
+        // 초대자 state 변경
+        senderstate(myId);
+    };
 
     const btnLogout = ()=>{
     
-        axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
+        axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             // dispatch(setUserId(""));
             dispatch(FriendInfoReset());
@@ -96,38 +77,39 @@ const Lobby = () => {
             socket.on("friendList", (userid, status) => {
                 console.log("friend수정확인",userid, status)
                 dispatch(FriendInfoChange([userid, status]));
-            })
-        socket.emit("userinfo", myId);
-        socket.emit('loginoutAlert', myId, 1);
-        console.log('login 변경사항 확인');
-        console.log(socket);
-        console.log('connectsocket test: ', socket['connected']);
-
-        socket.on("getinvite", (roomId, myId)=> {
-                console.log('초대장을 받았습니다!');
-                
-                roomidstate(roomId);
-                senderstate(myId);
-
-                // 모달창 띄워주기
-                invitestate(true);
-
             });
+            socket.emit("userinfo", myId);
+            socket.emit('loginoutAlert', myId, 1);
+            // console.log('login 변경사항 확인');
+            // console.log(socket);
+            // console.log('connectsocket test: ', socket['connected']);
 
-        })
+            socket.on("getinvite", (roomId, myId)=> {
+                    console.log('초대장을 받았습니다!');
+                    
+                    roomidstate(roomId);
+                    senderstate(myId);
+
+                    // 모달창 띄워주기
+                    invitestate(true);
+
+                });
+
+        });
 
         
         // profile 이미지 정보
-        axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
-        .then(res => { 
-            img = res.data.profile_img;
-            dispatch(setProfileImg("/img/" + img));
-        })
-        .catch(()=>{
-            console.log('실패함')
-        });
+        // axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
+        //     .then(res => { 
+        //         const img = res.data;
+        //         console.log('이미지 받아왔나?', img);
+        //         dispatch(setProfileImg("/img/" + img));
+        //     })
+        //     .catch((e)=>{
+        //         console.log(e)
+        //     });
 
-        axios.post('/api/lobby/friendinfo', {userid: myId})
+        axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
             .then((res) => {
                 let FriList = res.data[0]; // user의 전체 친구 목록
                 let onlineList = res.data[1]; // 현재 접속중인 user 목록
@@ -145,7 +127,14 @@ const Lobby = () => {
             .catch((e) => {
                 console.log(e);
             })
-    }, [])
+    }, []);
+
+    useEffect(()=>{
+        return () => {
+            socket.off("friendList");
+            socket.off("getinvite");
+        }
+    }, []);
 
     return (
         <>
