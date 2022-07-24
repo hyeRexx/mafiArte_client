@@ -6,13 +6,15 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import {socket} from '../script/socket';
 import Video from './Video';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
+import { VideoInfoChange } from '../store';
 
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({newPlayer, isReady}) => {
+const VideoWindow = ({newPlayer, isReady, needVideos, settingVideos, updatedVideos}) => {
+    const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     console.log("myId???", myId);
     const myImg = useSelector(state => state.user.profile_img);
@@ -28,7 +30,7 @@ const VideoWindow = ({newPlayer, isReady}) => {
         {userid: null, stream: null, image: null, isReady: false},
         {userid: null, stream: null, image: null, isReady: false}
     ]);
-
+    
     const setVideo = (index, userid, stream, image, isReady) => {
         let copyVideos = [...videos];
         copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
@@ -37,7 +39,7 @@ const VideoWindow = ({newPlayer, isReady}) => {
         copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
         setVideos(copyVideos);
     }
-    const changeVideo = (vIdx1, vIdx2) => {
+    const  changeVideo = (vIdx1, vIdx2) => {
         if (vIdx1 === vIdx2) {
             return null;
         }
@@ -51,7 +53,7 @@ const VideoWindow = ({newPlayer, isReady}) => {
         peerConnections[userid1].vIdx = vIdx2;
         setVideos(copyVideos);
     }
-
+    
     async function getCameras() {
         const cameras = []
         try {
@@ -276,6 +278,21 @@ const VideoWindow = ({newPlayer, isReady}) => {
             socket.off("roomExit");
         };
     }, []);
+
+
+    const videoList = useSelector((state) => state.videoInfo);
+    // dispatch(VideoInfoChange(JSON.stringify(videos)));
+     
+    useEffect(()=> {
+        dispatch(VideoInfoChange(JSON.stringify(videos)));
+        console.log('비디오 전송',videoList);
+    
+        // settingVideos(videos);
+        // const newVideoPromise = new Promise(function(resolve) {
+        //     setTimeout(() => resolve('완료'), 80000);
+        // });
+
+    }, [needVideos]);
 
     return (
         <>

@@ -47,11 +47,23 @@ let FriendInfo = createSlice({
   }
 })
 
+let videoInfo = createSlice({
+  name : 'videoInfo',
+  initialState : {videoList: null},
+  reducers : {
+    VideoInfoChange(state, action){
+      state.videoList = action.payload;
+      console.log('VideoInfoChange', current(state))
+    }
+  }
+});
+
 const store = configureStore({
   reducer: {
     user : user.reducer,
     FriendInfo : FriendInfo.reducer,
-    gameInfo : gameInfo.reducer
+    gameInfo : gameInfo.reducer,
+    videoInfo : videoInfo.reducer
   }
 });
 
@@ -60,3 +72,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
+export let { VideoInfoChange } = videoInfo.actions;
