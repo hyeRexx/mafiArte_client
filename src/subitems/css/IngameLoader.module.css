@@ -222,7 +222,7 @@
 
 
 
-  @keyframes spin {
+@keyframes spin {
     0% {
       transform: translate(2px, 1px) rotate(0deg);
     }

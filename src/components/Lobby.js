@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css';
+import { InvitationCard } from '../subitems/InvitationCard';
 
 const Lobby = () => {
 
@@ -42,7 +43,7 @@ const Lobby = () => {
         // socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
-            console.log("__debug : get this game id? :", thisGameId);
+            socket.emit("checkEnterableRoom", roomId);
             navigate(`/ingame/${thisGameId}`);
         });
     };
@@ -57,16 +58,6 @@ const Lobby = () => {
         choosestate(true);
         // 초대자 state 변경
         senderstate(myId);
-    };
-
-    // MAKE A GAME 버튼 - Close 클릭 시 상태 변경
-    const btnClose = () => {
-        choosestate(false); 
-    };
-
-    // INVITATION 버튼 - Close 클릭 시 상태 변경
-    const btnInviteClose = () => {
-        invitestate(false); 
     };
 
     const btnLogout = ()=>{
@@ -147,7 +138,7 @@ const Lobby = () => {
 
     return (
         <>
-        <div id="lobby">
+        <div id="lobby" style={{position: 'relative'}}>
             { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
                 className={style.inviteModal} btnClose={btnClose} /> : null }
 
@@ -169,10 +160,8 @@ const Lobby = () => {
                     </div>
 
                     <div className={style.lobbyGameBtns}>
-
                         <button className={`${style.GameBtn} ${style.startBtn}`} onClick={btnStart}><span>GAME START</span></button>
                         <button className={`${style.GameBtn} ${style.makeBtn}`} onClick={btnMake}><span>MAKE A GAME</span></button>
-
                     </div>
 
                 </div>
@@ -208,6 +197,8 @@ const Lobby = () => {
                         
                 </div>
             </div>
+
+            <InvitationCard/>
         </div>
         </>
     );
