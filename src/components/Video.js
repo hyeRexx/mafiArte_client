@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const Video = ({stream, width, height}) => {
+const Video = ({stream, width, height, muted}) => {
   const ref = useRef();
   useEffect(()=>{
     ref.current.srcObject = stream;

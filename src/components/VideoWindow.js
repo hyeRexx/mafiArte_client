@@ -10,30 +10,37 @@ import { useSelector } from 'react-redux';
 import style from '../css/VideoWindow.module.css';
 
 let myStream;
-const peerConnections = {};
+let peerConnections = {};
 
-const VideoWindow = () => {
+const VideoWindow = ({newPlayer, isReady}) => {
     const myId = useSelector(state => state.user.id);
-
-    const [imgURL , imgURLstate] = useState("");
+    console.log("myId???", myId);
+    const myImg = useSelector(state => state.user.profile_img);
+    console.log("myImg???", myImg);
+    const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
     const [videos , setVideos] = useState([
-        {userid: null, stream: null},
-        {userid: myId, stream: null},
-        {userid: null, stream: null},
-        {userid: null, stream: null},
-        {userid: null, stream: null},
-        {userid: null, stream: null},
-        {userid: null, stream: null},
-        {userid: null, stream: null}
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: myId, stream: null, image: myImg, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false},
+        {userid: null, stream: null, image: null, isReady: false}
     ]);
 
-    const setVideo = (index, userid, stream) => {
+    const setVideo = (index, userid, stream, image, isReady) => {
         let copyVideos = [...videos];
-        copyVideos[index].userid = userid;
-        copyVideos[index].stream = stream;
+        copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
+        copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
+        copyVideos[index].image = image==="asis"? copyVideos[index].image: image;
+        copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
         setVideos(copyVideos);
     }
     const changeVideo = (vIdx1, vIdx2) => {
+        if (vIdx1 === vIdx2) {
+            return null;
+        }
         let copyVideos = [...videos];
         let userid1 = copyVideos[vIdx1].userid;
         let userid2 = copyVideos[vIdx2].userid;
@@ -68,7 +75,7 @@ const VideoWindow = () => {
                 audio: true,
                 video: deviceId ? { deviceId } : true
             });
-            setVideo(1, myId, myStream);
+            setVideo(1, "asis", myStream, "asis", isReady);
             // if(!deviceId) { // 여기서 하는게 아니라, 세팅 버튼 클릭했을 때 띄워줘야 할 듯. 
             //     getCameras();
             // }
@@ -96,7 +103,7 @@ const VideoWindow = () => {
         // stream을 받아오면, 비디오를 새로 생성하고 넣어준다.
         // console.log("got others video: ", data.stream);
         const vIdx = peerConnections[othersId].vIdx;
-        setVideo(vIdx, othersId, data.stream);
+        setVideo(vIdx, "asis", data.stream, "asis", "asis");
         // console.log(videos);
     }
 
@@ -128,11 +135,8 @@ const VideoWindow = () => {
                 }
             ]
         });
-        let i = 0;
-        for (;i<8 && videos[i].userid;i++) {}
-        peerConnections[othersId] = {vIdx: i, connection: myPeerConnection};
-        setVideo(i, othersId, null);
-        console.log(peerConnections);
+
+        peerConnections[othersId].connection = myPeerConnection;
     
         myPeerConnection.addEventListener("icecandidate", (data) => handleIce(data, myId, othersSocket));
         myPeerConnection.addEventListener("addstream", (data) => handleAddStream(data, othersId));
@@ -153,23 +157,60 @@ const VideoWindow = () => {
         return answer || offer;
     }
 
+    useEffect(()=>{
+        if (newPlayer != null) {
+            let i = 0;
+            for (;i<8 && videos[i].userid;i++) {}
+            console.log("새 유저 입장 전", peerConnections);
+            peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
+            setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
+            setTimeout(()=>{
+                console.log("새 유저 입장 후", peerConnections);
+            }, 500);
+        }
+    }, [newPlayer]);
+
+    useEffect(()=>{
+        // const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
+        setVideo(1, "asis", "asis", "asis", isReady);
+    }, [isReady]);
+    
+    useEffect(() => {
+        let turnIdx = gameUserInfo[0] !== null? peerConnections[gameUserInfo[0]].vIdx : -1;
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet');
+            console.log("set single turn : ", turnIdx);
+            changeVideo(turnIdx, 0);
+        }
+    }, [gameUserInfo[0]]);
+
+    useEffect(() => {
+        let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[0]);
+        if (turnIdx !== -1){
+            console.log('testestsestsetsetsetsetsetsetet')
+        }
+    }, [gameUserInfo[1]]);
+
     useEffect( ()=> {
         const initialize = async () => {
             peerConnections[myId] = {vIdx: 1};
-            axios.get(`${paddr}api/ingame/profile_img`, reqHeaders).then(res => {
-                const img = res.data.profile_img;       // 파일명.png 받아옴
-                imgURLstate("/img/" + img);             // imgURL state 변경
-            });
             await initCall();
             // console.log(`socket id is ${socket.id}`);
 
-            socket.on("welcome", async (roomNumber, newCount, newbieID, newbieSocket) => {
-                // const h3 = room.querySelector("h3");
-                // h3.innerText = `Room ${roomName} (${newCount})`;
-                const timer = (timeDelay) => new Promise((resolve) => setTimeout(resolve, timeDelay)); // debugging - 지금은 
-                await timer(300);
-                const offer = await makeConnection(newbieID, newbieSocket);
-                socket.emit("offer", offer, socket.id, newbieSocket, myId); // 일단 바로 연결. 추후 게임 start시 (or ready버튼 클릭시) offer주고받도록 바꾸면 좋을듯
+            // 개별 유저의 ready 알림
+            socket.on("notifyReady", (data) => {
+                // data : userId : 입장 유저의 userId
+                //        isReady : userId의 Ready info (binary)
+                console.log("debug : notifyReady :", data);
+                const usersIdx = peerConnections[data.userId].vIdx;
+                setVideo(usersIdx, "asis", "asis", "asis", data.isReady);
+            });
+
+            socket.on("streamStart", async (userId, userSocket) => {
+                // const timer = (timeDelay) => new Promise((resolve) => setTimeout(resolve, timeDelay)); // debugging - 지금은 
+                // await timer(300);
+                const offer = await makeConnection(userId, userSocket);
+                socket.emit("offer", offer, socket.id, userSocket, myId); // 일단 바로 연결. 추후 게임 start시 (or ready버튼 클릭시) offer주고받도록 바꾸면 좋을듯
                 // addMessage(`${user} arrived!`);
             });
 
@@ -183,10 +224,10 @@ const VideoWindow = () => {
                 // console.log("send the answer");
             });
 
-            socket.on("answer", async (answer, newbieID) => {
+            socket.on("answer", async (answer, answersId) => {
                 // console.log("receive the answer", newbieID);
                 // 방에 있던 사람들은 뉴비를 위해 생성한 커섹션에 answer를 추가한다.
-                peerConnections[newbieID].connection.setRemoteDescription(answer);
+                peerConnections[answersId].connection.setRemoteDescription(answer);
             });
 
             socket.on("ice", (ice, othersId) => {
@@ -202,7 +243,7 @@ const VideoWindow = () => {
                 // addMessage(`${left} just left T.T`);
                 console.log(`${exiterId} is disconnected`);
                 const vIdx = peerConnections[exiterId].vIdx;
-                setVideo(vIdx, null, null);
+                setVideo(vIdx, "asis", "asis", "asis", "asis");
                 peerConnections[exiterId].connection.close();
                 delete peerConnections[exiterId];
                 console.log(peerConnections);
@@ -220,7 +261,7 @@ const VideoWindow = () => {
         return ()=> {
             Object.keys(peerConnections).forEach((userId) => {
                 if (userId != myId) {
-                    peerConnections[userId].connection.close();
+                    peerConnections[userId].connection?.close();
                     delete peerConnections[userId];
                 }
             })
@@ -244,9 +285,11 @@ const VideoWindow = () => {
                     {videos[0].userid? videos[0].userid: "NOW DRAWING"}
                 </div>
                 <div className={style.videoBig}>
+                    {/* READY 표시 확인 필요! */}
+                    {videos[0].isReady? <h3>READY!</h3>: null} 
                     {videos[0].stream? 
-                    <Video stream={videos[0].stream} width={"100%"} height={"297px"}/>
-                    :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                    <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"297px"}/>
+                    :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
                 </div>
             </div>
             <div className={style.videoObserving}>
@@ -254,45 +297,59 @@ const VideoWindow = () => {
                     {videos[1].userid === myId? "ME": "OBSERVING"}  
                 </div>
                 <div className={style.videoBig}>
+                    {/* READY 표시 확인 필요! */}
+                    {videos[1].isReady? <h3>READY!</h3>: null} 
                     {videos[1].stream?   
-                    <Video stream={videos[1].stream} width={"100%"} height={"290px"} />
-                    :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                    <Video stream={videos[1].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"290px"} />
+                    :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
                 <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
             </div>
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
                     <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[2].isReady? <h3>READY!</h3>: null} 
                         {videos[2].stream? 
-                        <Video stream={videos[2].stream} width={"100%"} height={"120px"}/>
-                        :<img style={{opacity:videos[2].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[2].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"120px"}/>
+                        :<img style={{opacity:videos[2].userid? "100%": "0%"}} height="100%" src={videos[2].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[3].isReady? <h3>READY!</h3>: null} 
                         {videos[3].stream? 
-                        <Video stream={videos[3].stream} width={"100%"} height={"93.5px"}/> 
-                        :<img style={{opacity:videos[3].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[3].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        :<img style={{opacity:videos[3].userid? "100%": "0%"}} height="100%" src={videos[3].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[4].isReady? <h3>READY!</h3>: null} 
                         {videos[4].stream? 
-                        <Video stream={videos[4].stream} width={"100%"} height={"93.5px"}/> 
-                        :<img style={{opacity:videos[4].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[4].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        :<img style={{opacity:videos[4].userid? "100%": "0%"}} height="100%" src={videos[4].image}/>}
                     </div>
                 </div>
-                <div className={style.videoMiniRow} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                <div className={style.videoMiniRow} onClick={() => (videos[5].stream? changeVideo(5, 1): null)}>
                     <div className={style.videoMini}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[5].isReady? <h3>READY!</h3>: null} 
                         {videos[5].stream? 
-                        <Video stream={videos[5].stream} width={"100%"} height={"93.5px"}/>
-                        :<img style={{opacity:videos[5].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[5].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"93.5px"}/>
+                        :<img style={{opacity:videos[5].userid? "100%": "0%"}} height="100%" src={videos[5].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[6].isReady? <h3>READY!</h3>: null} 
                         {videos[6].stream? 
-                        <Video stream={videos[6].stream} width={"100%"} height={"93.5px"}/> 
-                        :<img style={{opacity:videos[6].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[6].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        :<img style={{opacity:videos[6].userid? "100%": "0%"}} height="100%" src={videos[6].image}/>}
                     </div>
-                    <div className={style.videoMini}>
+                    <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
+                        {/* READY 표시 확인 필요! */}
+                        {videos[7].isReady? <h3>READY!</h3>: null} 
                         {videos[7].stream? 
-                        <Video stream={videos[7].stream} width={"100%"} height={"93.5px"}/> 
-                        :<img style={{opacity:videos[7].userid? "100%": "0%"}} height="100%" src={imgURL}/>}
+                        <Video stream={videos[7].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        :<img style={{opacity:videos[7].userid? "100%": "0%"}} height="100%" src={videos[7].image}/>}
                     </div>
                 </div>
             </div>

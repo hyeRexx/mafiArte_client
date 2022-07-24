@@ -2,8 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
 
-const Chat = ({roomId}) => {
+let room;
 
+const Chat = ({roomId}) => {
     function handleMessageSubmit(event) {
         event.preventDefault();
         const input = room.querySelector("#msg input");
@@ -44,10 +45,11 @@ const Chat = ({roomId}) => {
 
     // 재관이가 고칠 것임
     useEffect(()=> {
-        console.log(socket);
-        const msgform = room.querySelector("#msg");
-        msgform.addEventListener("submit", handleMessageSubmit);
-        socket.on("new_message", addMessage);
+        // room = document.getElementById('#room');
+        // console.log(socket);
+        // const msgform = room.querySelector("#msg");
+        // msgform.addEventListener("submit", handleMessageSubmit);
+        // socket.on("new_message", addMessage);
     },[]);
 
     return (
@@ -68,8 +70,6 @@ const Chat = ({roomId}) => {
                 </div>
             </div>
         </div>
-
-
         </>
     );
 };
