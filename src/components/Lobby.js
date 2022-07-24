@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css';
+import { InvitationCard } from '../subitems/InvitationCard';
 
 const Lobby = () => {
 
@@ -42,32 +43,41 @@ const Lobby = () => {
         // socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
-            console.log("__debug : get this game id? :", thisGameId);
+            socket.emit("checkEnterableRoom", roomId);
             navigate(`/ingame/${thisGameId}`);
         });
     }
+    
+    // // 초대 보낸 사람의 id
+    // let [sender, senderstate] = useState('');
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
-    
-        // 친구 리스트 상태 변경 -> 필요 없는 듯?
-        console.log(`choosestate 상태 ${choose}`)
-        console.log(`MAKE A GAME 눌렀을 때 친구 리스트 ${friends}`);
-        // 초대할 사람 고르기
-        choosestate(true);
-        // 초대자 state 변경
-        senderstate(myId); 
-    };
+        // let listuserid = new Array();
+        // listuserid.push("haein");
 
-    // MAKE A GAME 버튼 - Close 클릭 시 상태 변경
-    const btnClose = () => {
-        choosestate(false); 
-    };
+        // socket.emit("listuserinfo", listuserid);
 
-    // INVITATION 버튼 - Close 클릭 시 상태 변경
-    const btnInviteClose = () => {
-        invitestate(false); 
-    };
+        // socket.on("listsocketid", (listsocketid) => {
+        //     console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
+
+            let roomId = + new Date();
+
+        //     // 초대장 전송
+        //     socket.emit("sendinvite", listsocketid, roomId, myId, (roomId) => {
+        //         console.log(`초대장 전송 시 ${roomId}`);
+
+        //         socket.emit("makeGame", {gameId : roomId, userId : myId}, (thisGameId) => {
+        //             navigate(`/ingame/${thisGameId}`);
+        //         });
+        //     });
+        // });
+
+        socket.emit("makeGame", {gameId : roomId, userId : myId}, (thisGameId) => {
+            navigate(`/ingame/${thisGameId}`);
+        });
+            
+    }
 
     const btnLogout = ()=>{
     
@@ -139,7 +149,7 @@ const Lobby = () => {
 
     return (
         <>
-        <div id="lobby">
+        <div id="lobby" style={{position: 'relative'}}>
             { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
                 className={style.inviteModal} btnClose={btnClose} /> : null }
 
@@ -161,10 +171,8 @@ const Lobby = () => {
                     </div>
 
                     <div className={style.lobbyGameBtns}>
-
                         <button className={`${style.GameBtn} ${style.startBtn}`} onClick={btnStart}><span>GAME START</span></button>
                         <button className={`${style.GameBtn} ${style.makeBtn}`} onClick={btnMake}><span>MAKE A GAME</span></button>
-
                     </div>
 
                 </div>
@@ -200,6 +208,8 @@ const Lobby = () => {
                         
                 </div>
             </div>
+
+            <InvitationCard/>
         </div>
         </>
     );

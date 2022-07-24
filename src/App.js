@@ -9,6 +9,8 @@ import Main from './components/Main';
 import './css/App.css'
 import {RequireAuth} from './script/auth';
 
+import IngameNew from './components/IngameNew';
+
 /**
  * Jack
  * Login하지 않은 상태로 lobby, ingame 등으로의 접근을 막기위해
@@ -25,6 +27,9 @@ function App() {
         }/>
         <Route path="/ingame/:roomId" element={
           <RequireAuth Component={Ingame} />
+        }/>
+        <Route path="/ingameNew" element={
+          <RequireAuth Component={IngameNew} />
         }/>
         <Route path="*" element={
           <main style={{ padding: "1rem"}}>

@@ -8,6 +8,7 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
+import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 
 
 let myStream;
@@ -289,7 +290,7 @@ const VideoWindow = ({newPlayer, isReady}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
-                    {videos[0].isReady? <h3>READY!</h3>: null} 
+                    {videos[0].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[0].stream? 
                     <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"297px"}/>
                     :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
@@ -301,17 +302,19 @@ const VideoWindow = ({newPlayer, isReady}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
-                    {videos[1].isReady? <h3>READY!</h3>: null} 
+                    {videos[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[1].stream?   
                     <Video stream={videos[1].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"290px"} />
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
                 <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
             </div>
+    
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
                     <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <ReadyOnVideoSmall/>
                         {videos[2].isReady? <h3>READY!</h3>: null} 
                         {videos[2].stream? 
                         <Video stream={videos[2].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"120px"}/>

@@ -7,7 +7,7 @@ const Video = ({stream, width, height, muted}) => {
   }, []);
   return (
     <div>
-      <video ref={ref} autoPlay playsInline muted={muted} style={{objectFit: "cover"}} width={width} height={height} />
+      <video ref={ref} autoPlay playsInline style={{objectFit: "cover", transform:"scaleX(-1)", borderRadius: 3}} width={width} height={height} />
     </div>
   );
 };
