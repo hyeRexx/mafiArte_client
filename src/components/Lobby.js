@@ -45,7 +45,7 @@ const Lobby = () => {
             console.log("__debug : get this game id? :", thisGameId);
             navigate(`/ingame/${thisGameId}`);
         });
-    }
+    };
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
@@ -56,7 +56,7 @@ const Lobby = () => {
         // 초대할 사람 고르기
         choosestate(true);
         // 초대자 state 변경
-        senderstate(myId); 
+        senderstate(myId);
     };
 
     // MAKE A GAME 버튼 - Close 클릭 시 상태 변경
@@ -71,7 +71,7 @@ const Lobby = () => {
 
     const btnLogout = ()=>{
     
-        axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
+        axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             // dispatch(setUserId(""));
             dispatch(FriendInfoReset());
@@ -86,38 +86,39 @@ const Lobby = () => {
             socket.on("friendList", (userid, status) => {
                 console.log("friend수정확인",userid, status)
                 dispatch(FriendInfoChange([userid, status]));
-            })
-        socket.emit("userinfo", myId);
-        socket.emit('loginoutAlert', myId, 1);
-        console.log('login 변경사항 확인');
-        console.log(socket);
-        console.log('connectsocket test: ', socket['connected']);
-
-        socket.on("getinvite", (roomId, myId)=> {
-                console.log('초대장을 받았습니다!');
-                
-                roomidstate(roomId);
-                senderstate(myId);
-
-                // 모달창 띄워주기
-                invitestate(true);
-
             });
+            socket.emit("userinfo", myId);
+            socket.emit('loginoutAlert', myId, 1);
+            // console.log('login 변경사항 확인');
+            // console.log(socket);
+            // console.log('connectsocket test: ', socket['connected']);
 
-        })
+            socket.on("getinvite", (roomId, myId)=> {
+                    console.log('초대장을 받았습니다!');
+                    
+                    roomidstate(roomId);
+                    senderstate(myId);
+
+                    // 모달창 띄워주기
+                    invitestate(true);
+
+                });
+
+        });
 
         
         // profile 이미지 정보
-        axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
-        .then(res => { 
-            img = res.data.profile_img;
-            dispatch(setProfileImg("/img/" + img));
-        })
-        .catch(()=>{
-            console.log('실패함')
-        });
+        // axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
+        //     .then(res => { 
+        //         const img = res.data;
+        //         console.log('이미지 받아왔나?', img);
+        //         dispatch(setProfileImg("/img/" + img));
+        //     })
+        //     .catch((e)=>{
+        //         console.log(e)
+        //     });
 
-        axios.post('/api/lobby/friendinfo', {userid: myId})
+        axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
             .then((res) => {
                 let FriList = res.data[0]; // user의 전체 친구 목록
                 let onlineList = res.data[1]; // 현재 접속중인 user 목록
@@ -135,7 +136,14 @@ const Lobby = () => {
             .catch((e) => {
                 console.log(e);
             })
-    }, [])
+    }, []);
+
+    useEffect(()=>{
+        return () => {
+            socket.off("friendList");
+            socket.off("getinvite");
+        }
+    }, []);
 
     return (
         <>

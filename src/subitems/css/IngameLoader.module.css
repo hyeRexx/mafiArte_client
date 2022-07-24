@@ -1,0 +1,455 @@
+/* @keyframes spin {
+    0% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    10% {
+      transform: translate(-1px, -3px) rotate(36deg);
+    }
+    20% {
+      transform: translate(-2px, 0px) rotate(72deg);
+    }
+    30% {
+      transform: translate(1px, 2px) rotate(108deg);
+    }
+    40% {
+      transform: translate(1px, -1px) rotate(144deg);
+    }
+    50% {
+      transform: translate(-1px, 3px) rotate(180deg);
+    }
+    60% {
+      transform: translate(-1px, 1px) rotate(216deg);
+    }
+    70% {
+      transform: translate(3px, 1px) rotate(252deg);
+    }
+    80% {
+      transform: translate(-2px, -1px) rotate(288deg);
+    }
+    90% {
+      transform: translate(2px, 1px) rotate(324deg);
+    }
+    100% {
+      transform: translate(1px, -2px) rotate(360deg);
+    }
+  }
+  @keyframes speed {
+    0% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    10% {
+      transform: translate(-1px, -3px) rotate(-1deg);
+    }
+    20% {
+      transform: translate(-2px, 0px) rotate(1deg);
+    }
+    30% {
+      transform: translate(1px, 2px) rotate(0deg);
+    }
+    40% {
+      transform: translate(1px, -1px) rotate(1deg);
+    }
+    50% {
+      transform: translate(-1px, 3px) rotate(-1deg);
+    }
+    60% {
+      transform: translate(-1px, 1px) rotate(0deg);
+    }
+    70% {
+      transform: translate(3px, 1px) rotate(-1deg);
+    }
+    80% {
+      transform: translate(-2px, -1px) rotate(1deg);
+    }
+    90% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    100% {
+      transform: translate(1px, -2px) rotate(-1deg);
+    }
+  }
+  @keyframes strikes {
+    from {
+      left: 25px;
+    }
+    to {
+      left: -80px;
+      opacity: 0;
+    }
+  }
+  @keyframes dots {
+    from {
+      width: 0px;
+    }
+    to {
+      width: 15px;
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  
+  .fadeIn, .loadingwindow {
+    animation: fadeIn 0.4s both;
+  }
+  
+  .loadingwindow {
+    background: #333;
+    border-radius: 6px;
+    border: 3px solid #ffe4e1;
+    color: #ffe4e1;
+    height: 200px;
+    left: 50%;
+    margin-left: -150px;
+    margin-top: -100px;
+    position: fixed;
+    top: 50%;
+    width: 300px;
+    z-index: 99;
+  }
+  .loadingwindow .text {
+    font-size: 16px;
+    position: absolute;
+    width: auto;
+    top: 75%;
+    left: 38%;
+    margin: 0 auto;
+  }
+  .loadingwindow .dots {
+    display: inline-block;
+    width: 5px;
+    overflow: hidden;
+    vertical-align: bottom;
+    animation: dots 1.5s linear infinite;
+    transition: 1;
+  }
+  
+  .car {
+    position: absolute;
+    width: 117px;
+    height: 42px;
+    left: 92px;
+    top: 70px;
+  }
+  .car .strike {
+    position: absolute;
+    width: 11px;
+    height: 1px;
+    background: #ffe4e1;
+    animation: strikes 0.2s linear infinite;
+  }
+  .car .strike2 {
+    top: 11px;
+    animation-delay: 0.05s;
+  }
+  .car .strike3 {
+    top: 22px;
+    animation-delay: 0.1s;
+  }
+  .car .strike4 {
+    top: 33px;
+    animation-delay: 0.15s;
+  }
+  .car .strike5 {
+    top: 44px;
+    animation-delay: 0.2s;
+  }
+  .cardetail {
+    position: absolute;
+    display: block;
+    background: #ffe4e1;
+    animation: speed 0.5s linear infinite;
+  }
+  .cardetail.spoiler {
+    width: 0;
+    height: 0;
+    top: 7px;
+    background: none;
+    border: 20px solid transparent;
+    border-bottom: 8px solid #ffe4e1;
+    border-left: 20px solid #ffe4e1;
+  }
+  .cardetail.back {
+    height: 20px;
+    width: 92px;
+    top: 15px;
+    left: 0px;
+  }
+  .cardetail.center {
+    height: 35px;
+    width: 75px;
+    left: 12px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 45px 40px;
+    border: 4px solid #ffe4e1;
+    background: none;
+    box-sizing: border-box;
+  }
+  .cardetail.center1 {
+    height: 35px;
+    width: 35px;
+    left: 12px;
+    border-top-left-radius: 30px;
+  }
+  .cardetail.front {
+    height: 20px;
+    width: 50px;
+    top: 15px;
+    left: 67px;
+    border-top-right-radius: 50px 40px;
+    border-bottom-right-radius: 10px;
+  }
+  .cardetail.wheel {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    top: 20px;
+    left: 12px;
+    border: 3px solid #333;
+    background: linear-gradient(45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(-45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(90deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(0deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), radial-gradient(#ffe4e1 29%, transparent 30%, transparent 50%, #ffe4e1 51%), #333;
+    animation-name: spin;
+  }
+  .cardetail.wheel2 {
+    left: 82px;
+  } */
+
+
+
+
+  @keyframes spin {
+    0% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    10% {
+      transform: translate(-1px, -3px) rotate(36deg);
+    }
+    20% {
+      transform: translate(-2px, 0px) rotate(72deg);
+    }
+    30% {
+      transform: translate(1px, 2px) rotate(108deg);
+    }
+    40% {
+      transform: translate(1px, -1px) rotate(144deg);
+    }
+    50% {
+      transform: translate(-1px, 3px) rotate(180deg);
+    }
+    60% {
+      transform: translate(-1px, 1px) rotate(216deg);
+    }
+    70% {
+      transform: translate(3px, 1px) rotate(252deg);
+    }
+    80% {
+      transform: translate(-2px, -1px) rotate(288deg);
+    }
+    90% {
+      transform: translate(2px, 1px) rotate(324deg);
+    }
+    100% {
+      transform: translate(1px, -2px) rotate(360deg);
+    }
+  }
+  @keyframes speed {
+    0% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    10% {
+      transform: translate(-1px, -3px) rotate(-1deg);
+    }
+    20% {
+      transform: translate(-2px, 0px) rotate(1deg);
+    }
+    30% {
+      transform: translate(1px, 2px) rotate(0deg);
+    }
+    40% {
+      transform: translate(1px, -1px) rotate(1deg);
+    }
+    50% {
+      transform: translate(-1px, 3px) rotate(-1deg);
+    }
+    60% {
+      transform: translate(-1px, 1px) rotate(0deg);
+    }
+    70% {
+      transform: translate(3px, 1px) rotate(-1deg);
+    }
+    80% {
+      transform: translate(-2px, -1px) rotate(1deg);
+    }
+    90% {
+      transform: translate(2px, 1px) rotate(0deg);
+    }
+    100% {
+      transform: translate(1px, -2px) rotate(-1deg);
+    }
+  }
+  @keyframes strikes {
+    from {
+      left: 25px;
+    }
+    to {
+      left: -80px;
+      opacity: 0;
+    }
+  }
+  @keyframes dots {
+    from {
+      width: 0px;
+    }
+    to {
+      width: 15px;
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .fadeIn, .loadingWindow {
+    animation: fadeIn 0.4s both;
+  }
+  
+  .loadingWindow {
+    background: #20202095;
+    border-radius: 6px;
+    border: 3px solid #121212;
+    color: #ffe4e1;
+    height: 100%;
+    margin-left: -150px;
+    margin-top: -100px;
+    position: fixed;
+
+    width: 100%;
+    z-index: 99;
+  }
+  .loadingWindow .text {
+    font-size: 16px;
+    position: absolute;
+    width: auto;
+    top: 75%;
+    left: 38%;
+    margin: 0 auto;
+  }
+
+ .dots {
+    display: inline-block;
+    width: 5px;
+    overflow: hidden;
+    vertical-align: bottom;
+    animation: dots 1.5s linear infinite;
+    transition: 1;
+  }
+  
+  .car {
+    position: absolute;
+    width: 117px;
+    height: 42px;
+    left: 92px;
+    top: 70px;
+  }
+
+  .strike,
+  .strikeStrike2, .strikeStrike3, 
+  .strikeStrike4, .strikeStrike5 {
+    position: absolute;
+    width: 11px;
+    height: 1px;
+    background: #ffe4e1;
+    animation: strikes 0.2s linear infinite;
+  }
+  .strikeStrike2 {
+    top: 11px;
+    animation-delay: 0.05s;
+  }
+  .strikeStrike3 {
+    top: 22px;
+    animation-delay: 0.1s;
+  }
+  .strikeStrike4 {
+    top: 33px;
+    animation-delay: 0.15s;
+  }
+  .strikeStrike5 {
+    top: 44px;
+    animation-delay: 0.2s;
+  }
+  .carDetailSpoiler, .carDetailBack, .carDetailCenter,
+  .carDetailCenter1, .carDetailFront, .carDetailWheel, 
+  .carDetailWheel2 {
+    position: absolute;
+    display: block;
+    background: #ffe4e1;
+    animation: speed 0.5s linear infinite;
+  }
+  .carDetailSpoiler {
+    width: 0;
+    height: 0;
+    top: 7px;
+    background: none;
+    border: 20px solid transparent;
+    border-bottom: 8px solid #ffe4e1;
+    border-left: 20px solid #ffe4e1;
+  }
+  .carDetailBack {
+    height: 20px;
+    width: 92px;
+    top: 15px;
+    left: 0px;
+  }
+  .carDetailCenter {
+    height: 35px;
+    width: 75px;
+    left: 12px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 45px 40px;
+    border: 4px solid #ffe4e1;
+    background: none;
+    box-sizing: border-box;
+  }
+  .carDetailCenter1 {
+    height: 35px;
+    width: 35px;
+    left: 12px;
+    border-top-left-radius: 30px;
+  }
+  .carDetailFront {
+    height: 20px;
+    width: 50px;
+    top: 15px;
+    left: 67px;
+    border-top-right-radius: 50px 40px;
+    border-bottom-right-radius: 10px;
+  }
+  .carDetailWheel {
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    top: 20px;
+    left: 12px;
+    border: 3px solid #333;
+    background: linear-gradient(45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(-45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(90deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(0deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), radial-gradient(#ffe4e1 29%, transparent 30%, transparent 50%, #ffe4e1 51%), #333;
+    animation-name: spin;
+  }
+  .carDetailWheel2 {
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    top: 20px;
+    left: 82px;
+    border: 3px solid #333;
+    background: linear-gradient(45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(-45deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(90deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), linear-gradient(0deg, transparent 45%, #ffe4e1 46%, #ffe4e1 54%, transparent 55%), radial-gradient(#ffe4e1 29%, transparent 30%, transparent 50%, #ffe4e1 51%), #333;
+    animation-name: spin;
+  }
