@@ -9,6 +9,7 @@ import Video from './Video';
 import { useSelector } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
 
+
 let myStream;
 let peerConnections = {};
 
@@ -178,18 +179,20 @@ const VideoWindow = ({newPlayer, isReady}) => {
     useEffect(() => {
         let turnIdx = gameUserInfo[0] !== null? peerConnections[gameUserInfo[0]].vIdx : -1;
         if (turnIdx !== -1){
-            console.log('testestsestsetsetsetsetsetsetet');
+            console.log('testestsestsetsetsetsetsetsetet', peerConnections);
+            console.log(videos[0].stream.getAudioTracks());
             console.log("set single turn : ", turnIdx);
             changeVideo(turnIdx, 0);
         }
     }, [gameUserInfo[0]]);
 
-    // useEffect(() => {
-    //     let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[0]);
-    //     if (turnIdx !== -1){
-    //         console.log('testestsestsetsetsetsetsetsetet')
-    //     }
-    // }, [gameUserInfo[1]]);
+    useEffect(() => {
+        if (!gameUserInfo[1]){
+            let diedIdx = peerConnections[myId].vIdx;
+            let diedStream = videos[diedIdx].stream;
+            diedStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+        }
+    }, [gameUserInfo[1]]);
 
     useEffect( ()=> {
         const initialize = async () => {
