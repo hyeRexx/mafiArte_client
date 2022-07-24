@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector } from 'react-redux';
-import style from '../css/VideoWindow.module.css'
+import style from '../css/VideoWindow.module.css';
 
 let myStream;
 let peerConnections = {};
