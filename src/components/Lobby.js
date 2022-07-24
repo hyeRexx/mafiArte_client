@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css';
+import { InvitationCard } from '../subitems/InvitationCard';
 
 const Lobby = () => {
 
@@ -139,7 +140,7 @@ const Lobby = () => {
 
     return (
         <>
-        <div id="lobby">
+        <div id="lobby" style={{position: 'relative'}}>
             { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
                 className={style.inviteModal} btnClose={btnClose} /> : null }
 
@@ -161,10 +162,8 @@ const Lobby = () => {
                     </div>
 
                     <div className={style.lobbyGameBtns}>
-
                         <button className={`${style.GameBtn} ${style.startBtn}`} onClick={btnStart}><span>GAME START</span></button>
                         <button className={`${style.GameBtn} ${style.makeBtn}`} onClick={btnMake}><span>MAKE A GAME</span></button>
-
                     </div>
 
                 </div>
@@ -200,6 +199,8 @@ const Lobby = () => {
                         
                 </div>
             </div>
+
+            <InvitationCard/>
         </div>
         </>
     );
