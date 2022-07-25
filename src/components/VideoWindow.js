@@ -8,12 +8,12 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoInfoChange } from '../store';
+import { VideoInfoChange,  VideoStreamChange } from '../store';
 
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({newPlayer, isReady, needVideos, settingVideos, updatedVideos}) => {
+const VideoWindow = ({newPlayer, isReady, needVideos}) => {
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     console.log("myId???", myId);
@@ -279,18 +279,25 @@ const VideoWindow = ({newPlayer, isReady, needVideos, settingVideos, updatedVide
         };
     }, []);
 
-
+    // 투표 시 비디오 전송
     const videoList = useSelector((state) => state.videoInfo);
-    // dispatch(VideoInfoChange(JSON.stringify(videos)));
-     
     useEffect(()=> {
+        console.log('스트림 값', videos.stream);
+        console.log('비디오 값', videos);
+
+        // videos 전송
         dispatch(VideoInfoChange(JSON.stringify(videos)));
-        console.log('비디오 전송',videoList);
-    
-        // settingVideos(videos);
-        // const newVideoPromise = new Promise(function(resolve) {
-        //     setTimeout(() => resolve('완료'), 80000);
-        // });
+        // stream array
+        let streamArray = new Array();
+        for (let i = 0; i < 8; i++) {
+            if (videos[i].userid != null) {
+                streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
+            }
+        }
+
+        console.log('streamArray 값', streamArray);
+        // id와 stream 전송
+        dispatch(VideoStreamChange(streamArray));
 
     }, [needVideos]);
 

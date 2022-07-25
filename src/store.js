@@ -47,16 +47,44 @@ let FriendInfo = createSlice({
   }
 })
 
+// let videoInfo = createSlice({
+//   name : 'videoInfo',
+//   // initialState : {videoList: null},
+//   // reducers : {
+//   //   VideoInfoChange(state, action){
+//   //     state.videoList = action.payload;
+//   //     console.log('VideoInfoChange', current(state))
+//   //   }
+//   // }
+
+//   initialState : {videoList: "", stream: ""},
+//   reducers : {
+//     VideoInfoChange(state, action){
+//         state.videoList = action.payload;
+//         console.log('VideoInfoChange', current(state.videoList));
+//     },
+//     VideoStreamChangge(state, action){
+//         state.stream = action.payload;
+//         console.log('VideoStreamChangge', current(state.stream));
+//     }
+
+// });
+
 let videoInfo = createSlice({
   name : 'videoInfo',
-  initialState : {videoList: null},
+  initialState : {videoList: "", stream: ""},
   reducers : {
     VideoInfoChange(state, action){
-      state.videoList = action.payload;
-      console.log('VideoInfoChange', current(state))
+        state.videoList = action.payload;
+    },
+    VideoStreamChange(state, action){
+        state.stream = action.payload;
+        console.log('VideoStreamChange', current(state));
     }
-  }
+}
 });
+
+
 
 const store = configureStore({
   reducer: {
@@ -64,7 +92,12 @@ const store = configureStore({
     FriendInfo : FriendInfo.reducer,
     gameInfo : gameInfo.reducer,
     videoInfo : videoInfo.reducer
-  }
+  },
+
+  middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware({
+    serializableCheck: false
+  }),
 });
 
 export {store};
@@ -72,4 +105,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
-export let { VideoInfoChange } = videoInfo.actions;
+export let { VideoInfoChange, VideoStreamChange } = videoInfo.actions;

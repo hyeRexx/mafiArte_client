@@ -121,7 +121,7 @@ const Lobby = () => {
                 let FriList = res.data[0]; // user의 전체 친구 목록
                 let onlineList = res.data[1]; // 현재 접속중인 user 목록
                 console.log('onlinelist', onlineList);
-                onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
+                // onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
                 for (var i = 0; i < Object.keys(FriList).length; i++){
                     let key = FriList[i].userid;
                     if (!onlineList[key]){

@@ -411,9 +411,9 @@ flex: 5;
 
 .voteResultModal {
   border-radius: 15px;
-  background: #73AD21;
+  background: rgb(233, 233, 233);
   padding: 20px; 
-  width: 200px;
+  width: 600px;
   height: 150px; 
   position: absolute;
   top: 480px;
