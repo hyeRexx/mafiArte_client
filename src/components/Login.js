@@ -30,10 +30,7 @@ const Login = () => {
         axios.post(`${paddr}api/auth/login`, {userid: userId, password: userPw}, reqHeaders)
             .then( (res)=>{
                 if (res.data === 'success') {
-                    // document.cookie = "connect.sid" + '=' + res.headers['set-cookie'];
-                    console.log(res.headers);
-                    dispatch(setUserId(userId));          // login 정보 redux에 저장
-                    sessionStorage.setItem('userid', userId);   // login 정보 sessionStorage에 저장
+                    // dispatch(setUserId(userId));          // login 정보 redux에 저장
                     navigate(from, { replace: true });      // 접근했던 페이지 또는 로비로 이동
                 } else if (res.data === 'INVALID_ID') {
                     setLableId('ID : 유효하지 않은 ID 입니다');
