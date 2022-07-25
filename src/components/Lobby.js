@@ -128,6 +128,15 @@ const Lobby = () => {
                     dispatch(FriendInfoChange([userid, status]));
                 }
             });
+            socket.on("getinvite", (roomId, myId)=> {
+                console.log('초대장을 받았습니다!');
+
+                roomidstate(roomId);
+                senderstate(myId);
+
+                // 모달창 띄워주기
+                invitestate(true);
+            });
         }
 
 
