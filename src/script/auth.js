@@ -9,54 +9,56 @@
  * => 로그인시 접근했던 페이지로 자동 이동됨
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation, useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { setUserId } from "../store";
+import { useDispatch } from "react-redux";
+import { setUserId, setProfileImg } from "../store";
 import Ingame from '../components/Ingame'
+import axios from "axios";
+import { paddr, reqHeaders } from "../proxyAddr";
 
 // 로그인 불필요한 페이지 (Login 되어있는 상태로 login 시도)
 const NotRequireAuth = ({ children }) => {
-    // redux 및 sessionStorage에서 userid 획득 및 인증 확인
+    const [ authenticated, setAuth ] = useState(null);
     const dispatch = useDispatch();
-    let user = useSelector((state) => state.user.id);
-    // if (!user) {
-    //     user = sessionStorage.getItem('userid');
-    //     dispatch(setUserId(user));
-    // }
-    const authenticated = user? true: false;
-    
-    // 인증이 이미 된 경우 로비로 이동
-    if(authenticated) {
-        return <Navigate to='/lobby'/ >;
-    } 
-    
-    return children;
+
+    const ret = {null: <></>, true:<Navigate to='/lobby' />, false: children}
+    useEffect(() => {
+        axios.get(`${paddr}api/auth`, reqHeaders)
+        .then((res)=>{
+            dispatch(setUserId(res.data.user?.userid));
+            dispatch(setProfileImg("/img/" + res.data.user?.profile_img));
+            setAuth(res.data.auth);
+        })
+        .catch((e)=>{
+            console.log("login 확인 error", e);
+        });
+    }, []);
+    return ret[authenticated];
 };
 
 // 로그인이 필요한 페이지
 const RequireAuth = ({ Component }) => {
-    // redux 및 sessionStorage에서 userid 획득 및 인증 확인
-   
+    const [ authenticated, setAuth ] = useState(null);
     const params = useParams();
-    const dispatch = useDispatch();
     const location = useLocation();
-    let user = useSelector((state) => state.user.id);
-    // if (!user) {
-    //     user = sessionStorage.getItem('userid');
-    //     dispatch(setUserId(user));
-    // }
-    const authenticated = user? true: false;
+    const dispatch = useDispatch();
 
-    // 로그인이 안된 경우 메인으로 이동
-    if (!authenticated){
-        return <Navigate to="/" state={{ from: location }} replace />
-    }
+    const ret = {null: <></>, true: (Component == Ingame? <Component roomId={params.roomId}/> :<Component />), false: <Navigate to="/" state={{ from: location }} replace />}
+    useEffect(() => {
+        axios.get(`${paddr}api/auth`, reqHeaders)
+        .then((res)=>{
+            dispatch(setUserId(res.data.user?.userid));
+            dispatch(setProfileImg("/img/" + res.data.user?.profile_img));
+            setAuth(res.data.auth);
+        })
+        .catch((e)=>{
+            console.log("login 확인 error", e);
+        });
+    }, []);
     
     // Ingame 컴포넌트인 경우 roomId를 넘겨줌
-    return (
-        Component == Ingame?
-        <Component roomId={params.roomId}/>
-        :<Component />);
+    return ret[authenticated];
+    
 };
 export { RequireAuth, NotRequireAuth };

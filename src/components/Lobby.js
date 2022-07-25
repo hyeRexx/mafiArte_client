@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css';
+import { InvitationCard } from '../subitems/InvitationCard';
 
 const Lobby = () => {
 
@@ -43,9 +44,9 @@ const Lobby = () => {
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
-            navigate(`/ingame/${thisGameId}`);
+            navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
         });
-    }
+    };
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
@@ -56,7 +57,7 @@ const Lobby = () => {
         // 초대할 사람 고르기
         choosestate(true);
         // 초대자 state 변경
-        senderstate(myId); 
+        senderstate(myId);
     };
 
     // MAKE A GAME 버튼 - Close 클릭 시 상태 변경
@@ -70,75 +71,108 @@ const Lobby = () => {
     };
 
     const btnLogout = ()=>{
-    
-        axios.post(`${paddr}api/auth/logout`, reqHeaders).finally(()=>{
+        axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
             socket.emit('loginoutAlert', myId, 0);
             // dispatch(setUserId(""));
             dispatch(FriendInfoReset());
             socket.close();
-            sessionStorage.removeItem('userid');
             navigate('/');
         });
     };
 
     useEffect(() => {
-        (!socket || !socket['connected']) && connectSocket().then(() => {
-            socket.on("friendList", (userid, status) => {
-                console.log("friend수정확인",userid, status)
-                dispatch(FriendInfoChange([userid, status]));
-            })
-        socket.emit("userinfo", myId);
-        socket.emit('loginoutAlert', myId, 1);
-        console.log('login 변경사항 확인');
-        console.log(socket);
-        console.log('connectsocket test: ', socket['connected']);
+        // 뒤로가기 방지
+        history.pushState(null, "", location.href);
+        window.addEventListener("popstate", () => history.pushState(null, "", location.href));
 
-        socket.on("getinvite", (roomId, myId)=> {
+        // 소켓 연결 및 초기화
+        if (!socket || !socket['connected']) {
+            connectSocket().then(() => {
+                socket.on("friendList", (userid, status) => {
+                    console.log("friend수정확인",userid, status);
+                    if (userid === myId) {
+                        (status === 0) && (()=>{
+                            socket.close();
+                            navigate('/');
+                        })();
+                    } else {
+                        dispatch(FriendInfoChange([userid, status]));
+                    }
+                });
+
+                socket.emit("userinfo", myId);
+                socket.emit('loginoutAlert', myId, 1);
+                // console.log('login 변경사항 확인');
+                // console.log(socket);
+                // console.log('connectsocket test: ', socket['connected']);
+    
+                socket.on("getinvite", (roomId, myId)=> {
+                        console.log('초대장을 받았습니다!');
+                        
+                        roomidstate(roomId);
+                        senderstate(myId);
+    
+                        // 모달창 띄워주기
+                        invitestate(true);
+                    });
+            });
+        } else {
+            socket.on("friendList", (userid, status) => {
+                console.log("friend수정확인",userid, status);
+                if (userid === myId) {
+                    (status === 0) && (()=>{
+                        socket.close();
+                        navigate('/');
+                    })();
+                } else {
+                    dispatch(FriendInfoChange([userid, status]));
+                }
+            });
+            socket.on("getinvite", (roomId, myId)=> {
                 console.log('초대장을 받았습니다!');
                 roomidstate(roomId);
                 senderstate(myId);
 
                 // 모달창 띄워주기
                 invitestate(true);
-
             });
+        }
 
-        })
 
-        
-        // profile 이미지 정보
-        axios.post(`${paddr}api/lobby/profile_img`, {userId: myId}, reqHeaders)
-        .then(res => { 
-            img = res.data.profile_img;
-            dispatch(setProfileImg("/img/" + img));
+        axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
+        .then((res) => {
+            let FriList = res.data[0]; // user의 전체 친구 목록
+            let onlineList = res.data[1]; // 현재 접속중인 user 목록
+            console.log('onlinelist', onlineList);
+            onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
+            for (var i = 0; i < Object.keys(FriList).length; i++){
+                let key = FriList[i].userid;
+                if (!onlineList[key]){
+                    dispatch(FriendInfoSet([key, 0]))
+                } else {
+                    dispatch(FriendInfoSet([key, 1]))
+                }
+            }
         })
-        .catch(()=>{
-            console.log('실패함')
+        .catch((e) => {
+            console.log(e);
         });
 
-        axios.post('/api/lobby/friendinfo', {userid: myId})
-            .then((res) => {
-                let FriList = res.data[0]; // user의 전체 친구 목록
-                let onlineList = res.data[1]; // 현재 접속중인 user 목록
-                console.log('onlinelist', onlineList);
-                // onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
-                for (var i = 0; i < Object.keys(FriList).length; i++){
-                    let key = FriList[i].userid;
-                    if (!onlineList[key]){
-                        dispatch(FriendInfoSet([key, 0]))
-                    } else {
-                        dispatch(FriendInfoSet([key, 1]))
-                    }
-                }
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-    }, [])
+        return () => {
+            window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
+        }
+    }, []);
+
+    useEffect(()=>{
+        return () => {
+            socket.off("friendList");
+            socket.off("getinvite");
+        }
+    }, []);
 
     return (
         <>
-        <div id="lobby">
+        <div id="lobby" style={{position: 'relative'}}>
             { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
                 className={style.inviteModal} btnClose={btnClose} /> : null }
 
@@ -160,10 +194,8 @@ const Lobby = () => {
                     </div>
 
                     <div className={style.lobbyGameBtns}>
-
                         <button className={`${style.GameBtn} ${style.startBtn}`} onClick={btnStart}><span>GAME START</span></button>
                         <button className={`${style.GameBtn} ${style.makeBtn}`} onClick={btnMake}><span>MAKE A GAME</span></button>
-
                     </div>
 
                 </div>
@@ -199,6 +231,8 @@ const Lobby = () => {
                         
                 </div>
             </div>
+
+            <InvitationCard/>
         </div>
         </>
     );
@@ -255,7 +289,7 @@ function ChooseModal(props){
                 console.log(`초대장 전송 시 ${roomId}`);
 
                 // HOST가 방으로 이동
-                navigate(`/ingame/${roomId}`);
+                navigate(`/ingame/${roomId}`, {state: {fromLobby: true}});
             });
             
         });
@@ -308,10 +342,14 @@ function InviteModal(props){
 
         // 게임 조인
         socket.emit("joinGame", {gameId : props.roomId, userId : props.myId}, (thisGameId) => {
+            // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
             console.log("__debug : get this game id? :", thisGameId);
+            if (thisGameId) {
+                navigate(`/ingame/${props.roomId}`, {state: {fromLobby: true}});
+            } else {
+                alert('게임이 이미 시작되어 참가할 수 없습니다.'); // 일단은 이런 경우가 거의 없을 것이므로, 따로 만들지는 않고 alert으로 처리함.
+            }
         });
-
-        navigate(`/ingame/${props.roomId}`)
     }
 
     return(

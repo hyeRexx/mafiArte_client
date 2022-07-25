@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import style from '../css/Canvas.module.css'
 import {socket} from '../script/socket';
 import {Whiteboard} from '../script/whiteboard'
@@ -6,6 +7,8 @@ import {Whiteboard} from '../script/whiteboard'
 let whiteboard;
 const Canvas = ({roomId}) => {
     const canvasElement = useRef();
+    const gameUserInfo = useSelector(state => state.gameInfo);
+    const myId = useSelector(state => state.user.id);
 
     useEffect(() => {
         // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
@@ -29,27 +32,27 @@ const Canvas = ({roomId}) => {
     }, [pickColor]);
     
     return (
-      <>
-      <div className={style.canvasBox}>
-          <div className={style.canvas}>
-            <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{"background":"#fff"}}>
-            </canvas>
-          </div>
-          <div className={style.canvasTool}>
-              <div className={style.canvasToolBox}>
-                  <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
-                  <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
-                  <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
-                  <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
-                  <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
-                  <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
-                  <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
-                  <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
-                  {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}
-              </div>
-          </div>
-      </div>
-      </>
+        <>
+        <div className={style.canvasBox}>
+            <div className={style.canvas}>
+              <canvas ref={canvasElement} className={`${style.myCanvas}`} style={{background:"#fff", pointerEvents: (gameUserInfo[0]===myId) ? "auto" : "none"}}>
+              </canvas>
+            </div>
+            <div className={style.canvasTool}>
+                <div className={style.canvasToolBox}>
+                    <button onClick={()=> (colorChange('#d93434'))} className={style.colorButtons1}></button>
+                    <button onClick={()=> (colorChange('#48abe0'))} className={style.colorButtons2}></button>
+                    <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
+                    <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
+                    <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
+                    <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
+                    <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
+                    <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
+                    {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}
+                </div>
+            </div>
+        </div>
+        </>
     );
 };
 

@@ -4,6 +4,7 @@ import Join from './Join';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import style from "../css/Main.module.css"
 
+
 const Main = () => {
     const [login, setLogin] = useState(false);
     const [join, setJoin] = useState(false);
@@ -16,6 +17,7 @@ const Main = () => {
     }
 
     return (
+        <>
         <div className={style.Main}>
             <img className={style.mainLogo} src='/img/mainLogo.png'></img>
             <div className={style.mainBtns}> 
@@ -24,6 +26,7 @@ const Main = () => {
                 {join ? <Join/> : null}
             </div>
         </div>
+        </>
     );
 }
 

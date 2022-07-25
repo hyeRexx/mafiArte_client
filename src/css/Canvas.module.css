@@ -50,13 +50,12 @@
     margin: auto;
 }
 
-/* .canvasToolBox button:not(:first-child) {
-    margin-top: 10px;
-} */
+.canvasToolBox button:hover {
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.172);
+}
 
-.canvasToolBox button:active {
-    border: 2px solid yellow;
-    /* transform: translateY(2px); */
+.canvasToolBox button:focus {
+    box-shadow: inset 0 0 0 3px #20202050;
 }
 
 .colorButtons1 {
@@ -66,22 +65,22 @@
 
 .colorButtons2 {
     flex: 1;
-    background-color: #48abe0;
+    background-color: #56acee;
 }
 
 .colorButtons3 {
     flex: 1;
-    background-color: #f0e73a;
+    background-color: #ffcc4d;
 }
 
 .colorButtons4 {
     flex: 1;
-    background-color: #9bf03a;
+    background-color: #64d726;
 }
 
 .colorButtons5 {
     flex: 1;
-    background-color: #ff7f00;
+    background-color: #ff9100;
 }
 
 .colorButtons6 {
