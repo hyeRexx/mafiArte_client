@@ -47,29 +47,6 @@ let FriendInfo = createSlice({
   }
 })
 
-// let videoInfo = createSlice({
-//   name : 'videoInfo',
-//   // initialState : {videoList: null},
-//   // reducers : {
-//   //   VideoInfoChange(state, action){
-//   //     state.videoList = action.payload;
-//   //     console.log('VideoInfoChange', current(state))
-//   //   }
-//   // }
-
-//   initialState : {videoList: "", stream: ""},
-//   reducers : {
-//     VideoInfoChange(state, action){
-//         state.videoList = action.payload;
-//         console.log('VideoInfoChange', current(state.videoList));
-//     },
-//     VideoStreamChangge(state, action){
-//         state.stream = action.payload;
-//         console.log('VideoStreamChangge', current(state.stream));
-//     }
-
-// });
-
 let videoInfo = createSlice({
   name : 'videoInfo',
   initialState : {videoList: "", stream: ""},
