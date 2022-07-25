@@ -248,8 +248,8 @@ const Ingame = ({roomId}) => {
     // 투표 시 비디오 리스트 받는 함수
     function getVideos() {
         console.log(`각자 받은 제시어 확인 ${word.word}`);
-        voteModalState(true); // 투표 모달 true 상태로 변경
         setVideosList(videoList2);
+        voteModalState(true); // 투표 모달 true 상태로 변경
         console.log('비디오 리스트',videosList);
         console.log("debug : cycleClosed!");
     };
