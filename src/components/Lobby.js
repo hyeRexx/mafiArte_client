@@ -130,7 +130,6 @@ const Lobby = () => {
             });
             socket.on("getinvite", (roomId, myId)=> {
                 console.log('초대장을 받았습니다!');
-
                 roomidstate(roomId);
                 senderstate(myId);
 
@@ -177,7 +176,7 @@ const Lobby = () => {
             { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
                 className={style.inviteModal} btnClose={btnClose} /> : null }
 
-            { invite === true ? <InviteModal myId={myId} roomId={newRoomId} className={style.inviteModal} 
+            { invite === true ? <InviteModal myId={myId} sender={sender} roomId={newRoomId} className={style.inviteModal} 
                 btnInviteClose={btnInviteClose} /> : null }
     
             <div className={style.mainLobby}>

@@ -5,17 +5,17 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import {socket} from '../script/socket';
 import Video from './Video';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
+import { VideoInfoChange,  VideoStreamChange } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
-
 
 let myStream;
 let peerConnections = {};
 
 const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGame}) => {
     const [ othersReady, setOthersReady ] = useState(null);
-
+    const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
@@ -29,7 +29,7 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
         {userid: null, stream: null, image: null, isReady: false},
         {userid: null, stream: null, image: null, isReady: false}
     ]);
-
+    
     const setVideo = (index, userid, stream, image, isReady) => {
         let copyVideos = [...videos];
         copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
@@ -74,7 +74,7 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
         });
         setVideos(videosCleared);
     }
-
+    
     async function getCameras() {
         const cameras = []
         try {
@@ -325,6 +325,28 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
             socket.off("roomExit");
         };
     }, [isUnMounted]);
+
+    // 투표 시 비디오 전송
+    const videoList = useSelector((state) => state.videoInfo);
+    useEffect(()=> {
+        console.log('스트림 값', videos.stream);
+        console.log('비디오 값', videos);
+
+        // videos 전송
+        dispatch(VideoInfoChange(JSON.stringify(videos)));
+        // stream array
+        let streamArray = new Array();
+        for (let i = 0; i < 8; i++) {
+            if (videos[i].userid != null) {
+                streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
+            }
+        }
+
+        console.log('streamArray 값', streamArray);
+        // id와 stream 전송
+        dispatch(VideoStreamChange(streamArray));
+
+    }, [needVideos]);
 
     return (
         <>

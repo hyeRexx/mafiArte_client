@@ -47,12 +47,34 @@ let FriendInfo = createSlice({
   }
 })
 
+let videoInfo = createSlice({
+  name : 'videoInfo',
+  initialState : {videoList: "", stream: ""},
+  reducers : {
+    VideoInfoChange(state, action){
+        state.videoList = action.payload;
+    },
+    VideoStreamChange(state, action){
+        state.stream = action.payload;
+        console.log('VideoStreamChange', current(state));
+    }
+}
+});
+
+
+
 const store = configureStore({
   reducer: {
     user : user.reducer,
     FriendInfo : FriendInfo.reducer,
-    gameInfo : gameInfo.reducer
-  }
+    gameInfo : gameInfo.reducer,
+    videoInfo : videoInfo.reducer
+  },
+
+  middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware({
+    serializableCheck: false
+  }),
 });
 
 export {store};
@@ -60,3 +82,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
+export let { VideoInfoChange, VideoStreamChange } = videoInfo.actions;

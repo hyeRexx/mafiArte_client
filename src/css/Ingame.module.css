@@ -352,17 +352,16 @@
 
 
 
-/* 밤이 되었습니다
 .topright {
-position: absolute;
-top: 4em;
-padding: 4px;
-background-color: #fff;
-font-weight: bold;
-font-size: 50px;
-left: 800px;
-}
+  position: absolute;
+  top: 4em;
+  padding: 4px;
+  font-weight: bold;
+  font-size: 50px;
+  left: 800px;
+  }
 
+/* 밤이 되었습니다
 
 .title h1{
   font-size: 36px;
@@ -484,3 +483,58 @@ margin: auto;
 .MainLobbyTapContents {
 flex: 5;
 } */
+
+.dark {
+  position: fixed;
+  top: 0px; 
+  left: 0px; 
+  width: 100%;
+  height: 100%; 
+  z-index: 100; 
+  opacity: 0.5; 
+  background-color: rgb(0, 0, 0); 
+  background: url(../../public/img/night.jpg);
+}
+
+.inputBox  {
+  width: 500px;
+  height: 50px;
+  font-size: 15px;
+  border: 0;
+  border-radius: 15px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
+  font-size: 30px;
+  margin-right: 15px;
+}
+
+.position {
+  position: absolute;
+  top: 480px;
+  left: 800px;
+}
+
+.sendBtn {
+  color: #fff;
+  margin-top: -1px;
+  height: 30px;
+  width: 55px;
+  font-size: 13px;
+  border: none;
+  background-color: #202020;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.voteResultModal {
+  border-radius: 15px;
+  background: rgb(233, 233, 233);
+  padding: 20px; 
+  width: 600px;
+  height: 150px; 
+  position: absolute;
+  top: 480px;
+  left: 800px;
+}

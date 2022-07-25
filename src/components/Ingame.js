@@ -5,11 +5,11 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import axios from 'axios';
 import { turnStatusChange, surviveStatusChange } from '../store';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import Video from './Video';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { paddr, reqHeaders } from '../proxyAddr';
 import { FriendInfoReset } from '../store';
@@ -26,7 +26,6 @@ const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
     const [ newPlayer, setNewPlayer ] = useState(null);
     const [ exiter, setExiter ] = useState(null);
-    
     const [ isHost, setHost ] = useState(false);
     const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
     const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
@@ -35,9 +34,19 @@ const Ingame = ({roomId}) => {
     const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
 
     let friendlist;
-    let [becomeNight, becomeNightState] = useState(false); // 밤이 되었습니다
-    let [voteModal, voteModalState] = useState(false); // 투표 모달
-    let [answerModal, answerModalState] = useState(""); // 마피아 정답 작성 모달
+    let [ becomeNight, becomeNightState ] = useState(false); // 밤이 되었습니다
+    let [ voteModal, voteModalState ] = useState(false); // 투표 작성 모달
+    let [ voteResultModal, voteResultState ] = useState(false); // 투표 결과 모달
+    let [ resultModal, resultModalState ] = useState(false); // 최종 결과 모달
+    let [ players, setPlayers ] = useState(null);
+    let [ result, setResult ] = useState(null); // 최종 결과 
+    let [ needVideos, setNeedVideos ] = useState(null); // 투표 시 비디오 필요 신호
+    let [ videos2, setVideos ] = useState(null); // 비디오 값을 받아오는 것
+    let [ videosList, setVideosList ] = useState(null);
+    let [ voteNumber, voteNumberState ] = useState(null); // 투표 결과
+    let [ endGame, setEndGame ] = useState(false); // 게임 종료 신호
+    let [ deadMan, setDeadMan ] = useState(null);
+    let ripList = new Array(); // 무고하게 죽은 사람 리스트
 
     let [ endGame, setEndGame ] = useState(false);
 
@@ -47,6 +56,8 @@ const Ingame = ({roomId}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const videoList2 = useSelector((state) => state.videoInfo);
 
     useEffect(()=>{
     //socket event name 변경 필요
@@ -118,28 +129,70 @@ const Ingame = ({roomId}) => {
             console.log("debug : singleTurnInfo :", data);
         });
 
+        const becomingNight = () => {
+            console.log('night state true로 변경');
+            becomeNightState(true); // 밤이 되었습니다 화면에 출력
+        };
+
         /* 밤이 되었습니다 화면 띄우고 투표 / 정답 입력 띄우기 */
         // 한 사이클이 끝났음에 대한 알림
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", () => {
-            becomeNightState(true); // 밤이 되었습니다 화면에 출력
+            console.log('밤이 되었습니다');
+            // 3.5초동안 밤 상태 지속
+            becomingNight();
+            const promise = new Promise(function(resolve) {
+                setTimeout(() => resolve('완료'), 3500);
+            });
 
-            // 시민 : 투표
-            // 마피아 : 제시어 작성
-            voteModalState(true);  // 투표 모달 -> 역할에 따라 분기처리 다르게
-            answerModalState(true); // 마피아 정답 작성 모달
-        
-
-            console.log("debug : cycleClosed!")
+            promise.then(()=> {
+                becomeNightState(false);
+                setNeedVideos(true); // 비디오 필요하다는 신호 전송
+            });
         });
 
         /* nightResult 결과를 받음 */
         // nightEvent 요청에 대한 진행 보고
         socket.on("nightResult", (data) => {
-            // data : win : mafia or citizen or null
-            //        elected : killed of null : 죽은 시민의 id
-            //        voteData : voteData object orray
-            // data.voteData.userId : data.voteData.vote
+            voteNumberState(data.voteData); // 투표 수치
+            voteResultState(true); // 투표 결과 모달
+
+            let end = 0;
+            if (data.win == "mafia") {
+                console.log("마피아 승!");  
+                setResult("mafia");
+                end = 1;
+            } else if (data.win == "citizen") {
+                console.log("시민 승!");
+                setResult("citizen");
+                end = 1;
+            } else if (data.elected) {
+                console.log("무고하게 죽은 시민", data.elected);
+                setDeadMan(data.elected);
+                ripList.push(data.elected);
+                setResult("dead");
+                if (data.elected === myId){
+                    dispatch(surviveStatusChange(0));
+                }
+            } else {
+                console.log("오늘 밤은 아무도 죽지 않았습니다");
+                setResult("noOne");
+            }
+            console.log('죽은 사람? ', ripList); 
+
+            const promise = new Promise(function(resolve) {
+                setTimeout(() => resolve('완료'), 3500);
+            });
+
+            promise.then(()=> {
+                becomeNightState(false);
+                resultModalState(true); // 최종 결과 모달
+            });
+
+            if (end === 1) {
+                setEndGame(true); // 게임 종료 신호
+            }
+
             console.log("debug : nightResult :", data);
         });
 
@@ -192,6 +245,15 @@ const Ingame = ({roomId}) => {
         };
     },[isUnMounted]);
 
+    // 투표 시 비디오 리스트 받는 함수
+    function getVideos() {
+        console.log(`각자 받은 제시어 확인 ${word.word}`);
+        setVideosList(videoList2);
+        voteModalState(true); // 투표 모달 true 상태로 변경
+        console.log('비디오 리스트',videosList);
+        console.log("debug : cycleClosed!");
+    };
+
     useEffect(() => {
         endGame && (() => {
             setStart(0);
@@ -235,15 +297,30 @@ const Ingame = ({roomId}) => {
         }
     }, []);
     
-    /* 밤이 되었습니다 효과 3.5초간 지속 */
+    // 투표 시 비디오 리스트 함수 호출
     useEffect(()=> {
-        if (becomeNight) {
+        needVideos && getVideos();
+    }, [needVideos]);
+
+    /* 투표 결과 모달 3.5초간 지속 */
+    useEffect(()=> {
+        if (voteResultModal) {
             const showingTimer = setTimeout(()=> {
-                becomeNightState(false);
+                voteResultState(false); 
             }, 3500);
             return () => clearTimeout(showingTimer);
         }
-    }, [becomeNight]);
+    }, [voteResultModal]);
+
+    /* 최종 결과 모달 3.5초간 지속 */
+    useEffect(()=> {
+        if (resultModal) {
+            const showingTimer = setTimeout(()=> {
+                resultModalState(false); 
+            }, 3500);
+            return () => clearTimeout(showingTimer);
+        }
+    }, [resultModal]);
     
     const readyBtn = () => {
         setReady(!isReady);
@@ -272,9 +349,9 @@ const Ingame = ({roomId}) => {
         socket.emit("newCycleRequest", {gameId: roomId, userId: myId});
     }
 
-    /* 제시어 제출 - Close 클릭 시 상태 변경 */
-    const btnAnswerClose = () => {
-        answerModalState(false); 
+    /* 투표 모달 - SUBMIT 클릭 시 상태 변경 */
+    const voteModalClose = () => {
+        voteModalState(false); 
     };
 
     /* Exit Button */
@@ -290,14 +367,19 @@ const Ingame = ({roomId}) => {
             roomEntered ? 
             function () { 
                 return (
-                    <>
-                   
+                    <div className={ (becomeNight ? style.dark : null)}>
+                  
                     {/* night event */}
                     { becomeNight ? <p className={style.topright}>밤이 되었습니다</p> : null }
 
-                    {/* mafia answer */}
-                    { answerModal ? <AnswerModal className={style.inviteModal} roomId={roomId} myId={myId}  
-                        btnAnswerClose={btnAnswerClose} /> : null }
+                    {/* vote and write answer */}
+                    { voteModal ? <VoteModal players={players} roomId={roomId} myId={myId} voteModalClose={voteModalClose} voteModal={voteModal} videosList={videosList} ripList={ripList}/> : null}
+
+                    {/* vote result */}
+                    { voteResultModal ? <VoteResultModal voteNumber={voteNumber} /> : null }
+
+                    {/* total result */}
+                    { resultModal ? <ResultModal result={result} deadMan={deadMan}/> : null }
 
                     <div className={style.outbox}>
                         <div className={style.flexBox}>
@@ -383,11 +465,10 @@ const Ingame = ({roomId}) => {
                     :
                     null
                     }
-                    {/* design : turn information : END*/}
-
                     {/* design : role card : Mafia */}
                     {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
-                </>
+
+                </div>
                 ); 
             }() : null
         }
@@ -428,41 +509,154 @@ function Timer(props){
     )
 }
 
-// 마피아 정답 제출 모달
-function AnswerModal(props){
+// 투표 및 제시어 제출 모달
+function VoteModal(props){
+    let [inputValue, setInputValue] = useState(""); // 마피아의 제시어 제출
+    let [submit, setSubmit] = useState(false);
+    let [clicked, setClicked] = useState(false);
+    const videoList2 = useSelector((state) => state.videoInfo);
+    console.log(`들어온 제시어 ${word.word}`);
+    
     const [show, setShow] = useState(true);
-    const handleClose = () => {setShow(false); props.btnAnswerClose();};
-    let [answer, answerState] = useState(''); // 마피아의 제시어 제출
+    const handleClose = () => {setShow(false); };
 
-    const submitAnswer = () => {
+    const submitAnswer = (answer) => {
+        console.log(`투표 결과 ${answer}`);
+        setSubmit(true);
+        setClicked(true);
         socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: answer}});
+
+        handleClose();
+
+    }
+
+    const submitWord = () => {
+        props.voteModalClose();
+        console.log(`마피아 정답 : ${inputValue}`);
+        socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: inputValue}});
+    }
+
+    const onKeyPress = (e) => {
+        if(e.key == 'Enter') {
+            submitWord(inputValue);
+        }
     }
 
     return(
     <>
-        <Modal className={style.modal} style={{ top: "650px" }}  show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>ANSWER</Modal.Title>
-            </Modal.Header>
+        { word.word === "?" ? 
+            // 마피아일 경우
+            <div className={style.position}>
+                <VoteTimer voteModal={props.voteModal} voteModalClose={props.voteModalClose} inputValue={inputValue} clicked={clicked} roomId = {props.roomId} myId = {props.myId}/>
+                <input type="text" placeholder="제시어를 맞춰보세요" className={style.inputBox} 
+                onChange={(event) => setInputValue(event.target.value)} onKeyPress={onKeyPress}/>
+                <button className={style.sendBtn} onClick={submitWord}>SEND</button>
+            </div>
+        :   
+            ( !submit ? 
+                <>
+                // 시민일 경우
+                <Modal className={style.modal} style={{ top: "650px" }} show={show} onHide={handleClose}>
+                    <VoteTimer voteModal={props.voteModal} voteModalClose={props.voteModalClose} inputValue={inputValue} clicked={clicked} roomId = {props.roomId} myId = {props.myId}/>
+                    <Modal.Header>
+                        <Modal.Title>VOTE</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className={style.modalBody}>
 
-            <Modal.Body className={style.modalBody}>
-                <Form>
-                    <Form.Group className={style.mb3} style={{ marginTop: 10 }}>
-                        <Form.Label className={style.label} >제시어는 무엇일까요?</Form.Label>
-                        <Form.Control
-                            className={style.joinForm}
-                            placeholder="제시어는 무엇일까요?"
-                            autoFocus
-                            onChange={(e) => answerState(e.target.value)}
-                        />
-                    </Form.Group>
-                </Form>
-            </Modal.Body>
+                        {
+                            videoList2&&videoList2.stream.filter(streamId => !props.ripList.includes(streamId.userId)).map((streamId) => (
+                                <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }}>
+                                    <Video stream={streamId.stream} width={"240px"} height={"120px"}/>
+                                </div>))
+                        }
+                        
+                    </Modal.Body>
+                    {/* <Modal.Footer className={style.modalFooter}>
+                        <Button variant="primary" onClick={submitAnswer}>VOTE</Button>
+                    </Modal.Footer> */}
+                </Modal>
+                </>
+                : 
+                <>
+                <h2>다른 사람이 투표하길 기다리고 있습니다..</h2>
+                </>
+            )
+        };
 
-            <Modal.Footer className={style.modalFooter}>
-                <Button variant="primary" onClick={submitAnswer}>SUBMIT</Button>
-            </Modal.Footer>
-        </Modal>
+    </>
+    )
+};
+
+function VoteTimer(props){
+
+    const [voteTimer, setVoteTimer] = useState(1);
+
+    useEffect(() => {
+        if (props.voteModal) {
+            setVoteTimer(20);
+        }
+    }, [props.voteModal])
+
+    useEffect (() => {
+            console.log("timer 값 얼마니? ", voteTimer);
+            if (voteTimer !== 0) {
+                const tick = setInterval(() => {
+                    setVoteTimer(value => value -1)
+                }, 2000);
+                return () => {
+                    clearInterval(tick);
+                }
+            } 
+
+            else if (voteTimer === 0) {
+                props.voteModalClose();
+                if (props.inputValue === ''){
+                    socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: ''}});
+                }
+                if (!props.clicked){
+                    console.log('여기로 안 오나?');
+                    socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: ''}});
+                }
+            }
+        }, [voteTimer])
+
+    return (
+        <>
+        <h2>{voteTimer}</h2>
+        </>
+    )
+}
+
+// 투표 결과 모달
+function VoteResultModal(props) {
+    const voteNumber = Object.entries(props.voteNumber);
+    return (
+        <div className={style.voteResultModal}>
+            <h1>투표 결과</h1>
+            {
+                voteNumber.map((voteNumber) => (
+                    <h3>{voteNumber[0]} : {voteNumber[1]}</h3>
+                ))
+            }        
+        </div>
+    )
+
+};
+
+// 최종 결과 모달
+function ResultModal(props) {
+    const finalResult = props.result;
+    const deadMan = props.deadMan;
+    return (
+    <>
+        <div className={style.voteResultModal}>
+        <h1>최종 결과</h1>
+        { finalResult === "mafia" ? <h2>마피아가 승리했습니다!</h2>: null }
+        { finalResult === "citizen" ? <h2>시민이 승리했습니다!</h2>: null }
+        { finalResult === "dead" ? <h2>무고한 시민 {deadMan}이 죽었습니다...</h2>: null }
+        { finalResult === "noOne" ? <h2>오늘 밤은 아무도 죽지 않았습니다...</h2>: null }
+
+    </div> 
     </>
     )
 };
