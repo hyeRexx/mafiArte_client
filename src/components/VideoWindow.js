@@ -13,7 +13,7 @@ import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGame}) => {
+const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGame, needVideos}) => {
     const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
@@ -44,13 +44,8 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
             return null;
         }
         const copyVideos = [...videos];
-        // console.log(JSON.stringify(copyVideos));
-        
         const userid1 = copyVideos[vIdx1].userid;
         const userid2 = copyVideos[vIdx2].userid;
-        // const stream1 = videos[vIdx1].stream;
-        // const stream2 = videos[vIdx2].stream;
-        console.log(stream1, stream2);
 
         peerConnections[userid1].vIdx = vIdx2;
         peerConnections[userid2].vIdx = vIdx1;
@@ -59,11 +54,7 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
         copyVideos[vIdx1] = copyVideos[vIdx2];
         copyVideos[vIdx2] = tempVideoIdx1;
 
-        // copyVideos[vIdx1].stream = stream2;
-        // copyVideos[vIdx2].stream = stream1;
-
         setVideos(copyVideos);
-        // console.log(JSON.stringify(copyVideos));
     }
 
     const clearReady = () => {
@@ -306,23 +297,25 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
 
     useEffect(()=>{
         return ()=> {
-            if (isStarted !== 0) {
-                Object.keys(peerConnections).forEach((userId) => {
-                    if (userId != myId) {
-                        peerConnections[userId].connection?.close();
-                        delete peerConnections[userId];
-                    }
+            isUnMounted && (()=>{
+                if (isStarted !== 0) {
+                    Object.keys(peerConnections).forEach((userId) => {
+                        if (userId != myId) {
+                            peerConnections[userId].connection?.close();
+                            delete peerConnections[userId];
+                        }
+                    });
+                }
+                myStream.getTracks().forEach((track) => {
+                    track.stop();
                 });
-            }
-            myStream.getTracks().forEach((track) => {
-                track.stop();
-            });
-            socket.off("notifyReady");
-            socket.off("welcome");
-            socket.off("offer");
-            socket.off("answer");
-            socket.off("ice");
-            socket.off("roomExit");
+                socket.off("notifyReady");
+                socket.off("welcome");
+                socket.off("offer");
+                socket.off("answer");
+                socket.off("ice");
+                socket.off("roomExit");
+            })();
         };
     }, [isUnMounted]);
 

@@ -5,7 +5,7 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import { turnStatusChange, surviveStatusChange } from '../store';
+import { turnStatusChange, surviveStatusChange, FriendInfoChange } from '../store';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -47,8 +47,6 @@ const Ingame = ({roomId}) => {
     let [ endGame, setEndGame ] = useState(false); // 게임 종료 신호
     let [ deadMan, setDeadMan ] = useState(null);
     let ripList = new Array(); // 무고하게 죽은 사람 리스트
-
-    let [ endGame, setEndGame ] = useState(false);
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -185,12 +183,14 @@ const Ingame = ({roomId}) => {
             });
 
             promise.then(()=> {
-                becomeNightState(false);
+                // becomeNightState(false);
                 resultModalState(true); // 최종 결과 모달
             });
 
             if (end === 1) {
-                setEndGame(true); // 게임 종료 신호
+                setTimeout(()=>{
+                    setEndGame(true); // 게임 종료 신호
+                }, 3500);
             }
 
             console.log("debug : nightResult :", data);
@@ -231,17 +231,19 @@ const Ingame = ({roomId}) => {
     useEffect(()=>{
         return () => {
             // 방을 나가는 event를 보내줘야함
-            socket.emit('exit', myId, Number(roomId));
-            // 기존에 등록된 event listner 삭제
-            socket.off("notifyNew");
-            socket.off("notifyReady");
-            socket.off("readyToStart");
-            socket.off("gameStarted");
-            socket.off("singleTurnInfo");
-            socket.off("cycleClosed");
-            socket.off("nightResult");
-            socket.off("someoneExit");
-            socket.off("friendList");
+            isUnMounted && (()=>{
+                socket.emit('exit', myId, Number(roomId));
+                // 기존에 등록된 event listner 삭제
+                socket.off("notifyNew");
+                socket.off("notifyReady");
+                socket.off("readyToStart");
+                socket.off("gameStarted");
+                socket.off("singleTurnInfo");
+                socket.off("cycleClosed");
+                socket.off("nightResult");
+                socket.off("someoneExit");
+                socket.off("friendList");
+            })();
         };
     },[isUnMounted]);
 
@@ -358,7 +360,9 @@ const Ingame = ({roomId}) => {
     const btnExit = (e) => {
         e.preventDefault();
         doUnMount(true);
-        navigate('/lobby');
+        setTimeout(()=>{
+            navigate('/lobby');
+        }, 0);
     };
 
     return (
@@ -384,7 +388,7 @@ const Ingame = ({roomId}) => {
                     <div className={style.outbox}>
                         <div className={style.flexBox}>
                             <div className={style.item1}>
-                                <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame}/>
+                                <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
                             </div>
 
                             <div className={style.item2}>
@@ -545,10 +549,11 @@ function VoteModal(props){
     return(
     <>
         { word.word === "?" ? 
+            // <p>하이하이</p>
             // 마피아일 경우
-            <div className={style.position}>
+            <div>
                 <VoteTimer voteModal={props.voteModal} voteModalClose={props.voteModalClose} inputValue={inputValue} clicked={clicked} roomId = {props.roomId} myId = {props.myId}/>
-                <input type="text" placeholder="제시어를 맞춰보세요" className={style.inputBox} 
+                <input type="text" placeholder="제시어를 맞춰보세요"
                 onChange={(event) => setInputValue(event.target.value)} onKeyPress={onKeyPress}/>
                 <button className={style.sendBtn} onClick={submitWord}>SEND</button>
             </div>
@@ -630,8 +635,10 @@ function VoteTimer(props){
 // 투표 결과 모달
 function VoteResultModal(props) {
     const voteNumber = Object.entries(props.voteNumber);
+    console.log('투표 결과 모달 뜨나');
+    console.log('투표 수', voteNumber);
     return (
-        <div className={style.voteResultModal}>
+        <div>
             <h1>투표 결과</h1>
             {
                 voteNumber.map((voteNumber) => (
@@ -647,16 +654,17 @@ function VoteResultModal(props) {
 function ResultModal(props) {
     const finalResult = props.result;
     const deadMan = props.deadMan;
+    console.log('최종 결과 모달 뜨나');
+    console.log('최종 결과', finalResult);
     return (
     <>
-        <div className={style.voteResultModal}>
+        <div>
         <h1>최종 결과</h1>
         { finalResult === "mafia" ? <h2>마피아가 승리했습니다!</h2>: null }
         { finalResult === "citizen" ? <h2>시민이 승리했습니다!</h2>: null }
         { finalResult === "dead" ? <h2>무고한 시민 {deadMan}이 죽었습니다...</h2>: null }
         { finalResult === "noOne" ? <h2>오늘 밤은 아무도 죽지 않았습니다...</h2>: null }
-
-    </div> 
+        </div> 
     </>
     )
 };
