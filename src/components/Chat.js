@@ -3,7 +3,7 @@ import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
 import { useSelector } from 'react-redux';
 
-const Chat = ({roomId, newPlayer, exiter}) => {
+const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     const [ newMsg, setNewMsg ] = useState(null);
     const [ chatWindow, setChatWindow ] = useState([`${roomId} 방에 입장하셨습니다.`]);
     const [ input, setInput ] = useState("");
@@ -74,6 +74,10 @@ const Chat = ({roomId, newPlayer, exiter}) => {
     useEffect(()=>{
         exiter && addMessage(`${exiter} 님이 게임에서 나가셨습니다.`);
     },[exiter]);
+
+    useEffect(()=>{
+        endGame && addMessage("게임이 종료되었습니다.");
+    },[endGame]);
 
     useEffect(()=>{
         if (isAlive === 0) {

@@ -5,7 +5,7 @@ const Video = ({stream, width, height, muted}) => {
   useEffect(()=>{
     ref.current.srcObject = stream;
     ref.current.muted = muted;
-  }, []);
+  }, [stream, muted]);
   return (
     <div>
       <video ref={ref} autoPlay playsInline style={{objectFit: "cover", transform:"scaleX(-1)", borderRadius: 3}} width={width} height={height} />

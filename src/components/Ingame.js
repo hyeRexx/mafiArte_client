@@ -10,7 +10,7 @@ import { turnStatusChange, surviveStatusChange } from '../store';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { paddr, reqHeaders } from '../proxyAddr';
 import { FriendInfoReset } from '../store';
 import IngameLoader from '../subitems/IngameLoader';
@@ -46,9 +46,14 @@ const Ingame = ({roomId}) => {
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(()=>{
     //socket event name 변경 필요
+        if (location.state?.fromLobby !== true) {
+            alert("비정상적인 접근입니다. 메인페이지로 이동합니다.");
+            window.location.replace("/");
+        }
         console.log(roomId);
         console.log(`${myId}, ${socket.id}, ${roomId}, Number(${roomId})`);
         socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
@@ -65,7 +70,7 @@ const Ingame = ({roomId}) => {
             setNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady});
             setTimeout(()=>{
                 socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
-            }, 500);
+            }, 200);
         });
 
         socket.on("notifyOld", (data) => {
@@ -82,7 +87,10 @@ const Ingame = ({roomId}) => {
         socket.on("waitStart", () => {
             // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
             console.log("waitStart event received");
+            setEndGame(false);
             setStart(1);
+            setReady(false);
+            setReadyToStart(false);
         });
 
         // game 시작 알림, 첫 번째 턴을 제공받음
@@ -149,6 +157,22 @@ const Ingame = ({roomId}) => {
             console.log(`${exiterId} is disconnected`);
             setExiter(exiterId);
         });
+
+        socket.on("friendList", (userid, status) => {
+            console.log("friend수정확인",userid, status);
+            if (userid === myId) {
+                (status === 0) && (()=>{
+                    doUnMount(true);
+                    setTimeout(()=>{
+                        dispatch(FriendInfoReset());
+                        socket.close();
+                        navigate('/');
+                    }, 0);
+                })();
+            } else {
+                dispatch(FriendInfoChange([userid, status]));
+            }
+        });
     },[]);
 
     useEffect(()=>{
@@ -164,30 +188,50 @@ const Ingame = ({roomId}) => {
             socket.off("cycleClosed");
             socket.off("nightResult");
             socket.off("someoneExit");
+            socket.off("friendList");
         };
     },[isUnMounted]);
 
+    useEffect(() => {
+        endGame && (() => {
+            setStart(0);
+            // redux에 저장해둔 video stream array 초기화 필요
+        })();
+    }, [endGame]);
+
     // Jack - 뒤로가기 버튼 막음. 새로고침/창닫기 시에는 게임 EXIT되도록 / 로그아웃 되도록 처리
     useEffect(()=>{
+        // 뒤로가기 방지
         history.pushState(null, "", location.href);
         window.addEventListener("popstate", () => history.pushState(null, "", location.href));
+
         const doExit = (e) => {
-            doUnMount(true);
-            axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
-                socket.emit('loginoutAlert', myId, 0);
+            // isUnMounted를 true로 바꿔서 여러가지 정리하고 room에도 exit을 주는데, 
+            // 이 시점에서 socket이 disconnecting 되는건지 나중에 되는건지 정확히 몰라서 제대로 작동하는지는 미지수. 
+            // 만약 disconnecting이 먼저 간다면, disconnecting에서 socket사용해서 게임에 들어가있는지 판단하고,
+            // 게임에 들어가있다면 exitGame하고 roomExit 이벤트 주도록 변경 필요할듯
+            // 디버깅시 참고
+            doUnMount(true); 
+            dispatch(FriendInfoReset());
+            // axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
                 // dispatch(setUserId(""));
-                dispatch(FriendInfoReset());
-                socket.close();
-                sessionStorage.removeItem('userid');
-            });
+                // socket.emit('loginoutAlert', myId, 0);
+                // socket.close();
+            // });
         }
         (()=>{
+            // 창닫기/새로고침 시 exit 처리 및 logout 처리 
             window.addEventListener("beforeunload", doExit);
+            // 정답 맞추기 등 폼 제출시에는 위 처리하지 않음
+            document.onsubmit = (e) => {
+                window.onbeforeunload = null;
+            }
         })();
-
+        document.onsubmit()
         return () => {
             window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
             window.removeEventListener("beforeunload", doExit);
+            window.removeEventListener("submit", (e) => {window.onbeforeunload = null});
         }
     }, []);
     
@@ -258,7 +302,7 @@ const Ingame = ({roomId}) => {
                     <div className={style.outbox}>
                         <div className={style.flexBox}>
                             <div className={style.item1}>
-                                <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter}/>
+                                <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame}/>
                             </div>
 
                             <div className={style.item2}>
@@ -268,7 +312,7 @@ const Ingame = ({roomId}) => {
                                     </div>
 
                                     <div className={style.chat}>
-                                        <Chat roomId={roomId} newPlayer={newPlayer} exiter={exiter}/>
+                                        <Chat roomId={roomId} newPlayer={newPlayer} exiter={exiter} endGame={endGame} />
                                     </div>
                                 </div>       
                                 {

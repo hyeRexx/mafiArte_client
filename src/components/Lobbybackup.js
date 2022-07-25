@@ -76,7 +76,6 @@ const Lobby = () => {
             dispatch(setUserId(""));
             dispatch(FriendInfoReset());
             socket.close();
-            sessionStorage.removeItem('userid');
             navigate('/');
         });
     };

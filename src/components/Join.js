@@ -53,7 +53,6 @@ const Join = () => {
                     } else {
                         console.log("join failed", data)
                         if (!data.idCheck) { setEId('이미 가입되어 있는 아이디입니다. 다른 아이디를 입력하세요.')}
-                        if (!data.nickCheck) {setENickname('이미 사용하고 있는 닉네임입니다. 다른 닉네임을 입력하세요.')}
                         if (!data.emailCheck) {setEEmail('이미 사용하고 있는 이메일 주소입니다. 다른 이메일을 입력하세요.')}
                     }
                 })
