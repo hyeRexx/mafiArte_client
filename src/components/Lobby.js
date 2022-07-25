@@ -233,6 +233,7 @@ const Lobby = () => {
             </div>
 
             <InvitationCard/>
+            <InviteCard/>
         </div>
         </>
     );

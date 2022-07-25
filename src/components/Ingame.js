@@ -17,6 +17,8 @@ import IngameLoader from '../subitems/IngameLoader';
 import EvilLoader from "../subitems/EvilLoader"
 import RoleCardHotSpot from '../subitems/RoleCardHotSpot';
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
+import { InviteCard } from '../subitems/InviteCard';
+import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 
 let word;
 
@@ -471,7 +473,8 @@ const Ingame = ({roomId}) => {
                     }
                     {/* design : role card : Mafia */}
                     {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
-
+                    <NightEventForCitizen/>
+                    <NightEventForMafia/>
                 </div>
                 ); 
             }() : null
@@ -551,7 +554,7 @@ function VoteModal(props){
         { word.word === "?" ? 
             // <p>하이하이</p>
             // 마피아일 경우
-            <div>
+            <div className={style.position}>
                 <VoteTimer voteModal={props.voteModal} voteModalClose={props.voteModalClose} inputValue={inputValue} clicked={clicked} roomId = {props.roomId} myId = {props.myId}/>
                 <input type="text" placeholder="제시어를 맞춰보세요"
                 onChange={(event) => setInputValue(event.target.value)} onKeyPress={onKeyPress}/>
@@ -634,17 +637,19 @@ function VoteTimer(props){
 
 // 투표 결과 모달
 function VoteResultModal(props) {
-    const voteNumber = Object.entries(props.voteNumber);
+    // const voteNumber = Object.entries(props.voteNumber);
+    const voteNumber = [['해인', 0], ['종인', 0]];
     console.log('투표 결과 모달 뜨나');
     console.log('투표 수', voteNumber);
     return (
-        <div>
+        <div className={style.voteResultModal}>
             <h1>투표 결과</h1>
             {
                 voteNumber.map((voteNumber) => (
                     <h3>{voteNumber[0]} : {voteNumber[1]}</h3>
                 ))
             }        
+
         </div>
     )
 
@@ -658,7 +663,7 @@ function ResultModal(props) {
     console.log('최종 결과', finalResult);
     return (
     <>
-        <div>
+        <div  className={style.voteResultModal}>
         <h1>최종 결과</h1>
         { finalResult === "mafia" ? <h2>마피아가 승리했습니다!</h2>: null }
         { finalResult === "citizen" ? <h2>시민이 승리했습니다!</h2>: null }
