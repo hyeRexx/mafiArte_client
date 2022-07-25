@@ -111,10 +111,6 @@ const Ingame = ({roomId}) => {
             word = data.word;
             setStart(2);
             setTurnQue(data.turnInfo);
-            setPlayers(data.turnInfo);
-            // console.log("턴 큐 확인 1 : ", turnQue);
-            // console.log("턴 큐 확인 2 : ", data.turnInfo);
-            // console.log("게임 진행 중인 플레이어들 리스트 : ", players);
             setTimeout(()=>{
                 setTurnQue(null);
                 setShowWord(true);
