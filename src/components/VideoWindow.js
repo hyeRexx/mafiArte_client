@@ -7,7 +7,7 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoInfoChange,  VideoStreamChange } from '../store';
+import { VideoStreamChange } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 
 let myStream;
@@ -322,11 +322,6 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
     // 투표 시 비디오 전송
     const videoList = useSelector((state) => state.videoInfo);
     useEffect(()=> {
-        console.log('스트림 값', videos.stream);
-        console.log('비디오 값', videos);
-
-        // videos 전송
-        dispatch(VideoInfoChange(JSON.stringify(videos)));
         // stream array
         let streamArray = new Array();
         for (let i = 0; i < 8; i++) {
@@ -335,7 +330,6 @@ const VideoWindow = ({newPlayer, isReady, isStarted, isUnMounted, exiter, endGam
             }
         }
 
-        console.log('streamArray 값', streamArray);
         // id와 stream 전송
         dispatch(VideoStreamChange(streamArray));
 

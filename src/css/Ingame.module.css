@@ -509,8 +509,9 @@ flex: 5;
   margin-right: 15px;
 }
 
-.position {
+.submitAnswer {
   position: absolute;
+  z-index: 2;
   top: 480px;
   left: 800px;
 }
@@ -536,6 +537,7 @@ flex: 5;
   width: 600px;
   height: 150px; 
   position: absolute;
+  z-index: 2;
   top: 480px;
   left: 800px;
 }

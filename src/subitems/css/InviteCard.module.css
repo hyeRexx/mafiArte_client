@@ -123,6 +123,7 @@
 
 .checkList{
     display: flex;
+    flex-flow: wrap;
     width: 100%;
     column-gap: 15px;
     justify-content: left;
@@ -138,7 +139,7 @@
     box-shadow: inset 2px 2px 15px #b6b6b6;
     border-radius: 50px;
     white-space: nowrap;
-    margin: 3px 0px;
+    margin: 3px 0px 15px 0;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
