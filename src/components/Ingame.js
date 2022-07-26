@@ -159,6 +159,7 @@ const Ingame = ({roomId}) => {
                     } else {
                     console.log("오늘 밤은 아무도 죽지 않았습니다");
                     setResult(4);
+                    }
                 }
                 setTimeout(()=> {
                     voteResultState(false); // 투표 결과 모달 닫기
@@ -168,7 +169,7 @@ const Ingame = ({roomId}) => {
                         if (end === 1) {
                         setEndGame(true);} 
                     }, 7000);
-                }, 4000)
+                }, 4000);
             }, 1000);
             console.log("debug : nightResult :", data);
         });
@@ -301,7 +302,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
                               </div>
   
                               <div className={style.item2}>
@@ -352,7 +353,7 @@ const Ingame = ({roomId}) => {
                               </div>
                               <div className={style.timer}>
                                   <span className={style.timerIco}></span>
-                                  <span className={style.timerText}><Timer nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
+                                  <span className={style.timerText}><Timer changeReadyAlert = {changeReadyAlert} nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
                               </div>
                           </div>
                           {/* design : word and Timer : END */}
