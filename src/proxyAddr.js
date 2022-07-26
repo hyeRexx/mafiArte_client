@@ -1,4 +1,3 @@
-// domain 만 수정
 let domain = "mafiarte.click";
 // export const paddr = `http://${domain}/`;
 export const paddr = `https://${domain}/`;

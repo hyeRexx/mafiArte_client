@@ -8,11 +8,9 @@ import { paddr, reqHeaders } from '../proxyAddr';
 import { setUserId, setProfileImg, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
 import style from '../css/Lobby.module.css';
 import { InvitationCard } from '../subitems/InvitationCard';
+import { InviteCard } from '../subitems/InviteCard';
 
 const Lobby = () => {
 
@@ -24,8 +22,6 @@ const Lobby = () => {
     let [invite, invitestate] = useState(false);   // 초대 알람 모달 생성
     let [newRoomId,roomidstate] = useState(0);
     let [sender, senderstate] = useState("");
-    let [friendlist, friendliststate] = useState(""); // 초대 가능한 친구 리스트
-
     const firstFriends = Object.entries(useSelector((FriendInfo) => FriendInfo.FriendInfo));
     const friends = [];
 
@@ -173,12 +169,6 @@ const Lobby = () => {
     return (
         <>
         <div id="lobby" style={{position: 'relative'}}>
-            { choose === true ? <ChooseModal sender={sender} friends={friends} choose={choose} 
-                className={style.inviteModal} btnClose={btnClose} /> : null }
-
-            { invite === true ? <InviteModal myId={myId} sender={sender} roomId={newRoomId} className={style.inviteModal} 
-                btnInviteClose={btnInviteClose} /> : null }
-    
             <div className={style.mainLobby}>
                 <div className={style.lobbyleft}>
                     <div className={style.profileSection}>
@@ -232,145 +222,16 @@ const Lobby = () => {
                 </div>
             </div>
 
-            <InvitationCard/>
+            {/* 친구 초대 모달 */}
+            { choose === true ? <InviteCard sender={sender} friends={friends} choose={choose} 
+            className={style.inviteModal} btnClose={btnClose} /> : null }
+            {/* 초대 받은 모달 */}
+            { invite === true ? <InvitationCard myId={myId} sender={sender} roomId={newRoomId} className={style.inviteModal} 
+                btnInviteClose={btnInviteClose} /> : null }
         </div>
         </>
     );
  
 }
-
-// 친구 초대 모달
-function ChooseModal(props){
-    const navigate = useNavigate();
-    const [show, setShow] = useState(true);
-    const handleClose = () => {setShow(false); props.btnClose();};
-
-    // MAKE A GAME 버튼 - 초대 보내는 버튼
-    const btnSend = () => {
-        var friendLength = document.getElementsByName("friends").length;
-
-        // 초대 userid 리스트
-        let listuserid = new Array();
-
-        for (var i=0; i<friendLength; i++){
-            if (document.getElementsByName("friends")[i].checked == true){
-                listuserid.push(document.getElementsByName("friends")[i].value);
-            }
-        }
-        
-        console.log(`체크박스로 선택된 친구 리스트 ${listuserid}`);
-
-        // 초대 인원 제한 (추후 주석 제거 하기)
-        if (listuserid.length == 0) {
-            alert("최소 1명 이상의 친구를 초대해주세요!");
-        }
-        // if (listuserid.length <= 2) {
-        //     alert("최소 3명 이상의 친구를 초대해주세요!");
-        //     return;
-        // } else if (listuserid.length > 7) {
-        //     alert("최대 7명 이하의 친구를 초대해주세요!");
-        //     return;
-        // } 
-
-        socket.emit("listuserinfo", listuserid);
-
-        socket.on("listsocketid", (listsocketid) => {
-            console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
-
-            let roomId = + new Date();
-
-            // 게임 생성
-            socket.emit("makeGame", {gameId : roomId, userId : props.sender}, ()=> {
-                console.log("게임 생성 완료");
-            });
-
-            // 초대장 전송
-            socket.emit("sendinvite", listsocketid, roomId, props.sender,(roomId)=> {
-                console.log(`초대장 전송 시 ${roomId}`);
-
-                // HOST가 방으로 이동
-                navigate(`/ingame/${roomId}`, {state: {fromLobby: true}});
-            });
-            
-        });
-    }
-
-    useEffect(()=> {
-        return ()=> {
-            socket.off("listsocketid");
-        };
-    }, []);
-
-    return(
-    <>
-        <Modal className={style.modal} style={{ top: "650px" }} show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>SEND INVITATION</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className={style.modalBody}>
-                {
-                    props.friends.length > 0 ? 
-                    
-                    props.friends.map((friendId) => (
-                        <>
-                        <ul style={{paddingLeft:'0px'}}>
-                            <input type='checkbox' name="friends" value={friendId} key={friendId}/> {friendId}
-                        </ul>
-                        </>))
-                    : <p>현재 접속 중인 친구가 없습니다</p>
-                }
-            </Modal.Body>
-
-            <Modal.Footer className={style.modalFooter}>
-                <Button variant="secondary" onClick={handleClose}>CANCEL</Button>
-                {
-                    props.friends.length > 0 ? <Button variant="primary" onClick={btnSend}>INVITE</Button> : null
-                }
-            </Modal.Footer>
-        </Modal>
-    </>
-    )
-};
-
-// 초대 왔다는 alert 모달
-function InviteModal(props){
-    const navigate = useNavigate();
-    const [show, setShow] = useState(true);
-    const handleClose = () => {setShow(false); props.btnInviteClose();};
-
-    const inviteMove = () => {
-
-        // 게임 조인
-        socket.emit("joinGame", {gameId : props.roomId, userId : props.myId}, (thisGameId) => {
-            // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
-            console.log("__debug : get this game id? :", thisGameId);
-            if (thisGameId) {
-                navigate(`/ingame/${props.roomId}`, {state: {fromLobby: true}});
-            } else {
-                alert('게임이 이미 시작되어 참가할 수 없습니다.'); // 일단은 이런 경우가 거의 없을 것이므로, 따로 만들지는 않고 alert으로 처리함.
-            }
-        });
-    }
-
-    return(
-    <>
-        <Modal className={style.modal} style={{ top: "650px" }}  show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>INVITATION</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body className={style.modalBody}>
-                <p>{props.sender}님이 당신을 초대했습니다!</p>
-                <p>게임에 참가하시겠습니까?</p>
-            </Modal.Body>
-
-            <Modal.Footer className={style.modalFooter}>
-                <Button variant="secondary" onClick={handleClose}>CANCEL</Button>
-                <Button variant="primary" onClick={inviteMove}>ACCEPT</Button>
-            </Modal.Footer>
-        </Modal>
-    </>
-    )
-};
 
 export default Lobby;
