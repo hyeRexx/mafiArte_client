@@ -7,18 +7,19 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoInfoChange,  VideoStreamChange } from '../store';
+import { VideoStreamChange } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos}) => {
+const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame, needVideos}) => {
     const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
+    const [nextTurn, setNextTurn] = useState(null);
     const [videos , setVideos] = useState([
         {userid: null, stream: null, image: null, isReady: false},
         {userid: myId, stream: null, image: myImg, isReady: false},
@@ -239,12 +240,23 @@ const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos
         if (endGame) {
             return null;
         }
-        if (!gameUserInfo[1]){
+        if (gameUserInfo[0] !== null){
+            console.log("죽은 놈 음소거 시키는 곳\n");
             let diedIdx = peerConnections[myId].vIdx;
             let diedStream = videos[diedIdx].stream;
             diedStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
         }
-    }, [gameUserInfo[1]]);
+    }, [gameUserInfo[2]]);
+
+    useEffect(() => {
+        // const [nextTurn, setNextTurn] = useState(null);
+        if (gameUserInfo[1] !== null){
+            let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[1]);
+            console.log("turnIdx: ", turnIdx);
+            readyAlert ? setNextTurn(turnIdx) : setNextTurn(null);
+            console.log("nextTurn: ", nextTurn);
+        }
+    }, [readyAlert]);
 
     useEffect( ()=> {
         const initialize = async () => {
@@ -323,11 +335,6 @@ const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos
     // 투표 시 비디오 전송
     const videoList = useSelector((state) => state.videoInfo);
     useEffect(()=> {
-        // console.log('스트림 값', videos.stream);
-        // console.log('비디오 값', videos);
-
-        // videos 전송
-        dispatch(VideoInfoChange(JSON.stringify(videos)));
         // stream array
         let streamArray = new Array();
         for (let i = 0; i < 8; i++) {
@@ -336,8 +343,6 @@ const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos
             }
         }
 
-        // console.log('streamArray 값', streamArray);
-        // id와 stream 전송
         dispatch(VideoStreamChange(streamArray));
 
     }, [needVideos]);
@@ -357,7 +362,7 @@ const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos
                     :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
                 </div>
             </div>
-            <div className={style.videoObserving}>
+            <div className= {style.videoObserving}>
                 <div className={style.videoLabel}>
                     {videos[1].userid === myId? "ME": "OBSERVING - " + videos[1].userid}  
                 </div>
@@ -368,8 +373,8 @@ const VideoWindow = ({newPlayer, isReady, isStarted, exiter, endGame, needVideos
                     <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"100%"} height={"290px"} />
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
-                <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
             </div>
+                <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>

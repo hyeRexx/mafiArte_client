@@ -5,10 +5,12 @@ import {socket} from '../script/socket';
 import {Whiteboard} from '../script/whiteboard'
 
 let whiteboard;
-const Canvas = ({roomId}) => {
+const Canvas = ({roomId, endGame}) => {
     const canvasElement = useRef();
     const gameUserInfo = useSelector(state => state.gameInfo);
     const myId = useSelector(state => state.user.id);
+    // const canvasElem = document.querySelector("canvas");
+    // console.log(canvasElement.current, canvasElem);
 
     useEffect(() => {
         // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
@@ -18,8 +20,12 @@ const Canvas = ({roomId}) => {
             // console.log(socket);
             console.log("__debug", socket.id);
         });
+
+
         // component unmount 시 event remove 하는 것 고려해볼 것 성능 개선 문제
     }, []);
+
+    
 
     // 색 변경 useStatte
     let [pickColor, colorChange] = useState('#4d4d4d');
@@ -31,6 +37,12 @@ const Canvas = ({roomId}) => {
       whiteboard.color = pickColor;
     }, [pickColor]);
     
+    useEffect(() => {
+        if (endGame === true){
+            whiteboard.clear();
+        }
+    }, [endGame])
+
     return (
         <>
         <div className={style.canvasBox}>

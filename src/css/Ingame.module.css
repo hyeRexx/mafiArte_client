@@ -494,7 +494,7 @@ flex: 5;
   z-index: 100; 
   opacity: 0.5; 
   background-color: rgb(0, 0, 0); 
-  background: url(../../public/img/night.jpg);
+  /* background: url(../../public/img/night.jpg); */
 }
 
 .inputBox  {
@@ -510,8 +510,9 @@ flex: 5;
   margin-right: 15px;
 }
 
-.position {
+.submitAnswer {
   position: absolute;
+  z-index: 2;
   top: 480px;
   left: 800px;
 }
@@ -530,12 +531,15 @@ flex: 5;
 }
 
 .voteResultModal {
+  z-index: 2;
   border-radius: 15px;
-  background: rgb(233, 233, 233);
+  background: #202020;
+  color: #fff;
   padding: 20px; 
   width: 600px;
   height: 150px; 
   position: absolute;
+  z-index: 2;
   top: 480px;
   left: 800px;
 }

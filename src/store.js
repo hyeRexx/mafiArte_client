@@ -15,14 +15,15 @@ let user = createSlice({
 
 let gameInfo = createSlice({
   name : 'gameInfo',
-  initialState : [null, 1],
+  initialState : [null, null, 1],
   reducers : {
     turnStatusChange(state, action){
-      state[0] = action.payload;
-      console.log(current(state));
+      state[0] = action.payload[0];
+      state[1] = action.payload[1];
+      console.log('redux turnStatusChange: ', current(state));
     },
     surviveStatusChange(state, action){
-      state[1] = action.payload;
+      state[2] = action.payload;
     }
 }
 });
@@ -49,14 +50,10 @@ let FriendInfo = createSlice({
 
 let videoInfo = createSlice({
   name : 'videoInfo',
-  initialState : {videoList: "", stream: ""},
+  initialState : {stream: ""},
   reducers : {
-    VideoInfoChange(state, action){
-        state.videoList = action.payload;
-    },
     VideoStreamChange(state, action){
         state.stream = action.payload;
-        console.log('VideoStreamChange', current(state));
     }
 }
 });
@@ -82,4 +79,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
-export let { VideoInfoChange, VideoStreamChange } = videoInfo.actions;
+export let { VideoStreamChange } = videoInfo.actions;
