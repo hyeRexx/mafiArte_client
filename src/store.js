@@ -49,14 +49,10 @@ let FriendInfo = createSlice({
 
 let videoInfo = createSlice({
   name : 'videoInfo',
-  initialState : {videoList: "", stream: ""},
+  initialState : {stream: ""},
   reducers : {
-    VideoInfoChange(state, action){
-        state.videoList = action.payload;
-    },
     VideoStreamChange(state, action){
         state.stream = action.payload;
-        console.log('VideoStreamChange', current(state));
     }
 }
 });
@@ -82,4 +78,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
-export let { VideoInfoChange, VideoStreamChange } = videoInfo.actions;
+export let { VideoStreamChange } = videoInfo.actions;
