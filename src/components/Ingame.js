@@ -21,8 +21,6 @@ import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 let word = null;
 
 const Ingame = ({roomId}) => {
-    const [ isUnMounted , doUnMount ] = useState(false); // Exit 누르거나 새로고침/창닫기 시에도 동일하게 unmount 작동하도록 하기 위한 state 설정
-
     const [ roomEntered, setRoomEntered ] = useState(false);
     const [ newPlayer, setNewPlayer ] = useState(null);
     const [ exiter, setExiter ] = useState(null);
@@ -190,45 +188,47 @@ const Ingame = ({roomId}) => {
                 }, 5000);
             }, 5000);
 
-            // const promise = new Promise(function(resolve) {
-            //     setTimeout(() => resolve('완료'), 3500);
-            // });
-
-            // promise.then(()=> {
-            //     // becomeNightState(false);
-            //     resultModalState(true); // 최종 결과 모달
-            //     }
-            // });
-
-
             console.log("debug : nightResult :", data);
+        });
+
+        // 누군가의 exit에 의해 host가 바뀌었는데 자신일 경우 setHost
+        socket.on("hostChange", (newHost) => {
+            if (newHost === myId) {
+                setHost(true);
+            }
+        });
+
+        // 누군가의 exit에 의해 비정상적으로 게임이 종료된 경우
+        socket.on("abnormalClose", (data) => {
+            setEndGame(true);
+            setResult(data.win);
+            resultModalState(true);
+            setTimeout(()=>{
+                resultModalState(false);
+            }, 5000);
         });
 
         // 방을 나간 사람에 대한 알림
         // 본인 포함 모두에게 전송, 이벤트 로직 분기 필요
         // 게임중, 대기상태 모두 같은 이벤트
-        socket.on("someoneExit", (data) => {
-            // data : userId : exit user Id
-            console.log("debug : someoneExit :", data);
+        socket.on("someoneExit", (exiterId) => {
+            // data : exit user Id
+            console.log(`debug : ${exiterId} exit :`);
+            setExiter(exiterId);
         });
 
         /*** for game : hyeRexx : end ***/
-
-        socket.on("roomExit", (exiterId) => {
-            console.log(`${exiterId} is disconnected`);
-            setExiter(exiterId);
-        });
 
         socket.on("friendList", (userid, status) => {
             console.log("friend수정확인",userid, status);
             if (userid === myId) {
                 (status === 0) && (()=>{
-                    doUnMount(true);
-                    setTimeout(()=>{
-                        dispatch(FriendInfoReset());
-                        socket.close();
-                        navigate('/');
-                    }, 0);
+                    // doUnMount(true);
+                    // setTimeout(()=>{
+                    dispatch(FriendInfoReset());
+                    socket.close();
+                    navigate('/');
+                    // }, 0);
                 })();
             } else {
                 dispatch(FriendInfoChange([userid, status]));
@@ -238,22 +238,21 @@ const Ingame = ({roomId}) => {
 
     useEffect(()=>{
         return () => {
-            // 방을 나가는 event를 보내줘야함
-            isUnMounted && (()=>{
-                socket.emit('exit', myId, Number(roomId));
-                // 기존에 등록된 event listner 삭제
-                socket.off("notifyNew");
-                socket.off("notifyReady");
-                socket.off("readyToStart");
-                socket.off("gameStarted");
-                socket.off("singleTurnInfo");
-                socket.off("cycleClosed");
-                socket.off("nightResult");
-                socket.off("someoneExit");
-                socket.off("friendList");
-            })();
+            // 기존에 등록된 event listner 삭제
+            socket.off("notifyNew");
+            socket.off("notifyOld");
+            socket.off("readyToStart");
+            socket.off("waitStart");
+            socket.off("gameStarted");
+            socket.off("singleTurnInfo");
+            socket.off("cycleClosed");
+            socket.off("nightResult");
+            socket.off("hostChange");
+            socket.off("abnormalClose");
+            socket.off("someoneExit");
+            socket.off("friendList");
         };
-    },[isUnMounted]);
+    },[]);
 
     // 투표 시 비디오 리스트 받는 함수
     function getVideos() {
@@ -279,33 +278,8 @@ const Ingame = ({roomId}) => {
         history.pushState(null, "", location.href);
         window.addEventListener("popstate", () => history.pushState(null, "", location.href));
 
-        const doExit = (e) => {
-            // isUnMounted를 true로 바꿔서 여러가지 정리하고 room에도 exit을 주는데, 
-            // 이 시점에서 socket이 disconnecting 되는건지 나중에 되는건지 정확히 몰라서 제대로 작동하는지는 미지수. 
-            // 만약 disconnecting이 먼저 간다면, disconnecting에서 socket사용해서 게임에 들어가있는지 판단하고,
-            // 게임에 들어가있다면 exitGame하고 roomExit 이벤트 주도록 변경 필요할듯
-            // 디버깅시 참고
-            doUnMount(true); 
-            dispatch(FriendInfoReset());
-            // axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
-                // dispatch(setUserId(""));
-                // socket.emit('loginoutAlert', myId, 0);
-                // socket.close();
-            // });
-        }
-        (()=>{
-            // 창닫기/새로고침 시 exit 처리 및 logout 처리 
-            window.addEventListener("beforeunload", doExit);
-            // 정답 맞추기 등 폼 제출시에는 위 처리하지 않음
-            document.onsubmit = (e) => {
-                window.onbeforeunload = null;
-            }
-        })();
-        document.onsubmit()
         return () => {
             window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
-            window.removeEventListener("beforeunload", doExit);
-            window.removeEventListener("submit", (e) => {window.onbeforeunload = null});
         }
     }, []);
     
@@ -313,53 +287,17 @@ const Ingame = ({roomId}) => {
     useEffect(()=> {
         needVideos && getVideos();
     }, [needVideos]);
-
-    // /* 투표 결과 모달 3.5초간 지속 */
-    // useEffect(()=> {
-    //     if (voteResultModal) {
-    //         const showingTimer = setTimeout(()=> {
-    //             voteResultState(false); 
-    //         }, 3500);
-    //         return () => clearTimeout(showingTimer);
-    //     }
-    // }, [voteResultModal]);
-
-    // /* 최종 결과 모달 3.5초간 지속 */
-    // useEffect(()=> {
-    //     if (resultModal) {
-    //         const showingTimer = setTimeout(()=> {
-    //             resultModalState(false); 
-    //         }, 3500);
-    //         return () => clearTimeout(showingTimer);
-    //     }
-    // }, [resultModal]);
     
     const readyBtn = () => {
         setReady(!isReady);
         socket.emit("singleReady", {gameId: roomId, userId: myId});
-    }
+    };
 
     const startBtn = () => {
         socket.emit("startupRequest", {gameId: roomId, userId: myId}, () => {
             // start 신호 수신시의 작업
         });
-    }
-
-    // const openTurnBtn = () => {
-    //     socket.emit("openTurn", {gameId: roomId, userId: myId});
-    // }
-
-    /* 투표 완료 (nightWork)
-       night work 마친 유저들이 클릭하는 버튼 이벤트
-       투표 혹은 제시어 제출 완료 시 완료 버튼 클릭 후 emit */
-    const nightBtn = () => {
-        // submit myId는 임시값!
-        socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: myId}});
-    }
-
-    const newCycleBtn = () => {
-        socket.emit("newCycleRequest", {gameId: roomId, userId: myId});
-    }
+    };
 
     /* 투표 모달 - SUBMIT 클릭 시 상태 변경 */
     const voteModalClose = () => {
@@ -369,10 +307,9 @@ const Ingame = ({roomId}) => {
     /* Exit Button */
     const btnExit = (e) => {
         e.preventDefault();
-        doUnMount(true);
-        setTimeout(()=>{
+        socket.emit('exit', myId, Number(roomId), () => {
             navigate('/lobby');
-        }, 0);
+        });
     };
 
     return (
@@ -386,7 +323,7 @@ const Ingame = ({roomId}) => {
                         <div className={style.outbox}>
                             <div className={style.flexBox}>
                                 <div className={style.item1}>
-                                    <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                    <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
                                 </div>
 
                                 <div className={style.item2}>
@@ -437,7 +374,7 @@ const Ingame = ({roomId}) => {
                                 </div>
                                 <div className={style.timer}>
                                     <span className={style.timerIco}></span>
-                                    <span className={style.timerText}><Timer nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
+                                    <span className={style.timerText}><Timer nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId} endGame={endGame}/></span>
                                 </div>
                             </div>
                             {/* design : word and Timer : END */}
@@ -501,7 +438,16 @@ function Timer(props){
         }
     }, [props.nowplayer])
 
+    useEffect(() => {
+        if (props.endGame) {
+            setTimer(0);
+        }
+    }, [props.endGame]);
+
     useEffect (() => {
+        if (props.endGame) {
+            return null;
+        }
         if (props.nowplayer !== null){
             // console.log(props.myId, props.nowplayer);
             // console.log("timer 값 얼마니? ", timer);
@@ -515,7 +461,7 @@ function Timer(props){
                 socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
             }
         }
-        }, [timer])
+        }, [timer]);
 
     return (
         <>

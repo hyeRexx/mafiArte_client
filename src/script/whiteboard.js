@@ -65,12 +65,23 @@ export class Whiteboard {
      */
     _resizeCanvas() {
       const { canvas, ctx } = this;
+      const temp_cnvs = document.createElement('canvas');
+      const temp_cntx = temp_cnvs.getContext('2d');
+      
+      temp_cnvs.width = canvas.offsetWidth;
+      temp_cnvs.height = canvas.offsetHeight;
+      temp_cntx.fillStyle = "#fff";
+      temp_cntx.fillRect(0, 0, temp_cnvs.width, temp_cnvs.height);
+      temp_cntx.drawImage(canvas, 0, 0);
   
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
-  
+
       // Clear the canvas for the browser that don't fully clear it
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.drawImage(temp_cnvs, 0, 0);
+      
+      temp_cnvs.remove();
     }
   
     /**

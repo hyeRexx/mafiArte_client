@@ -44,6 +44,9 @@ const Lobby = () => {
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
+            if (!thisGameId) {
+                window.location.reload();
+            }
             navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
         });
     };
@@ -280,8 +283,12 @@ function ChooseModal(props){
             let roomId = + new Date();
 
             // 게임 생성
-            socket.emit("makeGame", {gameId : roomId, userId : props.sender}, ()=> {
-                console.log("게임 생성 완료");
+            socket.emit("makeGame", {gameId : roomId, userId : props.sender}, (result)=> {
+                if (!result) {
+                    window.location.reload();
+                } {
+                    console.log("게임 생성 완료");
+                }
             });
 
             // 초대장 전송
