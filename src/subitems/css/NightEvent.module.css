@@ -47,7 +47,7 @@
     z-index: 0;
 }
   
-.twinkling {
+/* .twinkling {
     width: 2500px;
     height: 100%;
     background: transparent url(../../../public/img/twinkling.png) repeat;
@@ -58,7 +58,7 @@
     bottom: 0;
     z-index: 2;
     animation:move-background 3s linear infinite alternate;
-}
+} */
 
 @keyframes move-background {
     from {-webkit-transform: translate(0px, 0px);}
@@ -89,11 +89,39 @@
     display: flex;
     justify-content: center;
     column-gap: 40px;
+    row-gap: 30px;
+    flex-wrap: wrap;
+    width: 1500px;
+}
+
+.nightVideo8 .voteVideoRow {
+    display: flex;
+    justify-content: center;
+    column-gap: 40px;
+    row-gap: 30px;
+    flex-wrap: wrap;
+    width: 1400px;
+}
+
+.nightVideo6 .voteVideoRow {
+    display: flex;
+    justify-content: center;
+    column-gap: 50px;
+    row-gap: 30px;
+    flex-wrap: wrap;
+    width: 1100px;
 }
 
 .singleVideo {
     width: 330px;
     height: 210px;
+    border-radius: 5px;
+    background-color: antiquewhite;
+}
+
+.nightVideo6 .singleVideo {
+    width: 310px;
+    height: 200px;
     border-radius: 5px;
     background-color: antiquewhite;
 }
