@@ -40,6 +40,9 @@ const Lobby = () => {
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
             console.log("__debug : get this game id? :", thisGameId);
+            if (!thisGameId) {
+                window.location.reload();
+            }
             navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
         });
     };

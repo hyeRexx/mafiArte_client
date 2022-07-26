@@ -19,7 +19,7 @@ import IngameNew from './components/IngameNew';
 
 function App() {
   return (
-    <div style={{margin: "0em"}}>
+    <div style={{margin: "auto"}}>
       <Routes>
         <Route path="/" element={<Main />}/>
         <Route path="lobby/*" element={

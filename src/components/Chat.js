@@ -59,9 +59,6 @@ const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     // 재관이가 고칠 것임
     useEffect(()=> {
         socket.on("new_message", setNewMsg);
-    },[]);
-
-    useEffect(()=>{
         return ()=>{
             socket.off("new_message");
         }
@@ -80,14 +77,14 @@ const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     },[endGame]);
 
     useEffect(()=>{
+        newMsg && addMessage(newMsg);
+    },[newMsg]);
+
+    useEffect(()=>{
         if (isAlive === 0) {
             inputBox.current.disabled = true;
         }
     },[isAlive]);
-
-    useEffect(()=>{
-        newMsg && addMessage(newMsg);
-    },[newMsg]);
 
     useEffect(()=>{
         chatWindow && chatBox.current?.scrollIntoView(false ,{behavior: 'smooth'});
@@ -95,7 +92,7 @@ const Chat = ({roomId, newPlayer, exiter, endGame}) => {
 
     return (
         <>
-        <div id="room" style={{height: '100%', padding: "0 50px"}}>
+        <div id="room" style={{height: '100%', padding: "0px 50px 0px 0px"}}>
             <div className={style.chatBox}>
                 <div className={style.chatLog}>
                     <ul ref={chatBox} style={{ color: "black", paddingLeft: 10}}>

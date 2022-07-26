@@ -13,7 +13,7 @@ import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, isUnMounted, exiter, endGame, needVideos}) => {
+const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame, needVideos}) => {
     const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
@@ -48,8 +48,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, isUnMounted, ex
         const userid1 = copyVideos[vIdx1].userid;
         const userid2 = copyVideos[vIdx2].userid;
 
-        peerConnections[userid1].vIdx = vIdx2;
-        peerConnections[userid2].vIdx = vIdx1;
+        userid1 && (peerConnections[userid1].vIdx = vIdx2);
+        userid2 && (peerConnections[userid2].vIdx = vIdx1);
 
         const tempVideoIdx1 = copyVideos[vIdx1];
         copyVideos[vIdx1] = copyVideos[vIdx2];
@@ -185,9 +185,10 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, isUnMounted, ex
         exiter && (()=>{
             const vIdx = peerConnections[exiter].vIdx;
             setVideo(vIdx, null, null, null, false);
+            console.log(`debug_exiter ${exiter} - connection close`);
             (isStarted !== 0) && peerConnections[exiter].connection.close();
             delete peerConnections[exiter];
-            console.log(peerConnections);
+            // console.log(peerConnections);
         })();
     }, [exiter]);
 
@@ -218,25 +219,29 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, isUnMounted, ex
     useEffect(()=>{
         othersReady && (()=>{
             const usersIdx = peerConnections[othersReady.userId].vIdx;
-            console.log(JSON.stringify(peerConnections));
-            console.log(JSON.stringify(videos));
+            // console.log(JSON.stringify(peerConnections));
+            // console.log(JSON.stringify(videos));
             setVideo(usersIdx, "asis", "asis", "asis", othersReady.isReady);
-            console.log(JSON.stringify(videos));
+            // console.log(JSON.stringify(videos));
         })();
     }, [othersReady]);
     
     useEffect(() => {
+        if (endGame) {
+            return null;
+        }
         let turnIdx = gameUserInfo[0] !== null? peerConnections[gameUserInfo[0]].vIdx : -1;
         if (turnIdx !== -1){
-            console.log('testestsestsetsetsetsetsetsetet', peerConnections);
-            console.log(videos[0].stream.getAudioTracks());
-            console.log("set single turn : ", turnIdx);
             changeVideo(turnIdx, 0);
         }
     }, [gameUserInfo[0]]);
 
     useEffect(() => {
+        if (endGame) {
+            return null;
+        }
         if (gameUserInfo[0] !== null){
+            console.log("죽은 놈 음소거 시키는 곳\n");
             let diedIdx = peerConnections[myId].vIdx;
             let diedStream = videos[diedIdx].stream;
             diedStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
@@ -308,27 +313,24 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, isUnMounted, ex
 
     useEffect(()=>{
         return ()=> {
-            isUnMounted && (()=>{
-                if (isStarted !== 0) {
-                    Object.keys(peerConnections).forEach((userId) => {
-                        if (userId != myId) {
-                            peerConnections[userId].connection?.close();
-                            delete peerConnections[userId];
-                        }
-                    });
-                }
-                myStream.getTracks().forEach((track) => {
-                    track.stop();
+            if (isStarted !== 0) {
+                Object.keys(peerConnections).forEach((userId) => {
+                    if (userId != myId) {
+                        peerConnections[userId].connection?.close();
+                        delete peerConnections[userId];
+                    }
                 });
-                socket.off("notifyReady");
-                socket.off("welcome");
-                socket.off("offer");
-                socket.off("answer");
-                socket.off("ice");
-                socket.off("roomExit");
-            })();
+            }
+            myStream?.getTracks()?.forEach((track) => {
+                track.stop();
+            });
+            socket.off("notifyReady");
+            socket.off("streamStart");
+            socket.off("offer");
+            socket.off("answer");
+            socket.off("ice");
         };
-    }, [isUnMounted]);
+    }, []);
 
     // 투표 시 비디오 전송
     const videoList = useSelector((state) => state.videoInfo);

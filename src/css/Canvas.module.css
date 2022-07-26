@@ -16,11 +16,15 @@
 .canvas {
     flex: 11;
     padding: 10px;
+    height: 100%;
+    align-self: flex-start;
 }
 
 .canvasTool {
     flex: 1;
     padding: 165px 34px 45px 0;
+    height: 55em;
+    align-self: flex-start;
 }
 
 .canvasToolBox {
