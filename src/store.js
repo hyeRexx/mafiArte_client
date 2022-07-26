@@ -15,14 +15,15 @@ let user = createSlice({
 
 let gameInfo = createSlice({
   name : 'gameInfo',
-  initialState : [null, 1],
+  initialState : [null, null, 1],
   reducers : {
     turnStatusChange(state, action){
-      state[0] = action.payload;
-      console.log(current(state));
+      state[0] = action.payload[0];
+      state[1] = action.payload[1];
+      console.log('redux turnStatusChange: ', current(state));
     },
     surviveStatusChange(state, action){
-      state[1] = action.payload;
+      state[2] = action.payload;
     }
 }
 });

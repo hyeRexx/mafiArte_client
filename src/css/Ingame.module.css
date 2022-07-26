@@ -530,6 +530,7 @@ flex: 5;
 }
 
 .voteResultModal {
+  z-index: 2;
   border-radius: 15px;
   background: #202020;
   color: #fff;

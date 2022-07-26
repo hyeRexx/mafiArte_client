@@ -40,6 +40,7 @@ const Ingame = ({roomId}) => {
     let [ voteNumber, voteNumberState ] = useState(null); // 투표 결과
     let [ endGame, setEndGame ] = useState(false); // 게임 종료 신호
     let [ deadMan, setDeadMan ] = useState(null);
+    let [ readyAlert, setReadyAlert] = useState(0);
     let ripList = new Array(); // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
@@ -48,6 +49,10 @@ const Ingame = ({roomId}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const changeReadyAlert = (value) => {
+        setReadyAlert(value);
+    };
 
     useEffect(()=>{
     //socket event name 변경 필요
@@ -227,7 +232,8 @@ const Ingame = ({roomId}) => {
         endGame && (() => {
             word = null;
             setStart(0);
-            dispatch(turnStatusChange(null));
+            dispatch(turnStatusChange([null, null]));
+            dispatch(surviveStatusChange(1));
             // redux에 저장해둔 video stream array 초기화 필요
         })();
     }, [endGame]);
@@ -407,38 +413,44 @@ const Ingame = ({roomId}) => {
       );
   }
   
-  function Timer(props){
-  
-      const [timer, setTimer] = useState(0);
-  
-      useEffect(() => {
-          if (props.nowplayer != null){
-              setTimer(15);
-          }
-      }, [props.nowplayer])
-  
-      useEffect (() => {
-          if (props.nowplayer !== null){
-              console.log(props.myId, props.nowplayer);
-              console.log("timer 값 얼마니? ", timer);
-              if (timer !== 0) {
-                  const tick = setInterval(() => {
-                      setTimer(value => value -1)
-                  }, 1000);
-                  return () => clearInterval(tick)
-              } else if (props.myId === props.nowplayer) {
-                  console.log('host만 여기 통과해야함^^');
-                  socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
-              }
-          }
-          }, [timer])
-  
-      return (
-          <>
-          {timer}
-          </>
-      )
-  }
+function Timer(props){
+
+    const [timer, setTimer] = useState(0);
+
+    useEffect(() => {
+        if (props.nowplayer != null){
+            setTimer(15);
+        }
+    }, [props.nowplayer])
+
+    useEffect (() => {
+        if (props.nowplayer !== null){
+            // console.log(props.myId, props.nowplayer);
+            // console.log("timer 값 얼마니? ", timer);
+            if (timer !== 0) {
+                if (timer === 3){
+                    console.log('timer==3 인 경우', timer);
+                    props.changeReadyAlert(1)
+                }
+                const tick = setInterval(() => {
+                    setTimer(value => value -1)
+                }, 1000);
+                return () => clearInterval(tick)
+            } else {
+                if (props.myId === props.nowplayer) {
+                    socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
+                }
+                props.changeReadyAlert(0)
+            }
+        }
+        }, [timer])
+
+    return (
+        <>
+        {timer}
+        </>
+    )
+}
   
   // 투표 결과 모달
   function VoteResultModal(props) {
