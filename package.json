@@ -25,7 +25,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
+    "invalidate": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico",
+    "pub": "yarn build && yarn deploy && yarn invalidate"
   },
   "browserslist": {
     "production": [

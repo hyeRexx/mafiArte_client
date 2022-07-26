@@ -529,6 +529,7 @@ flex: 5;
 }
 
 .voteResultModal {
+  z-index: 2;
   border-radius: 15px;
   background: rgb(233, 233, 233);
   padding: 20px; 

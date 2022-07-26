@@ -46,6 +46,7 @@ const Ingame = ({roomId}) => {
     let [ voteNumber, voteNumberState ] = useState(null); // 투표 결과
     let [ endGame, setEndGame ] = useState(false); // 게임 종료 신호
     let [ deadMan, setDeadMan ] = useState(null);
+    let [ readyAlert, setReadyAlert] = useState(0);
     let ripList = new Array(); // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
@@ -56,6 +57,10 @@ const Ingame = ({roomId}) => {
     const location = useLocation();
 
     const videoList2 = useSelector((state) => state.videoInfo);
+
+    const changeReadyAlert = (value) => {
+        setReadyAlert(value);
+    };
 
     useEffect(()=>{
     //socket event name 변경 필요
@@ -268,7 +273,8 @@ const Ingame = ({roomId}) => {
         endGame && (() => {
             word = null;
             setStart(0);
-            dispatch(turnStatusChange(null));
+            dispatch(turnStatusChange([null, null]));
+            dispatch(surviveStatusChange(1));
             // redux에 저장해둔 video stream array 초기화 필요
         })();
     }, [endGame]);
@@ -386,13 +392,13 @@ const Ingame = ({roomId}) => {
                         <div className={style.outbox}>
                             <div className={style.flexBox}>
                                 <div className={style.item1}>
-                                    <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                    <VideoWindow readyAlert={readyAlert} newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} isUnMounted={isUnMounted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
                                 </div>
 
                                 <div className={style.item2}>
                                     <div className={style.item2Flex}>
                                         <div className={style.canvas}>
-                                            <Canvas roomId={roomId}/>
+                                            <Canvas roomId={roomId} endGame={endGame}/>
                                         </div>
 
                                         <div className={style.chat}>
@@ -437,7 +443,7 @@ const Ingame = ({roomId}) => {
                                 </div>
                                 <div className={style.timer}>
                                     <span className={style.timerIco}></span>
-                                    <span className={style.timerText}><Timer nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
+                                    <span className={style.timerText}><Timer changeReadyAlert = {changeReadyAlert} nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
                                 </div>
                             </div>
                             {/* design : word and Timer : END */}
@@ -506,13 +512,19 @@ function Timer(props){
             // console.log(props.myId, props.nowplayer);
             // console.log("timer 값 얼마니? ", timer);
             if (timer !== 0) {
+                if (timer === 3){
+                    console.log('timer==3 인 경우', timer);
+                    props.changeReadyAlert(1)
+                }
                 const tick = setInterval(() => {
                     setTimer(value => value -1)
                 }, 1000);
                 return () => clearInterval(tick)
-            } else if (props.myId === props.nowplayer) {
-                // console.log('host만 여기 통과해야함^^');
-                socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
+            } else {
+                if (props.myId === props.nowplayer) {
+                    socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
+                }
+                props.changeReadyAlert(0)
             }
         }
         }, [timer])
@@ -562,7 +574,7 @@ function VoteModal(props){
             { word?.word === "?" ? 
                 // <p>하이하이</p>
                 // 마피아일 경우
-                <div className={style.modal}>
+                <div className={style.voteResultModal}>
                     <VoteTimer voteModal={props.voteModal} voteModalClose={props.voteModalClose} inputValue={inputValue} clicked={clicked} roomId = {props.roomId} myId = {props.myId}/>
                     <input type="text" placeholder="제시어를 맞춰보세요"
                     onChange={(event) => setInputValue(event.target.value)} onKeyPress={onKeyPress}/>
@@ -649,7 +661,7 @@ function VoteResultModal(props) {
     console.log('투표 결과 모달 뜨나');
     console.log('투표 수', voteNumber);
     return (
-        <div>
+        <div style={style.voteResultModal}>
             <h1>투표 결과</h1>
             {
                 voteNumber.map((voteNum) => (
@@ -675,13 +687,12 @@ function ResultModal(props) {
     console.log('최종 결과', result[finalResult]);
     return (
         <>
-            <div className={style.modal}>
+            <div className={style.voteResultModal}>
                 <h1>최종 결과</h1>
-                { result[finalResult] }
-            {/* { finalResult === "mafia" ? <h2>마피아가 승리했습니다!</h2>: null }
+            { finalResult === "mafia" ? <h2>마피아가 승리했습니다!</h2>: null }
             { finalResult === "citizen" ? <h2>시민이 승리했습니다!</h2>: null }
             { finalResult === "dead" ? <h2>무고한 시민 {deadMan}이 죽었습니다...</h2>: null }
-            { finalResult === "noOne" ? <h2>오늘 밤은 아무도 죽지 않았습니다...</h2>: null } */}
+            { finalResult === "noOne" ? <h2>오늘 밤은 아무도 죽지 않았습니다...</h2>: null }
             </div> 
         </>
     )
