@@ -17,7 +17,7 @@ import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { InviteCard } from '../subitems/InviteCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 
-let word;
+let word = null;
 
 const Ingame = ({roomId}) => {
     const [ isUnMounted , doUnMount ] = useState(false); // Exit 누르거나 새로고침/창닫기 시에도 동일하게 unmount 작동하도록 하기 위한 state 설정
@@ -225,7 +225,9 @@ const Ingame = ({roomId}) => {
 
     useEffect(() => {
         endGame && (() => {
+            word = null;
             setStart(0);
+            dispatch(turnStatusChange(null));
             // redux에 저장해둔 video stream array 초기화 필요
         })();
     }, [endGame]);
@@ -265,7 +267,7 @@ const Ingame = ({roomId}) => {
             window.removeEventListener("submit", (e) => {window.onbeforeunload = null});
         }
     }, []);
-    
+
     const readyBtn = () => {
         setReady(!isReady);
         socket.emit("singleReady", {gameId: roomId, userId: myId});
@@ -438,8 +440,6 @@ const Ingame = ({roomId}) => {
       )
   }
   
-
-  
   // 투표 결과 모달
   function VoteResultModal(props) {
       const voteNumber = Object.entries(props.voteNumber);
@@ -458,7 +458,6 @@ const Ingame = ({roomId}) => {
 
       )
   
-
   };
   
   // 최종 결과 모달
