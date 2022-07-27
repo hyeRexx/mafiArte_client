@@ -4,7 +4,7 @@ import {socket} from '../script/socket';
 import { useSelector } from 'react-redux';
 import { ASSERT } from '../script/debug';
 
-const Chat = ({roomId, newPlayer, exiter, endGame}) => {
+const Chat = ({roomId, newPlayer, newPlayerBuffer, exiter, endGame}) => {
     const [ newMsg, setNewMsg ] = useState(null);
     const [ chatWindow, setChatWindow ] = useState([`${roomId} 방에 입장하셨습니다.`]);
     const [ input, setInput ] = useState("");
@@ -66,7 +66,17 @@ const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     },[]);
 
     useEffect(()=>{
-        newPlayer && addMessage(`${newPlayer.userId} 님이 입장하셨습니다.`);
+        if (newPlayer != null) {
+            const players = Object.keys(newPlayer);
+            for (let i = 0; i < players.length; i++) {
+                const playerId = players[i];
+                if (newPlayer[playerId].isSet) {
+                    continue;
+                }
+                addMessage(`${playerId} 님이 입장하셨습니다.`);
+                newPlayerBuffer[playerId].isSet = true;
+            }
+        }
     },[newPlayer]);
 
     useEffect(()=>{

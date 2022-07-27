@@ -137,6 +137,10 @@
     background-color: aquamarine;
 }
 
+.actualVideo:focus {
+    border: 5px solid red;
+}
+
 /* for input Form */
 .nightMafiaForm {
     float: left; 

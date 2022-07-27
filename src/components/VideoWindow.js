@@ -13,6 +13,7 @@ import { ASSERT } from '../script/debug';
 
 let myStream;
 let peerConnections = {};
+const othersReadyStatus = {};
 
 const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame, needVideos}) => {
     const [ othersReady, setOthersReady ] = useState(null);
@@ -21,7 +22,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
     const [nextTurn, setNextTurn] = useState(null);
-    const [videos , setVideos] = useState([
+    const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
         {userid: null, stream: null, image: null, isReady: false},
         {userid: myId, stream: null, image: myImg, isReady: false},
         {userid: null, stream: null, image: null, isReady: false},
@@ -185,7 +186,13 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 // data : userId : 입장 유저의 userId
                 //        isReady : userId의 Ready info (binary)
                 console.log("debug : notifyReady :", data);
-                setOthersReady(data);
+                if (othersReadyStatus[data.userId]) {
+                    othersReadyStatus[data.userId].isReady = data.isReady;
+                    othersReadyStatus[data.userId].isSet = false;
+                } else {
+                    othersReadyStatus[data.userId] = {isReady: data.isReady, isSet: false}
+                }
+                setOthersReady({...othersReadyStatus});
             });
 
             socket.on("streamStart", async (userId, userSocket) => {
@@ -245,16 +252,18 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     useEffect(()=>{
         console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayer));
         if (newPlayer != null) {
-            for (let i = newPlayer.length-1; i >= 0; i--) {
-                if (peerConnections[newPlayer[i].userId]) {
-                    break;
+            const players = Object.keys(newPlayer);
+            for (let i = 0; i < players.length; i++) {
+                const playerId = players[i]
+                if (peerConnections[playerId]) {
+                    continue;
                 }
                 let j = 0;
                 for (;j<8 && videos[j].userid;j++) {}
-                peerConnections[newPlayer[i].userId] = {vIdx: j, connection: null};
-                console.log(`peerConnections[${newPlayer[i].userId}] = `, peerConnections[newPlayer[i].userId]);
-                setVideo(j, newPlayer[i].userId, "asis", newPlayer[i].userImg, newPlayer[i].isReady);
-            } // debugging -  성공한다면 exit시 배열에서 꺼내야함, othersReady도 따져봐야
+                peerConnections[playerId] = {vIdx: j, connection: null};
+                console.log(`peerConnections[${playerId}] = `, peerConnections[playerId]);
+                setVideo(j, playerId, "asis", newPlayer[playerId].userImg, newPlayer[playerId].isReady);
+            }
         }
     }, [newPlayer]);
 
@@ -299,13 +308,17 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
 
     useEffect(()=>{
         othersReady && (()=>{
-            console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[othersReady.userId]);
-
-            const usersIdx = peerConnections[othersReady.userId].vIdx;
-            // console.log(JSON.stringify(peerConnections));
-            // console.log(JSON.stringify(videos));
-            setVideo(usersIdx, "asis", "asis", "asis", othersReady.isReady);
-            // console.log(JSON.stringify(videos));
+            const others = Object.keys(othersReady);
+            for (let i = 0; i < others.length; i++) {
+                const othersId = others[i];
+                if ( othersReady[othersId].isSet || !peerConnections[othersId] ) {
+                    continue;
+                }
+                console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[othersId]);
+                const usersIdx = peerConnections[othersId].vIdx;
+                setVideo(usersIdx, "asis", "asis", "asis", othersReady[othersId].isReady);
+                othersReadyStatus[othersId].isSet = true;
+            }
         })();
     }, [othersReady]);
     
@@ -328,9 +341,9 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
 
     useEffect(() => {
         if ((endGame === false) && (gameUserInfo[1] !== null)){
-            let turnIdx = peerConnections[gameUserInfo[1]].vIdx;
+            let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx;
             // console.log("turnIdx: ", turnIdx);
-            readyAlert ? setNextTurn(turnIdx) : setNextTurn(null);
+            (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
             // console.log("nextTurn: ", nextTurn);
         }
     }, [readyAlert]);
@@ -346,7 +359,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                     streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
                 }
             }
-
+            console.log('streamArray', streamArray);
             dispatch(VideoStreamChange(streamArray));
         };
     }, [needVideos]);

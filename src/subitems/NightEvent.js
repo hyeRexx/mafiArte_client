@@ -7,6 +7,7 @@ import Video from '../components/Video';
 const NightEventForCitizen = (props) => {
     const videoList = useSelector((state) => state.videoInfo);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
+    console.log(videoList);
     const len = videoList.stream.length;
 
     return(
@@ -40,7 +41,7 @@ function VoteTimer(props){
     const [voteTimer, setVoteTimer] = useState(1);
     useEffect(() => {
         if (props.becomeNight) {
-            setVoteTimer(20);
+            setVoteTimer(15);
         }
     }, [props.becomeNight])
 
@@ -145,11 +146,17 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 
 // player : 5 ~ 6  ~두 줄로 들어감(2:3, 3:3 비율). 정렬 자동으로 맞춰져 있음 
 const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
+    const [ isClicked, setClick ] = useState(false);
     
     const submitAnswer = (answer) => {
         // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
+    }
+
+    const click = (e) => {
+        e.preventDefault();
+        setClick(true);
     }
 
     return (
@@ -158,7 +165,8 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
                 {   
                     videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
+                            <Video stream={streamId.stream} onClick={click} style={isClicked? {width: 330, height: 210, border: "5px solid red"} : {width: 330, height: 210}} muted={true}/>
+                            {/* style={{width: 330, height: 210, border: 5px solid red}} */}
                         </div>))
                 }
             </div>

@@ -58,7 +58,7 @@ let videoInfo = createSlice({
   reducers : {
     VideoStreamChange(state, action){
         state.stream = action.payload;
-        // console.log("redux VideoStreamChange: ", current(state));
+        console.log("redux VideoStreamChange: ", current(state));
     },
     VideoStreamReset(state, action) {
         return {stream: null};

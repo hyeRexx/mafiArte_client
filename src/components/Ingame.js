@@ -13,7 +13,7 @@ import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent
 import { ASSERT } from '../script/debug';
 
 let word = null;
-const newPlayerBuffer = [];
+const newPlayerBuffer = {};
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
@@ -40,6 +40,7 @@ const Ingame = ({roomId}) => {
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
+    const videoList = useSelector(state => state.videoInfo.stream);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -61,20 +62,22 @@ const Ingame = ({roomId}) => {
         socket.on("notifyNew", (data) => {
             // data : userId : 입장 유저의 userId
             console.log("debug : notifyNew :", data);
-            newPlayerBuffer.push({userId: data.userId, userImg: data.userImg, isReady: data.isReady});
-            console.log(newPlayerBuffer);
-            setNewPlayer([...newPlayerBuffer]);
-            // setNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady});
-            // setTimeout(()=>{
-            socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
-            // }, 200);
+            if (!newPlayerBuffer[data.userId]) {
+                newPlayerBuffer[data.userId] = {userId: data.userId, userImg: data.userImg, isReady: data.isReady, isSet: false};
+                console.log(newPlayerBuffer);
+                setNewPlayer({...newPlayerBuffer});
+                socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
+            }
         });
 
         socket.on("notifyOld", (data) => {
             console.log("debug : notifyOld : ", data);
-            newPlayerBuffer.push(data);
-            setNewPlayer(newPlayerBuffer);
-            // setNewPlayer(data);
+            if (!newPlayerBuffer[data.userId]) {
+                newPlayerBuffer[data.userId] = data;
+                newPlayerBuffer[data.userId]["isSet"] = false;
+                console.log(newPlayerBuffer);
+                setNewPlayer({...newPlayerBuffer});
+            }
         });
 
         // start 가능 알림 : for host 
@@ -123,8 +126,8 @@ const Ingame = ({roomId}) => {
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", () => {
             // console.log('밤이 되었습니다');
-            becomeNightState(true);
             setNeedVideos(true); // 비디오 필요하다는 신호 전송
+            becomeNightState(true);
         });
 
         /* nightResult 결과를 받음 */
@@ -240,6 +243,10 @@ const Ingame = ({roomId}) => {
     },[]);
 
     useEffect(() => {
+        exiter && (delete newPlayerBuffer[exiter]);
+    }, [exiter]);
+
+    useEffect(() => {
         endGame && (() => {
             word = null;
             setStart(0);
@@ -314,7 +321,7 @@ const Ingame = ({roomId}) => {
                                       </div>
   
                                       <div className={style.chat}>
-                                          <Chat roomId={roomId} newPlayer={newPlayer} exiter={exiter} endGame={endGame} />
+                                          <Chat roomId={roomId} newPlayer={newPlayer} newPlayerBuffer={newPlayerBuffer} exiter={exiter} endGame={endGame} />
                                       </div>
                                   </div>       
                                    {
@@ -388,7 +395,7 @@ const Ingame = ({roomId}) => {
                       {/* design : role card : Mafia */}
                       {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                       {/* night event */}
-                      { becomeNight ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
+                      { (becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
                   </div>
                   ); 
@@ -405,7 +412,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(8);
+            setTimer(15);
         }
     }, [props.nowplayer])
 
