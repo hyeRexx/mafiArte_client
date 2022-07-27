@@ -220,7 +220,8 @@ const Lobby = () => {
                         
                 </div>
                 
-                <div className={style.rank}></div>
+                {/*side*/}
+                {/* <div className={style.rank}></div> */}
             </div>
 
             {/* 친구 초대 모달 */}

@@ -13,8 +13,8 @@ let domain = "marfiarte.click";
 export const paddr = `https://${domain}/`;
 export const reqHeaders = { withCredentials: true, origin: "https://d2wm85v592lxtd.cloudfront.net" };
 
-// // 해인
-// let domain = "mafiarte.click";
+// 해인
+// let domain = "haein-sidee.click";
 // export const paddr = `https://${domain}/`;
-// export const reqHeaders = { withCredentials: true, origin: "https://d17xe7xfw04d2o.cloudfront.net" };
+// export const reqHeaders = { withCredentials: true, origin: "https://d1cbkw060yb1pg.cloudfront.net" };
 

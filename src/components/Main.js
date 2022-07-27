@@ -92,6 +92,7 @@ const MainBtns = (props) => {
         <>
             <button className={style.mainBtn} id="join" onClick={btnJoin}>JOIN</button>
             <button className={style.mainBtn} id="login" onClick={btnLogin}>LOGIN</button>
+            
         </>
     );
 }
