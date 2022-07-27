@@ -31,4 +31,5 @@ package.json
 .env
 
 /src/proxyAddr.js
+/src/script/socket.js
 

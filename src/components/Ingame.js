@@ -150,16 +150,14 @@ const Ingame = ({roomId}) => {
                     setResult(2);
                     end = 1;
                 } else if (data.elected) {
-                    console.log("무고하게 죽은 시민", data.elected);
+                    console.log("무고하게 죽은 시민", data.elected); // 다음 판 다시 시작
                     setDeadMan(data.elected);
                     ripList.push(data.elected);
                     setResult(3);
-                    if (data.elected === myId){
-                        dispatch(surviveStatusChange(0));
-                    } else {
-                    console.log("오늘 밤은 아무도 죽지 않았습니다");
+                    if (data.elected === myId){ dispatch(surviveStatusChange(0)); } 
+                } else {
+                    console.log("오늘 밤은 아무도 죽지 않았습니다"); // 다음 판 다시 시작
                     setResult(4);
-                    }
                 }
                 setTimeout(()=> {
                     voteResultState(false); // 투표 결과 모달 닫기
@@ -395,6 +393,7 @@ const Ingame = ({roomId}) => {
           </>
       );
   }
+
   
 function Timer(props){
 
@@ -471,7 +470,7 @@ function Timer(props){
       console.log('최종 결과', finalResult);
       return (
       <>
-          <div  className={style.turnBoard} style={{width: "500px"}}>
+          <div  className={style.turnBoard} style={{width: "500px", textAlign: "center"}}>
           <div className={style.turnBoardTitle}> TOTAL RESULT </div>
           { finalResult === 1? <span className={style.turnId}>마피아가 승리했습니다!</span>: null }
           { finalResult === 2? <span className={style.turnId}>시민이 승리했습니다!</span>: null }
