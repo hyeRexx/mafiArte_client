@@ -340,7 +340,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         dispatch(VideoStreamChange(streamArray));
 
     }, [needVideos]);
-    
+    // {style.videoNow}
+    // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}
     return (
         <>
         <div className={style.videoSection}>
