@@ -81,8 +81,9 @@ const Lobby = () => {
 
     useEffect(() => {
         // 뒤로가기 방지
+        const preventBack = () => history.pushState(null, "", location.href);
         history.pushState(null, "", location.href);
-        window.addEventListener("popstate", () => history.pushState(null, "", location.href));
+        window.addEventListener("popstate", preventBack);
 
         // 소켓 연결 및 초기화
         if (!socket || !socket['connected']) {
@@ -158,12 +159,7 @@ const Lobby = () => {
         });
 
         return () => {
-            window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
-        }
-    }, []);
-
-    useEffect(()=>{
-        return () => {
+            window.removeEventListener("popstate", preventBack);
             socket.off("friendList");
             socket.off("getinvite");
         }

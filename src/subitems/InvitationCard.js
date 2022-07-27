@@ -14,7 +14,7 @@ const InvitationCard = (props) => {
             // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
             console.log("__debug : get this game id? :", thisGameId);
             if (thisGameId) {
-                navigate(`/ingame/${props.roomId}`, {state: {fromLobby: true}});
+                navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
             } else {
                 alert('게임이 이미 시작되어 참가할 수 없습니다.'); // 일단은 이런 경우가 거의 없을 것이므로, 따로 만들지는 않고 alert으로 처리함.
             }

@@ -38,16 +38,19 @@ const InviteCard = (props) => {
         //     return;
         // } 
 
-        socket.emit("listuserinfo", listuserid);
-
-        socket.on("listsocketid", (listsocketid) => {
+        socket.emit("listuserinfo", listuserid, (listsocketid) => {
             console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
 
             let roomId = + new Date();
 
             // 게임 생성
-            socket.emit("makeGame", {gameId : roomId, userId : props.sender}, ()=> {
-                console.log("게임 생성 완료");
+            socket.emit("makeGame", {gameId : roomId, userId : props.sender}, (thisGameId)=> {
+                if (!thisGameId) {
+                    alert("session이 만료되어 페이지를 새로고침합니다.");
+                    window.location.reload();
+                } else {
+                    console.log("게임 생성 완료");
+                }
             });
 
             // 초대장 전송
@@ -60,12 +63,6 @@ const InviteCard = (props) => {
             
         });
     }
-
-    useEffect(()=> {
-        return ()=> {
-            socket.off("listsocketid");
-        };
-    }, []);
 
     return (
             <div className={style.InviteCard} show={show} onHide={handleClose}>
