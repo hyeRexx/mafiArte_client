@@ -15,13 +15,7 @@ const Canvas = ({roomId, endGame}) => {
     useEffect(() => {
         // props로 넘어온 roomId는 String 타입이므로 int 타입으로 변환해줘야
         whiteboard = new Whiteboard(canvasElement.current, socket, Number(roomId));
-        console.log("test");
-        socket.on("canvasTest1", (test) => {
-            // console.log(socket);
-            console.log("__debug", socket.id);
-        });
-
-
+        
         // component unmount 시 event remove 하는 것 고려해볼 것 성능 개선 문제
     }, []);
 
@@ -38,7 +32,11 @@ const Canvas = ({roomId, endGame}) => {
     }, [pickColor]);
     
     useEffect(() => {
+        console.log("endgame 값은 뭔가요?", endGame);
         if (endGame === true){
+            // console.log("endgame true 인가요?");
+            // const ctx = canvasElement.current.getContext("2d");
+            // ctx.clearRect(0, 0, canvasElement.current.width, canvasElement.current.height)
             whiteboard.clear();
         }
     }, [endGame])
