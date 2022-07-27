@@ -61,7 +61,7 @@ const Login = () => {
                 >
                     <Form.Control type="password" placeholder="PW" onChange={(e) => setPw(e.target.value)} required/>
                 </FloatingLabel>
-                <Button variant="light" type="submit" style={{display:'block'}} />
+                <Button variant="light" type="submit" style={{display:'none'}} />
             </Form>
         </NotRequireAuth>
     );

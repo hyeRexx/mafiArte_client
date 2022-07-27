@@ -6,9 +6,11 @@ let user = createSlice({
   reducers : {
     setUserId(state, action){
         state.id = action.payload;
+        console.log('redux setUserId: ', current(state));
     },
     setProfileImg(state, action){
         state.profile_img = action.payload;
+        console.log('redux setProfileImg: ', current(state));
     }
 }
 });
@@ -24,6 +26,7 @@ let gameInfo = createSlice({
     },
     surviveStatusChange(state, action){
       state[2] = action.payload;
+      console.log('redux surviveStatusChange: ', current(state));
     }
 }
 });
@@ -34,15 +37,16 @@ let FriendInfo = createSlice({
   reducers : {
     FriendInfoSet(state, action){
       state[action.payload[0]] = action.payload[1];
-      console.log('FriendInfoSet', current(state))
+      console.log('redux FriendInfoSet: ', current(state))
     },
     FriendInfoChange(state, action){
       if (state[action.payload[0]] !== undefined){
         state[action.payload[0]] = action.payload[1];
-        console.log('friendinfochange test:',current(state));
+        console.log('redux FriendInfoChange: ',current(state));
       }
     },
     FriendInfoReset(state, action){
+      console.log('redux FriendInfoReset');
       return {};
     }
   }
@@ -54,6 +58,7 @@ let videoInfo = createSlice({
   reducers : {
     VideoStreamChange(state, action){
         state.stream = action.payload;
+        console.log("redux VideoStreamChange: ", current(state));
     }
 }
 });
