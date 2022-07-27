@@ -22,7 +22,8 @@
 
 .canvasTool {
     flex: 1;
-    padding: 165px 34px 45px 0;
+    /* padding: 165px 34px 45px 0; */
+    padding: 155px 34px 115px 0;
     height: 55em;
     align-self: flex-start;
 }
