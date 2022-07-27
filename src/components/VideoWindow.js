@@ -254,7 +254,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 peerConnections[newPlayer[i].userId] = {vIdx: j, connection: null};
                 console.log(`peerConnections[${newPlayer[i].userId}] = `, peerConnections[newPlayer[i].userId]);
                 setVideo(j, newPlayer[i].userId, "asis", newPlayer[i].userImg, newPlayer[i].isReady);
-            } // 성공한다면 exit시 배열에서 꺼내야함, othersReady도 따져봐야
+            } // debugging -  성공한다면 exit시 배열에서 꺼내야함, othersReady도 따져봐야
         }
     }, [newPlayer]);
 
@@ -336,18 +336,19 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }, [readyAlert]);
 
     // 투표 시 비디오 전송
-    const videoList = useSelector((state) => state.videoInfo);
+    // const videoList = useSelector((state) => state.videoInfo);
     useEffect(()=> {
         // stream array
-        let streamArray = new Array();
-        for (let i = 0; i < 8; i++) {
-            if (videos[i].userid != null) {
-                streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
+        if ( needVideos ) {
+            let streamArray = new Array();
+            for (let i = 0; i < 8; i++) {
+                if (videos[i].userid != null) {
+                    streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
+                }
             }
-        }
 
-        dispatch(VideoStreamChange(streamArray));
-
+            dispatch(VideoStreamChange(streamArray));
+        };
     }, [needVideos]);
     // {style.videoNow}
     // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}
