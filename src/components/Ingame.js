@@ -137,7 +137,7 @@ const Ingame = ({roomId}) => {
         // nightEvent 요청에 대한 진행 보고
         socket.on("nightResult", (data) => {
             setTimeout(() => {
-                setNeedVideos(true); // 비디오 필요하다는 신호 초기화
+                setNeedVideos(false); // 비디오 필요하다는 신호 초기화
                 voteNumberState(data.voteData); // 투표 수치
                 voteResultState(true); // 투표 결과 모달
                 console.log('결과', data.win);

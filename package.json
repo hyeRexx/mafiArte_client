@@ -27,21 +27,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    
-    "deployjin": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
-    "invalidatejin": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
-    "pubjin": "yarn build && yarn deployjin && yarn invalidatejin",
-
-    "deployrex": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
-    "invalidaterex": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
-    "pubrex": "yarn build && yarn deployrex && yarn invalidaterex",
-
-    "deployjack": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
-    "invalidatejack": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
-    "pubjack": "yarn build && yarn deployjack && yarn invalidatejack",
-
-    "deployside": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
-    "invalidateside": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
+    "deployside": "aws s3 sync ./build s3://haein-sidee --profile=haein-sidee",
+    "invalidateside":"aws cloudfront create-invalidation --profile=haein-sidee --distribution-id E2QC50IM10LODS --paths / /index.html",
     "pubside": "yarn build && yarn deployside && yarn invalidateside"
   },
   "browserslist": {

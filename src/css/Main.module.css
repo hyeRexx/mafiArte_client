@@ -4,6 +4,7 @@
     background-color: #202020;
     background-image: url(../../public/img/main_title.png);
     background-size: cover;
+    position: relative; /*side*/
 }
 
 .windowFrame {

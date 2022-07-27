@@ -2,9 +2,7 @@
     background: url(../../public/img/rank_temp.png) no-repeat;
     background-size: cover;
     z-index: -1;
-    position: absolute;
-    top: 230px;
-    left: 645px;
+    /* position: absolute; */ /*side*/
     width: 1150px;
     height: 725px;
 }
@@ -14,7 +12,9 @@
     display: flex;
     height: 1080px;
     width: 1920px;
-    padding: 0px 40px;
+    /* padding: 0px 40px; */
+    padding: 0px 0px; /*side*/
+    margin-left: 0px; /*side*/
     gap: 0px;
     justify-content: center;
     margin: auto;
@@ -162,7 +162,9 @@
     justify-content: flex-end;
     align-items: flex-end;
     column-gap: 15px;
-    padding: 0 25px 170px 0;
+    /* padding: 0 25px 170px 0; */
+    padding: 0 25px 0 0; /*side*/
+    align-items: center; /*side*/
 }
 
 .modal {
@@ -227,4 +229,5 @@
 
 .MainLobbyTapContents {
     flex: 5;
+    position: relative; /*side*/
 }
