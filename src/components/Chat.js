@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
 import { useSelector } from 'react-redux';
+import { ASSERT } from '../script/debug';
 
 const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     const [ newMsg, setNewMsg ] = useState(null);
@@ -65,11 +66,11 @@ const Chat = ({roomId, newPlayer, exiter, endGame}) => {
     },[]);
 
     useEffect(()=>{
-        newPlayer && addMessage(`${newPlayer.userId} 님이 게임에 들어오셨습니다.`);
+        newPlayer && addMessage(`${newPlayer.userId} 님이 입장하셨습니다.`);
     },[newPlayer]);
 
     useEffect(()=>{
-        exiter && addMessage(`${exiter} 님이 게임에서 나가셨습니다.`);
+        exiter && addMessage(`${exiter} 님이 퇴장하셨습니다.`);
     },[exiter]);
 
     useEffect(()=>{

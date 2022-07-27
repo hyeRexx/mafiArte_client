@@ -6,7 +6,6 @@ import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
 import { turnStatusChange, surviveStatusChange, FriendInfoChange } from '../store';
-import Video from './Video';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { paddr, reqHeaders } from '../proxyAddr';
 import { FriendInfoReset } from '../store';
@@ -16,6 +15,7 @@ import RoleCardHotSpot from '../subitems/RoleCardHotSpot';
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { InviteCard } from '../subitems/InviteCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
+import { ASSERT } from '../script/debug';
 
 let word = null;
 
@@ -58,11 +58,13 @@ const Ingame = ({roomId}) => {
             alert("비정상적인 접근입니다. 메인페이지로 이동합니다.");
             window.location.replace("/");
         }
-        console.log(roomId);
-        console.log(`${myId}, ${socket.id}, ${roomId}, Number(${roomId})`);
+        console.log("Ingame Mounted");
+        console.log("myId, socketId, roomId");
+        console.log(`${myId}, ${socket.id}, ${roomId}`);
         socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
             (myId === host) && setHost(true);
             setRoomEntered(true);
+            console.log("Ingame Room Enter Success");
         });
 
         /*** for game : hyeRexx ***/
@@ -110,8 +112,8 @@ const Ingame = ({roomId}) => {
                 setTimeout(()=>{
                     setShowWord(false);
                 }, 7000);
+            })
             }, 5000);
-        })
 
         // turn 교체 요청에 대한 응답
         // turn 교체 요청 "openTurn" 콜백으로 넣어도 될듯?
@@ -164,10 +166,11 @@ const Ingame = ({roomId}) => {
                 setTimeout(()=> {
                     voteResultState(false); // 투표 결과 모달 닫기
                     resultModalState(true); // 최종 결과 모달
-                    setTimeout(()=>{ 
+                    setTimeout(() => { 
                         resultModalState(false); // 최종 결과 모달 닫기
                         if (end === 1) {
-                        setEndGame(true);} 
+                            setEndGame(true);
+                        }
                     }, 7000);
                 }, 4000);
             }, 1000);
@@ -217,9 +220,7 @@ const Ingame = ({roomId}) => {
                 dispatch(FriendInfoChange([userid, status]));
             }
         });
-    },[]);
 
-    useEffect(()=>{
         return () => {
             // 기존에 등록된 event listner 삭제
             socket.off("notifyNew");
@@ -247,14 +248,15 @@ const Ingame = ({roomId}) => {
         })();
     }, [endGame]);
 
-    // Jack - 뒤로가기 버튼 막음. 새로고침/창닫기 시에는 게임 EXIT되도록 / 로그아웃 되도록 처리
+    // Jack - 뒤로가기 버튼 막음. 
     useEffect(()=>{
         // 뒤로가기 방지
+        const preventBack = () => history.pushState(null, "", location.href);
         history.pushState(null, "", location.href);
-        window.addEventListener("popstate", () => history.pushState(null, "", location.href));
+        window.addEventListener("popstate", preventBack);
 
         return () => {
-            window.removeEventListener("popstate", () => history.pushState(null, "", location.href));
+            window.removeEventListener("popstate", preventBack);
         }
     }, []);
 
@@ -268,14 +270,6 @@ const Ingame = ({roomId}) => {
             // start 신호 수신시의 작업
         });
     }
-
-    const openTurnBtn = () => {
-        socket.emit("openTurn", {gameId: roomId, userId: myId});
-    }
-
-    const newCycleBtn = () => {
-        socket.emit("newCycleRequest", {gameId: roomId, userId: myId});
-    }
     
     /* Exit Button */
     const btnExit = (e) => {
@@ -284,6 +278,13 @@ const Ingame = ({roomId}) => {
             navigate('/lobby');
         });
     };
+
+    // error handler 용도 - 인게임에서 에러 발생하면 콘솔 띄우고 그냥 방에서 튕김 -> 로그 확인해서 디버깅하기
+    // window.addEventListener("error", (e)=>{
+    //     e.preventDefault();
+    //     console.log(`error 발생 : ${e}`);
+    //     btnExit();
+    // });
 
     return (
         <>
@@ -308,7 +309,7 @@ const Ingame = ({roomId}) => {
                               <div className={style.item2}>
                                   <div className={style.item2Flex}>
                                       <div className={style.canvas}>
-                                          <Canvas roomId={roomId}/>
+                                          <Canvas roomId={roomId} endGame={endGame} />
                                       </div>
   
                                       <div className={style.chat}>
@@ -349,11 +350,11 @@ const Ingame = ({roomId}) => {
                           <div className={style.wordTimer}>
                               <div className={style.wordBox}>
                                   <span className={style.wordBoxLabel}>제시어</span>
-                                  <span className={style.wordBoxWord}>{word?.word}</span>
+                                  <span className={style.wordBoxWord}>{gameUserInfo[0]? (word?.word) : null}</span>
                               </div>
                               <div className={style.timer}>
                                   <span className={style.timerIco}></span>
-                                  <span className={style.timerText}><Timer changeReadyAlert = {changeReadyAlert} nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId}/></span>
+                                  <span className={style.timerText}><Timer changeReadyAlert = {changeReadyAlert} nowplayer = {gameUserInfo[0]} roomId = {roomId} myId = {myId} endGame = {endGame}/></span>
                               </div>
                           </div>
                           {/* design : word and Timer : END */}
@@ -435,7 +436,7 @@ function Timer(props){
                 props.changeReadyAlert(0)
             }
         }
-        }, [timer]);
+    }, [timer]);
 
     return (
         <>
