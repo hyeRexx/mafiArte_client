@@ -345,7 +345,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         dispatch(VideoStreamChange(streamArray));
 
     }, [needVideos]);
-    
+    // {style.videoNow}
+    // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}
     return (
         <>
         <div className={style.videoSection}>
@@ -374,7 +375,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 </div>
             </div>
             
-            {/* <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div> */}
+            <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
