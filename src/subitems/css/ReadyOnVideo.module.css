@@ -1,7 +1,8 @@
 .onVideoBoxBig {
-    bottom: 45px;
+    bottom: 3%;
     width: 540px;
     position: absolute;
+    z-index: 1;
 }
 
 .readyTextBig {
@@ -18,9 +19,9 @@
 
 /* later */
 .onVideoBoxSmall {
-    bottom: 35px;
+    bottom: -75%;
     width: 171px;
-    position: absolute;
+    position: relative;
 }
 
 .readyTextSmall {

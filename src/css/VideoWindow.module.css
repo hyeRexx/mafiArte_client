@@ -9,6 +9,7 @@
 .videoNow {
     color : #fff;
     flex : 1.4 1;
+    position: relative;
 }
 
 .videoObserving {
