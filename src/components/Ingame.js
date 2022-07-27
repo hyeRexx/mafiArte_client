@@ -302,13 +302,13 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow readyAlert={readyAlert} newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
                               </div>
   
                               <div className={style.item2}>
                                   <div className={style.item2Flex}>
                                       <div className={style.canvas}>
-                                          <Canvas roomId={roomId}/>
+                                          <Canvas roomId={roomId} endGame={endGame}/>
                                       </div>
   
                                       <div className={style.chat}>
@@ -402,7 +402,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(15);
+            setTimer(8);
         }
     }, [props.nowplayer])
 

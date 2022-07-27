@@ -63,25 +63,30 @@
 }
 
 .gradientborder {
-    --borderWidth: 5px;
-    background: #1D1F20;
+    color: #fff;
+    flex: 1.4 1;
     position: relative;
-    border-radius: var(--borderWidth);
-  }
+    border: 5px solid transparent;
+    background-image: linear-gradient(#202020, #202020), linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    animation: blink 1s ease-in-out alternate infinite;
+    /* animation: animatedgradient 1s ease alternate infinite; */
+}
 
-.gradientborder:after {
+/* .gradientborder:after {
 content: '';
 position: absolute;
-top: calc(-1 * var(--borderWidth));
-left: calc(-1 * var(--borderWidth));
-height: calc(100% + var(--borderWidth) * 2);
-width: calc(100% + var(--borderWidth) * 2);
+top: calc(-1 * 5px);
+left: calc(-1 * 5px);
+height: calc(100% + 5px * 2);
+width: calc(100% + 5px * 2);
 background: linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
-border-radius: calc(1.5 * var(--borderWidth));
-z-index: -1;
+border-radius: calc(1.5 * 5px);
+z-index: 10;
 animation: animatedgradient 2s ease alternate infinite;
 background-size: 300% 300%;
-}
+} */
 
 @keyframes animatedgradient {
     0% {
@@ -93,4 +98,10 @@ background-size: 300% 300%;
     100% {
         background-position: 0% 50%;
     }
+}
+
+@keyframes blink {
+    0% {opacity: 0%;}
+    50% {opacity: 50%;}
+    100% {opacity: 100%;}
 }
