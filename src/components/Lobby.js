@@ -5,7 +5,7 @@ import Citizen from './Citizen';
 import Setting from './Setting';
 import axios from 'axios';
 import { paddr, reqHeaders } from '../proxyAddr';
-import { setUserId, setProfileImg, FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
+import { FriendInfoSet, FriendInfoChange, FriendInfoReset } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import connectSocket, {socket} from '../script/socket';
 import style from '../css/Lobby.module.css';
@@ -141,16 +141,16 @@ const Lobby = () => {
 
         axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
         .then((res) => {
-            let FriList = res.data[0]; // user의 전체 친구 목록
+            let friList = res.data[0]; // user의 전체 친구 목록
             let onlineList = res.data[1]; // 현재 접속중인 user 목록
+            console.log(friList);
             console.log('onlinelist', onlineList);
-            onlineList = { testid : 1,  jack: 1, haein: 1}; // 임시 접속 user 목록
-            for (var i = 0; i < Object.keys(FriList).length; i++){
-                let key = FriList[i].userid;
+            for (var i = 0; i < Object.keys(friList).length; i++){
+                let key = friList[i].userid;
                 if (!onlineList[key]){
-                    dispatch(FriendInfoSet([key, 0]))
+                    dispatch(FriendInfoSet([key, 0]));
                 } else {
-                    dispatch(FriendInfoSet([key, 1]))
+                    dispatch(FriendInfoSet([key, 1]));
                 }
             }
         })

@@ -471,7 +471,7 @@ function Timer(props){
       console.log('최종 결과', finalResult);
       return (
       <>
-          <div  className={style.turnBoard} style={{width: "500px", textAlign: "center"}}>
+          <div  className={style.totalResult} style={{width: "500px", textAlign: "center"}}>
           <div className={style.turnBoardTitle}> TOTAL RESULT </div>
           { finalResult === 1? <span className={style.turnId}>마피아가 승리했습니다!</span>: null }
           { finalResult === 2? <span className={style.turnId}>시민이 승리했습니다!</span>: null }
