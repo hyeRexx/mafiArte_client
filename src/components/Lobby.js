@@ -174,7 +174,7 @@ const Lobby = () => {
                         <img className={style.lobbyLogo} src='/img/smallLogo.png'></img>
                         <div className={style.prifileImg}>
                             {/* imgURL 갈아야 함 */}
-                            <img src={profile_img} className={style.test}/>
+                            {/* <img src={profile_img} className={style.test}/> */}
                         </div>
 
                         <div className={style.nickname}>
@@ -219,6 +219,8 @@ const Lobby = () => {
                     </div>
                         
                 </div>
+                
+                <div className={style.rank}></div>
             </div>
 
             {/* 친구 초대 모달 */}

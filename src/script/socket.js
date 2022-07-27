@@ -8,7 +8,7 @@ export default async () => {
     socket = await io.connect(paddr, {
         withCredentials: true,
         extraHeaders: {
-          "access-control-allow-origin": "https://d2wm85v592lxtd.cloudfront.net",
+          "access-control-allow-origin": "https://d2bxvfgokknit.cloudfront.net",
           "access-control-allow-credentials": true,
         }
       });

@@ -119,6 +119,11 @@
     background-color: antiquewhite;
 }
 
+.singleVideo:focus {
+    border: 5px solid #fff;
+    box-shadow: inset 2px 2px 10px #000;
+}
+
 .nightVideo6 .singleVideo {
     width: 310px;
     height: 200px;

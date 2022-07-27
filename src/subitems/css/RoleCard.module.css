@@ -9,7 +9,7 @@
     perspective: 500px;
     z-index: 3;
     border-radius: 40px;
-    animation: 2s slideup;
+    animation: 1s slideup ease-in-out;
     animation-iteration-count: 1;
 }
   

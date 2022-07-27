@@ -373,7 +373,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
             </div>
-                <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
+            
+            {/* <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div> */}
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
@@ -388,14 +389,14 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                         {/* READY 표시 확인 필요! */}
                         {videos[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[3].stream? 
-                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"}/> 
                         :<img style={{opacity:videos[3].userid? "100%": "0%"}} height="100%" src={videos[3].image}/>}
                     </div>
                     <div className={nextTurn === 4 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[4].stream? 
-                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"}/> 
                         :<img style={{opacity:videos[4].userid? "100%": "0%"}} height="100%" src={videos[4].image}/>}
                     </div>
                 </div>
@@ -404,21 +405,21 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                         {/* READY 표시 확인 필요! */}
                         {videos[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[5].stream? 
-                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"93.5px"}/>
+                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"}/>
                         :<img style={{opacity:videos[5].userid? "100%": "0%"}} height="100%" src={videos[5].image}/>}
                     </div>
                     <div className={nextTurn === 6 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[6].stream? 
-                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"}/> 
                         :<img style={{opacity:videos[6].userid? "100%": "0%"}} height="100%" src={videos[6].image}/>}
                     </div>
                     <div className={nextTurn === 7 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[7].stream? 
-                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
+                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"}/> 
                         :<img style={{opacity:videos[7].userid? "100%": "0%"}} height="100%" src={videos[7].image}/>}
                     </div>
                 </div>
