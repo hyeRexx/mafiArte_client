@@ -243,11 +243,18 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }, []);
 
     useEffect(()=>{
+        console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayer));
         if (newPlayer != null) {
-            let i = 0;
-            for (;i<8 && videos[i].userid;i++) {}
-            peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
-            setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
+            for (let i = newPlayer.length-1; i >= 0; i--) {
+                if (peerConnections[newPlayer[i].userId]) {
+                    break;
+                }
+                let j = 0;
+                for (;j<8 && videos[j].userid;j++) {}
+                peerConnections[newPlayer[i].userId] = {vIdx: j, connection: null};
+                console.log(`peerConnections[${newPlayer[i].userId}] = `, peerConnections[newPlayer[i].userId]);
+                setVideo(j, newPlayer[i].userId, "asis", newPlayer[i].userImg, newPlayer[i].isReady);
+            } // 성공한다면 exit시 배열에서 꺼내야함, othersReady도 따져봐야
         }
     }, [newPlayer]);
 
@@ -255,7 +262,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         exiter && (()=>{
             const vIdx = peerConnections[exiter].vIdx;
             setVideo(vIdx, null, null, null, false);
-            console.log(`debug_exiter ${exiter} - connection close`);
+            // console.log(`debug_exiter ${exiter} - connection close`);
             peerConnections[exiter].connection?.close();
             delete peerConnections[exiter];
             // console.log(peerConnections);
@@ -267,15 +274,15 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         setVideo(myIdx, "asis", "asis", "asis", isReady);
     }, [isReady]);
 
-    console.log('VideoWindow Before useEffect[isStarted]');
+    // console.log('VideoWindow Before useEffect[isStarted]');
     useEffect(()=>{
-        console.log("VideoWindow : useEffect - isStarted? ", isStarted);
+        // console.log("VideoWindow : useEffect - isStarted? ", isStarted);
         (isStarted === 1) && clearReady();
     }, [isStarted]);
 
-    console.log('VideoWindow Before useEffect[endGame]');
+    // console.log('VideoWindow Before useEffect[endGame]');
     useEffect(()=>{
-        console.log("VideoWindow : useEffect - endGame? ", endGame);
+        // console.log("VideoWindow : useEffect - endGame? ", endGame);
         endGame && (()=>{
             const copyVideos = [...videos];
             Object.keys(peerConnections).forEach((userId) => {
@@ -292,6 +299,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
 
     useEffect(()=>{
         othersReady && (()=>{
+            console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[othersReady.userId]);
+
             const usersIdx = peerConnections[othersReady.userId].vIdx;
             // console.log(JSON.stringify(peerConnections));
             // console.log(JSON.stringify(videos));
@@ -300,18 +309,18 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         })();
     }, [othersReady]);
     
-    console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
+    // console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
     useEffect(() => {
-        console.log('VideoWindow useEffect - gameUserInfo[0]? ', gameUserInfo[0]);
+        // console.log('VideoWindow useEffect - gameUserInfo[0]? ', gameUserInfo[0]);
         let turnIdx = ((endGame === false) && (gameUserInfo[0] !== null))? peerConnections[gameUserInfo[0]].vIdx : -1;
         if (turnIdx !== -1){
             changeVideo(turnIdx, 0);
         }
     }, [gameUserInfo[0]]);
 
-    console.log('VideoWindow Before useEffect[gameUserInfo[1]]');
+    // console.log('VideoWindow Before useEffect[gameUserInfo[1]]');
     useEffect(() => {
-        console.log('VideoWindow useEffect - gameUserInfo[2]? ', gameUserInfo[2]);
+        // console.log('VideoWindow useEffect - gameUserInfo[2]? ', gameUserInfo[2]);
         if ((endGame === false) && (gameUserInfo[0] !== null)){
             myStream.getAudioTracks()?.forEach((track) => (track.enabled = !track.enabled));
         }
@@ -320,7 +329,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     useEffect(() => {
         if ((endGame === false) && (gameUserInfo[1] !== null)){
             let turnIdx = peerConnections[gameUserInfo[1]].vIdx;
-            console.log("turnIdx: ", turnIdx);
+            // console.log("turnIdx: ", turnIdx);
             readyAlert ? setNextTurn(turnIdx) : setNextTurn(null);
             // console.log("nextTurn: ", nextTurn);
         }

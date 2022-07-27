@@ -55,10 +55,10 @@ function VoteTimer(props){
             } 
             else if (voteTimer === 0) {
                 if (props.word != '?'){
-                    console.log('뽑힌 사람', props.submitVote);
+                    // console.log('뽑힌 사람', props.submitVote);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
                 } else {
-                    console.log('제출한 제시어', props.submitWord);
+                    // console.log('제출한 제시어', props.submitWord);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitWord}});
                 }
                 props.becomeNightState(false); // 투표 창이 사라짐 setTimeout?
@@ -78,7 +78,7 @@ const NightEventForMafia = (props) => {
       const [ submitWord, submitWordState ] = useState(null); // 제시어 제출 @ 타이머
 
       const submitTmp = () => {
-          console.log(`마피아 정답 : ${inputValue}`);
+        //   console.log(`마피아 정답 : ${inputValue}`);
           submitWordState(inputValue);
         socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: inputValue}});
       }
@@ -124,7 +124,7 @@ const NightEventForMafia = (props) => {
 const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
     }
@@ -133,7 +133,7 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
         <div className={style.nightVideo4}>
             <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} />
                         </div>))
@@ -147,7 +147,7 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
     
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
     }
@@ -156,7 +156,7 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
                         </div>))
@@ -171,7 +171,7 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
 const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
     
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
     }
@@ -180,7 +180,7 @@ const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
                         </div>))

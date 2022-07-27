@@ -6,11 +6,11 @@ let user = createSlice({
   reducers : {
     setUserId(state, action){
         state.id = action.payload;
-        console.log('redux setUserId: ', current(state));
+        // console.log('redux setUserId: ', current(state));
     },
     setProfileImg(state, action){
         state.profile_img = action.payload;
-        console.log('redux setProfileImg: ', current(state));
+        // console.log('redux setProfileImg: ', current(state));
     }
 }
 });
@@ -22,11 +22,11 @@ let gameInfo = createSlice({
     turnStatusChange(state, action){
       state[0] = action.payload[0];
       state[1] = action.payload[1];
-      console.log('redux turnStatusChange: ', current(state));
+      // console.log('redux turnStatusChange: ', current(state));
     },
     surviveStatusChange(state, action){
       state[2] = action.payload;
-      console.log('redux surviveStatusChange: ', current(state));
+      // console.log('redux surviveStatusChange: ', current(state));
     }
 }
 });
@@ -37,16 +37,16 @@ let FriendInfo = createSlice({
   reducers : {
     FriendInfoSet(state, action){
       state[action.payload[0]] = action.payload[1];
-      console.log('redux FriendInfoSet: ', current(state))
+      // console.log('redux FriendInfoSet: ', current(state))
     },
     FriendInfoChange(state, action){
       if (state[action.payload[0]] !== undefined){
         state[action.payload[0]] = action.payload[1];
-        console.log('redux FriendInfoChange: ',current(state));
+        // console.log('redux FriendInfoChange: ',current(state));
       }
     },
     FriendInfoReset(state, action){
-      console.log('redux FriendInfoReset');
+      // console.log('redux FriendInfoReset');
       return {};
     }
   }
@@ -54,11 +54,14 @@ let FriendInfo = createSlice({
 
 let videoInfo = createSlice({
   name : 'videoInfo',
-  initialState : {stream: ""},
+  initialState : {stream: null},
   reducers : {
     VideoStreamChange(state, action){
         state.stream = action.payload;
-        console.log("redux VideoStreamChange: ", current(state));
+        // console.log("redux VideoStreamChange: ", current(state));
+    },
+    VideoStreamReset(state, action) {
+        return {stream: null};
     }
 }
 });
@@ -84,4 +87,4 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
-export let { VideoStreamChange } = videoInfo.actions;
+export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;

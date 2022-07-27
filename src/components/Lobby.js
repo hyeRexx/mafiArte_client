@@ -32,14 +32,14 @@ const Lobby = () => {
         }
     }
 
-    console.log('리덕스 친구리스트', friends);
+    // console.log('리덕스 친구리스트', friends);
 
     // START 버튼 - 랜덤 매칭 
     const btnStart = () => {
         // socket && socket.emit("checkEnterableRoom", (roomNumber)=>{navigate(`/ingame/${roomNumber}`);});
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
-            console.log("__debug : get this game id? :", thisGameId);
+            // console.log("__debug : get this game id? :", thisGameId);
             if (!thisGameId) {
                 window.location.reload();
             }
@@ -51,8 +51,8 @@ const Lobby = () => {
     const btnMake = () => {
     
         // 친구 리스트 상태 변경 -> 필요 없는 듯?
-        console.log(`choosestate 상태 ${choose}`)
-        console.log(`MAKE A GAME 눌렀을 때 친구 리스트 ${friends}`);
+        // console.log(`choosestate 상태 ${choose}`)
+        // console.log(`MAKE A GAME 눌렀을 때 친구 리스트 ${friends}`);
         // 초대할 사람 고르기
         choosestate(true);
         // 초대자 state 변경
@@ -89,7 +89,7 @@ const Lobby = () => {
         if (!socket || !socket['connected']) {
             connectSocket().then(() => {
                 socket.on("friendList", (userid, status) => {
-                    console.log("friend수정확인",userid, status);
+                    // console.log("friend수정확인",userid, status);
                     if (userid === myId) {
                         (status === 0) && (()=>{
                             socket.close();
@@ -107,7 +107,7 @@ const Lobby = () => {
                 // console.log('connectsocket test: ', socket['connected']);
     
                 socket.on("getinvite", (roomId, myId)=> {
-                        console.log('초대장을 받았습니다!');
+                        // console.log('초대장을 받았습니다!');
                         
                         roomidstate(roomId);
                         senderstate(myId);
@@ -118,7 +118,7 @@ const Lobby = () => {
             });
         } else {
             socket.on("friendList", (userid, status) => {
-                console.log("friend수정확인",userid, status);
+                // console.log("friend수정확인",userid, status);
                 if (userid === myId) {
                     (status === 0) && (()=>{
                         socket.close();
@@ -129,7 +129,7 @@ const Lobby = () => {
                 }
             });
             socket.on("getinvite", (roomId, myId)=> {
-                console.log('초대장을 받았습니다!');
+                // console.log('초대장을 받았습니다!');
                 roomidstate(roomId);
                 senderstate(myId);
 
@@ -143,8 +143,8 @@ const Lobby = () => {
         .then((res) => {
             let friList = res.data[0]; // user의 전체 친구 목록
             let onlineList = res.data[1]; // 현재 접속중인 user 목록
-            console.log(friList);
-            console.log('onlinelist', onlineList);
+            // console.log(friList);
+            // console.log('onlinelist', onlineList);
             for (var i = 0; i < Object.keys(friList).length; i++){
                 let key = friList[i].userid;
                 if (!onlineList[key]){
