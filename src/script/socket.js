@@ -10,7 +10,6 @@ export default async () => {
         extraHeaders: {
           "access-control-allow-origin": "https://d2wm85v592lxtd.cloudfront.net",
           "access-control-allow-credentials": true,
-        //   "access-control-request-headers": "access-control-allow-credentials,access-control-allow-origin",
         }
       });
     return socket;

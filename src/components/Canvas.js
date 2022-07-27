@@ -32,7 +32,11 @@ const Canvas = ({roomId, endGame}) => {
     console.log("Canvas Before useEffect[endGame]");
     useEffect(() => {
         console.log("Canvas : useEffect - endGame? ", endGame)
+
         if (endGame === true){
+            // console.log("endgame true 인가요?");
+            // const ctx = canvasElement.current.getContext("2d");
+            // ctx.clearRect(0, 0, canvasElement.current.width, canvasElement.current.height)
             whiteboard.clear();
         }
     }, [endGame])

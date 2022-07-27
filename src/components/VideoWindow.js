@@ -318,20 +318,16 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     useEffect(() => {
         console.log('VideoWindow useEffect - gameUserInfo[2]? ', gameUserInfo[2]);
         if ((endGame === false) && (gameUserInfo[0] !== null)){
-            console.log("죽은 놈 음소거 시키는 곳\n");
-            let diedIdx = peerConnections[myId].vIdx;
-            let diedStream = videos[diedIdx].stream;
-            diedStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+            myStream.getAudioTracks()?.forEach((track) => (track.enabled = !track.enabled));
         }
     }, [gameUserInfo[2]]);
 
     useEffect(() => {
-        // const [nextTurn, setNextTurn] = useState(null);
         if ((endGame === false) && (gameUserInfo[1] !== null)){
-            let turnIdx = videos.findIndex(x => x.userid === gameUserInfo[1]);
+            let turnIdx = peerConnections[gameUserInfo[1]].vIdx;
             console.log("turnIdx: ", turnIdx);
             readyAlert ? setNextTurn(turnIdx) : setNextTurn(null);
-            console.log("nextTurn: ", nextTurn);
+            // console.log("nextTurn: ", nextTurn);
         }
     }, [readyAlert]);
 
@@ -349,7 +345,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         dispatch(VideoStreamChange(streamArray));
 
     }, [needVideos]);
-
+    
     return (
         <>
         <div className={style.videoSection}>
@@ -365,7 +361,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                     :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
                 </div>
             </div>
-            <div className= {style.videoObserving}>
+            <div className= {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}>
                 <div className={style.videoLabel}>
                     {videos[1].userid === myId? "ME": "OBSERVING - " + videos[1].userid}  
                 </div>
@@ -381,21 +377,21 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
-                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={nextTurn === 2 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[2].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[2].stream? 
                         <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"}/>
                         :<img style={{opacity:videos[2].userid? "100%": "0%"}} height="100%" src={videos[2].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
+                    <div className={nextTurn === 3 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[3].stream? 
                         <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
                         :<img style={{opacity:videos[3].userid? "100%": "0%"}} height="100%" src={videos[3].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
+                    <div className={nextTurn === 4 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[4].stream? 
@@ -404,21 +400,21 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                     </div>
                 </div>
                 <div className={style.videoMiniRow} onClick={() => (videos[5].stream? changeVideo(5, 1): null)}>
-                    <div className={style.videoMini}>
+                    <div className={nextTurn === 5 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini}>
                         {/* READY 표시 확인 필요! */}
                         {videos[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[5].stream? 
                         <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"93.5px"}/>
                         :<img style={{opacity:videos[5].userid? "100%": "0%"}} height="100%" src={videos[5].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
+                    <div className={nextTurn === 6 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[6].stream? 
                         <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"93.5px"}/> 
                         :<img style={{opacity:videos[6].userid? "100%": "0%"}} height="100%" src={videos[6].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
+                    <div className={nextTurn === 7 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[7].stream? 
