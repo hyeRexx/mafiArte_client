@@ -132,7 +132,7 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
     return (
         <div className={style.nightVideo4}>
             <div className={style.voteVideoRow}>
-                {
+                {   
                     videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} />
@@ -155,7 +155,7 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
     return (
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
-                {
+                {   
                     videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
@@ -179,7 +179,7 @@ const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
     return (
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
-                {
+                {   
                     videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
                             <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>

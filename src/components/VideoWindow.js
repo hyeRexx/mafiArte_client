@@ -33,7 +33,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     ]);
     
     const setVideo = (index, userid, stream, image, isReady) => {
-        // ASSERT(`(0 <= ${index}) && (${index} < 8)`);
+        ASSERT(`(0 <= ${index}) && (${index} < 8)`);
         let copyVideos = [...videos];
         copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
         copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
@@ -43,8 +43,8 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }
 
     const changeVideo = (vIdx1, vIdx2) => {
-        // ASSERT(`(0 <= ${vIdx1}) && (${vIdx1} < 8)`);
-        // ASSERT(`(0 <= ${vIdx2}) && (${vIdx2} < 8)`);
+        ASSERT(`(0 <= ${vIdx1}) && (${vIdx1} < 8)`);
+        ASSERT(`(0 <= ${vIdx2}) && (${vIdx2} < 8)`);
         if (vIdx1 === vIdx2) {
             return null;
         }
@@ -106,9 +106,6 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }
 
     function handleIce(data, myId, othersSocket) {
-        // ASSERT(`${data} !== null`);
-        // ASSERT(`${myId} !== null`);
-        // ASSERT(`${othersSocket} !== null`);
         // ice breack가 생기면? 이를 해당 사람들에게 전달한다.
         // console.log("got ice candidate");
         // console.log(`sendersId : ${myId}`);
@@ -117,8 +114,6 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }
 
     function handleAddStream(data, othersId) {
-        // ASSERT(`${data} !== null`);
-        // ASSERT(`${othersId} !== null`);
         // console.log("got an stream from my peer");
         // stream을 받아오면, 비디오를 새로 생성하고 넣어준다.
         // console.log("got others video: ", data.stream);
@@ -355,7 +350,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
-                    {videos[0].isReady? <ReadyOnVideoBig/>: null} 
+                    {videos[0].isReady? <ReadyOnVideoBig/>: null}  
                     {videos[0].stream? 
                     <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"297px"}/>
                     :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
@@ -374,7 +369,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 </div>
             </div>
             
-            {/* <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div> */}
+            <div style={{paddingTop: 19, margin: '0 12px', borderBottom: '2px solid #676767'}}></div>
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
