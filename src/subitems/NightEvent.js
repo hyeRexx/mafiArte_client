@@ -126,25 +126,23 @@ const NightEventForMafia = (props) => {
 // player : 4  ~한 줄로 들어감. 정렬 자동으로 맞춰져 있음
 const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
     const [ isClicked, setClick ] = useState(false);
+    const [ clickedIndex, setClickedIndex ] = useState(null);
 
-    const submitAnswer = (answer) => {
-        // console.log(`투표 결과 ${answer}`);
-        submitVoteState(answer);
-        // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
-    }
-
-    const click = (e) => {
-        e.preventDefault();
+    const submitAnswer = (answer, index) => {
+        console.log(`투표 결과 ${answer}`);
+        setClickedIndex(index);
         setClick(true);
+        submitVoteState(answer);
     }
+
 
     return (
         <div className={style.nightVideo4}>
             <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true} />
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
+                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
+                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                         </div>))
                 }
             </div>
@@ -155,27 +153,23 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 // player : 5 ~ 6  ~두 줄로 들어감(2:3, 3:3 비율). 정렬 자동으로 맞춰져 있음 
 const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
     const [ isClicked, setClick ] = useState(false);
-    
-    const submitAnswer = (answer) => {
-        // console.log(`투표 결과 ${answer}`);
-        submitVoteState(answer);
-        // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
-    }
+    const [ clickedIndex, setClickedIndex ] = useState(null);
 
-    const click = (e) => {
-        e.preventDefault();
+    const submitAnswer = (answer, index) => {
+        console.log(`투표 결과 ${answer}`);
+        setClickedIndex(index);
         setClick(true);
+        submitVoteState(answer);
     }
 
     return (
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
-                            {/* style={{width: 330, height: 210, border: 5px solid red}} */}
-                        </div>))
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
+                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
+                        <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                    </div>))
                 }
             </div>
         </div>
@@ -186,26 +180,23 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
 // player : 7 ~ 8  ~두 줄로 들어감(3:4, 4:4 비율). 정렬 자동으로 맞춰져 있음 
 const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
     const [ isClicked, setClick ] = useState(false);
-    
-    const submitAnswer = (answer) => {
-        // console.log(`투표 결과 ${answer}`);
-        submitVoteState(answer);
-        // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
-    }
+    const [ clickedIndex, setClickedIndex ] = useState(null);
 
-    const click = (e) => {
-        e.preventDefault();
+    const submitAnswer = (answer, index) => {
+        console.log(`투표 결과 ${answer}`);
+        setClickedIndex(index);
         setClick(true);
+        submitVoteState(answer);
     }
 
     return (
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
-                        </div>))
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
+                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
+                        <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                    </div>))
                 }
             </div>
         </div>

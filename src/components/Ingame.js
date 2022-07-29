@@ -406,7 +406,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(15);
+            setTimer(7);
         }
     }, [props.nowplayer])
 

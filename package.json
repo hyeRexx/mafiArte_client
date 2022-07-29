@@ -40,8 +40,8 @@
     "invalidatejack": "aws cloudfront create-invalidation --profile=jack --distribution-id E3URYNXYNVNRBF --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
     "pubjack": "yarn build && yarn deployjack && yarn invalidatejack",
 
-    "deployside": "aws s3 sync ./build s3://jinhobuckett --profile=jinholee",
-    "invalidateside": "aws cloudfront create-invalidation --profile=jinholee --distribution-id E3LTFQQ8KDHQER --paths / /index.html /manifest.json /favicon.ico /img/ /static/",
+    "deployside": "aws s3 sync ./build s3://haein-sidee --profile=haein-sidee",
+    "invalidateside": "aws cloudfront create-invalidation --profile=haein-sidee --distribution-id E2QC50IM10LODS --paths / /index.html",
     "pubside": "yarn build && yarn deployside && yarn invalidateside"
   },
   "browserslist": {
