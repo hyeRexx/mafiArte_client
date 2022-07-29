@@ -1,16 +1,13 @@
-/* .actualVideo:focus {
-    border: 5px solid red;
-} */
-
-#actualVideo:focus {
-    border: 5px solid red;
+.gradientborder {
+    color: #fff;
+    /* flex: 1.4 1; */
+    position: relative;
+    border: 5px solid transparent;
+    background-image: linear-gradient(#202020, #202020), linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    animation: blink 0.5s ease-in-out alternate infinite;
 }
-
-/* .test {
-    width: 800px;
-    height: 600px;
-    border: 10px solid red;
-} */
 
 .nightVideo {
     /* outline: 1rem solid; */
@@ -24,11 +21,9 @@
     background-clip: content-box, border-box;
 }
 
-/* .nightVideo:focus {
-    border: 5px solid red;
-} */
+@keyframes blink {
 
+    0% {border: 5px solid transparent}
+    100% {border: 5px solid #202020}
 
-/* .bigger:hover {
-    transform: scale( 2.0, 1.5 );
-} */
+}
