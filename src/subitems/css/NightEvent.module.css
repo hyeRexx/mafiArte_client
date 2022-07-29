@@ -7,6 +7,10 @@
     top: 0;
 }
 
+.nightVideo:focus {
+    border: 5px solid red;
+}
+
 .nightEventObj {
     display: flex;
     justify-content: center;

@@ -100,6 +100,7 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
                 video: deviceId ? { deviceId } : true
             });
             setVideo(1, "asis", myStream, "asis", isReady);
+            
         } catch (e) {
             alert(e);
             console.log(e);
@@ -381,9 +382,9 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
                     {videos[0].isReady? <ReadyOnVideoBig/>: null}  
-                    {videos[0].stream? 
-                    <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"297px"}/>
-                    :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
+                    {videos[0].stream ? 
+                     <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"100%"} height={"297px"}/>
+                    : <img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
                 </div>
             </div>
             <div className= {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}>

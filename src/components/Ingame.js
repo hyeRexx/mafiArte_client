@@ -11,6 +11,7 @@ import EvilLoader from "../subitems/EvilLoader"
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 import { ASSERT } from '../script/debug';
+import GameLoader from '../subitems/GameLoader';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
@@ -19,25 +20,25 @@ const Ingame = ({roomId}) => {
     const [ isHost, setHost ] = useState(false);
     const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
     const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
-    const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
+    const [ isStarted, setStart ] = useState(0);                // 로딩 끝나고 게임 시작됐나?
     const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
     const [ word, setWord ] = useState({category: "", word: ""});
     const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
 
-    let [ becomeNight, becomeNightState ] = useState(false); // 밤 Event (투표, 제시어 제출)
+    let [ becomeNight, becomeNightState ] = useState(false);    // 밤 Event (투표, 제시어 제출)
     let [ voteResultModal, voteResultState ] = useState(false); // 투표 결과 모달
-    let [ resultModal, resultModalState ] = useState(false); // 최종 결과 모달
-    let [ result, setResult ] = useState(null); // 최종 결과 
-    let [ needVideos, setNeedVideos ] = useState(null); // 투표 시 비디오 필요 신호
-    let [ voteNumber, voteNumberState ] = useState(null); // 투표 결과
-    let [ endGame, setEndGame ] = useState(false); // 게임 종료 신호
+    let [ resultModal, resultModalState ] = useState(false);    // 최종 결과 모달
+    let [ result, setResult ] = useState(null);                 // 최종 결과 
+    let [ needVideos, setNeedVideos ] = useState(null);         // 투표 시 비디오 필요 신호
+    let [ voteNumber, voteNumberState ] = useState(null);       // 투표 결과
+    let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
     let [ deadMan, setDeadMan ] = useState(null);
     let [ readyAlert, setReadyAlert] = useState(0);
-    let ripList = new Array(); // 무고하게 죽은 사람 리스트
+    let ripList = new Array();                                  // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
-    const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
+    const gameUserInfo = useSelector(state => state.gameInfo);  // 현재 turn인 user id, 살았는지 여부
     const videoList = useSelector(state => state.videoInfo.stream);
 
     const dispatch = useDispatch();
@@ -108,7 +109,9 @@ const Ingame = ({roomId}) => {
         socket.on("singleTurnInfo", (data) => {
             // data : userId : 진행할 플레이어 userId
             //        isMafia : 진행할 플레이여 mafia binary
-            dispatch(turnStatusChange(data.userId));
+            if (!endGame) {
+                dispatch(turnStatusChange(data.userId));
+            }
             // console.log("debug : singleTurnInfo :", data);
         });
 
@@ -390,6 +393,8 @@ const Ingame = ({roomId}) => {
                       {/* night event */}
                       { (becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
+
+                      <GameLoader/>
                   </div>
                   ); 
               }() : null
@@ -420,19 +425,16 @@ function Timer(props){
             return null;
         }
         if (props.nowplayer !== null){
-            // console.log(props.myId, props.nowplayer);
-            // console.log("timer 값 얼마니? ", timer);
             if (timer !== 0) {
                 if (timer === 3){
-                    // console.log('timer==3 인 경우', timer);
                     props.changeReadyAlert(1)
                 }
                 const tick = setInterval(() => {
-                    setTimer(value => value -1)
+                    setTimer(value => value - 1)
                 }, 1000);
                 return () => clearInterval(tick)
             } else {
-                if (props.myId === props.nowplayer) {
+                if (!props.endGame && props.myId === props.nowplayer) {
                     socket.emit("openTurn", {gameId: props.roomId, userId: props.myId});
                 }
                 props.changeReadyAlert(0)

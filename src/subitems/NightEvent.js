@@ -141,7 +141,7 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
                 {   
                     videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true} />
+                            <Video className={style.nightVideo} stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true} />
                         </div>))
                 }
             </div>
@@ -201,7 +201,7 @@ const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
                 {   
                     videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
+                            <Video className={style.nightVideo} stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
                         </div>))
                 }
             </div>
