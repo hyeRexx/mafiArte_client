@@ -14,7 +14,7 @@ import { ASSERT } from '../script/debug';
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
+const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
@@ -22,14 +22,14 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
     const [nextTurn, setNextTurn] = useState(null);
     const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: myId, stream: null, image: myImg, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false},
-        {userid: null, stream: null, image: null, isReady: false}
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: myId, stream: null, image: myImg, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false}
     ]);
 
     const ingameStates = useSelector(state => state.ingameStates);
@@ -44,6 +44,13 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
         copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
         copyVideos[index].image = image==="asis"? copyVideos[index].image: image;
         copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
+        setVideos(copyVideos);
+    }
+
+    const setDeadManGray = (userid) => {
+        const deadManIdx = peerConnections[userid].vIdx;
+        const copyVideos = [...videos];
+        copyVideos[deadManIdx].isDead = true;
         setVideos(copyVideos);
     }
 
@@ -313,23 +320,12 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
         (isStarted === 1) && clearReady();
     }, [isStarted]);
 
-    // console.log('VideoWindow Before useEffect[endGame]');
     useEffect(()=>{
-        // console.log("VideoWindow : useEffect - endGame? ", endGame);
-        endGame && (()=>{
-            const copyVideos = [...videos];
-            Object.keys(peerConnections).forEach((userId) => {
-                if (userId != myId) {
-                    peerConnections[userId].connection?.close();
-                    const vIdx = peerConnections[userId].vIdx;
-                    copyVideos[vIdx].stream = null;
-                }
-            });
-            setVideos(copyVideos);
-            changeVideo(peerConnections[myId].vIdx, 1);
-        })();
-    }, [endGame]);
-    
+        if (deadMan) {
+            setDeadManGray(deadMan);
+        }
+    }, [deadMan]);
+
     // console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
     useEffect(() => {
         // console.log('VideoWindow useEffect - gameUserInfo[0]? ', gameUserInfo[0]);
@@ -372,6 +368,25 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
             dispatch(VideoStreamChange(streamArray));
         };
     }, [needVideos]);
+
+    // console.log('VideoWindow Before useEffect[endGame]');
+    useEffect(()=>{
+        // console.log("VideoWindow : useEffect - endGame? ", endGame);
+        endGame && (()=>{
+            const copyVideos = [...videos];
+            Object.keys(peerConnections).forEach((userId) => {
+                if (userId != myId) {
+                    peerConnections[userId].connection?.close();
+                    const vIdx = peerConnections[userId].vIdx;
+                    copyVideos[vIdx].stream = null;
+                    copyVideos[vIdx].isDead = false;
+                }
+            });
+            setVideos(copyVideos);
+            changeVideo(peerConnections[myId].vIdx, 1);
+        })();
+    }, [endGame]);
+    
     // {style.videoNow}
     // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}
     return (
@@ -397,7 +412,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
                     {/* READY 표시 확인 필요! */}
                     {videos[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[1].stream?   
-                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"540px"} height={"290px"} isTurn={nextTurn === 1} />
+                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"540px"} height={"290px"} isTurn={nextTurn === 1} isDead={videos[1].isDead}/>
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
             </div>
@@ -410,21 +425,21 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
                         {/* READY 표시 확인 필요! */}
                         {videos[2].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[2].stream? 
-                        <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 2}/>
+                        <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 2} isDead={videos[2].isDead}/>
                         :<img style={{opacity:videos[2].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[2].image}/>}
                     </div>
                     <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[3].stream? 
-                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 3}/> 
+                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 3} isDead={videos[3].isDead}/> 
                         :<img style={{opacity:videos[3].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[3].image}/>}
                     </div>
                     <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[4].stream? 
-                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 4}/> 
+                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 4} isDead={videos[4].isDead}/> 
                         :<img style={{opacity:videos[4].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[4].image}/>}
                     </div>
                 </div>
@@ -433,21 +448,21 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
                         {/* READY 표시 확인 필요! */}
                         {videos[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[5].stream? 
-                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 5}/>
+                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 5} isDead={videos[5].isDead}/>
                         :<img style={{opacity:videos[5].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[5].image}/>}
                     </div>
                     <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[6].stream? 
-                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 6}/> 
+                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 6} isDead={videos[6].isDead}/> 
                         :<img style={{opacity:videos[6].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[6].image}/>}
                     </div>
                     <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[7].stream? 
-                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 7}/> 
+                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 7} isDead={videos[7].isDead}/> 
                         :<img style={{opacity:videos[7].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[7].image}/>}
                     </div>
                 </div>
