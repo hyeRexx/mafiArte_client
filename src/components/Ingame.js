@@ -31,7 +31,7 @@ const Ingame = ({roomId}) => {
     let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
     let [ deadMan, setDeadMan ] = useState(null);
     let [ readyAlert, setReadyAlert] = useState(0);
-    let ripList = new Array();                                  // 무고하게 죽은 사람 리스트
+    let [ ripList, setRipList ] = useState(null);                               // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -122,6 +122,13 @@ const Ingame = ({roomId}) => {
             becomeNightState(true);
         });
 
+        socket.on("cycleClosed", (data) => {
+            console.log('죽은 사람 리스트', data);
+            setRipList(data);
+            setNeedVideos(true); // 비디오 필요하다는 신호 전송
+            becomeNightState(true);
+        });
+
         /* nightResult 결과를 받음 */
         // nightEvent 요청에 대한 진행 보고
         socket.on("nightResult", (data) => {
@@ -146,7 +153,6 @@ const Ingame = ({roomId}) => {
                 } else if (data.elected) {
                     // console.log("무고하게 죽은 시민", data.elected); // 다음 판 다시 시작
                     setDeadMan(data.elected);
-                    ripList.push(data.elected);
                     setResult(3);
                     if (data.elected === myId){ dispatch(surviveStatusChange(0)); } 
                 } else {
@@ -299,7 +305,7 @@ const Ingame = ({roomId}) => {
                       <div>
   
                       {/* vote result */}
-                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber} /> : null }
+                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber} ripList={ripList} /> : null }
   
                       {/* total result */}
                       { resultModal ? <ResultModal result={result} deadMan={deadMan}/> : null }
@@ -454,7 +460,7 @@ function Timer(props){
       return (
             <div className={style.turnBoard}>
                 <div className={style.turnBoardTitle}> VOTE RESULT </div>
-                {voteNumber.map((voteNumber)=> {
+                {voteNumber.filter(voteNumber => !props.ripList.includes(voteNumber[0])).map((voteNumber)=> {
                     return (
                         <div className={style.singleTurnInfo}>
                             <span className={style.turnNum}>{voteNumber[0]}</span>
