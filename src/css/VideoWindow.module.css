@@ -46,11 +46,13 @@
 }
 
 .videoBig {
+    display: flex;
     width: 540px;
     height: 290px;
     margin: auto;
     bottom: 0;
     color : #fff;
+    justify-content: center;
 }
 
 .videoOthers {
@@ -70,11 +72,14 @@
 }
 
 .videoMini {
+    display: flex;
     flex: 1;
     height: 120px;
     margin: auto;
     bottom: 0;
     color : #fff;
+    position: relative;
+    justify-content: center;
 }
 
 
