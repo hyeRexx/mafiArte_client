@@ -11,13 +11,14 @@
     height: 600px;
     border: 10px solid red;
 } */
+
 .nightVideo {
     /* outline: 1rem solid; */
     /* border: 5px solid red; */
     color: #fff;
     /* flex: 1.4 1; */
     position: relative;
-    border: 5px solid transparent;
+    border: 8px solid transparent;
     background-image: linear-gradient(#202020, #202020), linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
     background-origin: border-box;
     background-clip: content-box, border-box;
@@ -27,3 +28,7 @@
     border: 5px solid red;
 } */
 
+
+/* .bigger:hover {
+    transform: scale( 2.0, 1.5 );
+} */

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import style from '../css/Video.module.css'
 
-const Video = ({stream, width, height, muted, isTurn, isClicked }) => {
+const Video = ({stream, width, height, muted, isTurn, isClicked}) => {
   const ref = useRef();
 
   useEffect(()=>{
