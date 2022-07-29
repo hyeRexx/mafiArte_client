@@ -397,7 +397,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
                     {/* READY 표시 확인 필요! */}
                     {videos[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[1].stream?   
-                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"100%"} height={"290px"} isTurn={nextTurn === 1} />
+                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"540px"} height={"290px"} isTurn={nextTurn === 1} />
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
             </div>
