@@ -299,7 +299,7 @@ const Ingame = ({roomId}) => {
                       <div>
   
                       {/* vote result */}
-                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber} /> : null }
+                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber} ripList={ripList} /> : null }
   
                       {/* total result */}
                       { resultModal ? <ResultModal result={result} deadMan={deadMan}/> : null }
@@ -454,7 +454,7 @@ function Timer(props){
       return (
             <div className={style.turnBoard}>
                 <div className={style.turnBoardTitle}> VOTE RESULT </div>
-                {voteNumber.map((voteNumber)=> {
+                {voteNumber.filter(voteNumber => !props.ripList.includes(voteNumber[0])).map((voteNumber)=> {
                     return (
                         <div className={style.singleTurnInfo}>
                             <span className={style.turnNum}>{voteNumber[0]}</span>
