@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearChatExiter, clearChatNewPlayer } from '../store';
 import { ASSERT } from '../script/debug';
 
-const Chat = ({roomId, newPlayer, newPlayerBuffer, exiter, endGame}) => {
+const Chat = ({roomId, endGame}) => {
     const [ newMsg, setNewMsg ] = useState(null);
     const [ chatWindow, setChatWindow ] = useState([`${roomId} 방에 입장하셨습니다.`]);
     const [ input, setInput ] = useState("");
     const inputBox = useRef();
     const chatBox = useRef();
     const isAlive = useSelector(state=>state.gameInfo[1]);
-
     const myId = useSelector(state=>state.user.id);
+
+    const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
+    const exiterBuffer = useSelector(state => state.exiterBuffer);
+
+    const dispatch = useDispatch();
     
     function handleMessageInput(event) {
         event.preventDefault();
@@ -66,22 +71,25 @@ const Chat = ({roomId, newPlayer, newPlayerBuffer, exiter, endGame}) => {
     },[]);
 
     useEffect(()=>{
-        if (newPlayer != null) {
-            const players = Object.keys(newPlayer);
-            for (let i = 0; i < players.length; i++) {
-                const playerId = players[i];
-                if (newPlayer[playerId].isSet) {
-                    continue;
-                }
-                addMessage(`${playerId} 님이 입장하셨습니다.`);
-                newPlayerBuffer[playerId].isSet = true;
-            }
+        console.log("여기는 들어오나?");
+        console.log(`newPlayerBuffer.Chat.length : ${newPlayerBuffer.Chat.length}`);
+        if (newPlayerBuffer.Chat.length) {
+            newPlayerBuffer.Chat.forEach(newPlayer => {
+                console.log("여기 들어오나?");
+                addMessage(`${newPlayer.userId} 님이 입장하셨습니다.`);
+            })
+            dispatch(clearChatNewPlayer());
         }
-    },[newPlayer]);
+    },[newPlayerBuffer.Chat]);
 
     useEffect(()=>{
-        exiter && addMessage(`${exiter} 님이 퇴장하셨습니다.`);
-    },[exiter]);
+        if (exiterBuffer.Chat.length) {
+            exiterBuffer.Chat.forEach(exiterId => {
+                addMessage(`${exiterId} 님이 퇴장하셨습니다.`);
+            });
+            dispatch(clearChatExiter());
+        }
+    },[exiterBuffer.Chat]);
 
     useEffect(()=>{
         endGame && addMessage("게임이 종료되었습니다.");

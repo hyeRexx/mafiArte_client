@@ -66,6 +66,56 @@ let videoInfo = createSlice({
 }
 });
 
+let newPlayerBuffer = createSlice({
+  name : 'newPlayerBuffer',
+  initialState : {Chat: [], VideoWindow: []},
+  reducers : {
+    pushNewPlayer(state, action) {
+      state.Chat.push(action.payload);
+      state.VideoWindow.push(action.payload);
+    },
+    clearChatNewPlayer(state, action) {
+      state.Chat = [];
+    },
+    clearVideoWindowNewPlayer(state, action) {
+      state.VideoWindow = [];
+    }
+  }
+})
+
+let exiterBuffer = createSlice({
+  name : 'exiterBuffer',
+  initialState : {Chat:[], VideoWindow:[]},
+  reducers : {
+    pushExiter(state, action) {
+      state.Chat.push(action.payload);
+      state.VideoWindow.push(action.payload);
+    },
+    clearChatExiter(state, action) {
+      state.Chat = [];
+    },
+    clearVideoWindowExiter(state, action) {
+      state.VideoWindow = [];
+    }
+  }
+})
+
+let othersReadyBuffer = createSlice({
+  name : 'othersReadyBuffer',
+  initialState : [],
+  reducers : {
+    pushOthersReady(state, action) {
+      state.push(action.payload);
+    },
+    renewOthersReady(state, action) {
+      return action.payload;
+    },
+    clearOthersReady(state, action) {
+      return [];
+    }
+  }
+})
+
 
 
 const store = configureStore({
@@ -73,7 +123,10 @@ const store = configureStore({
     user : user.reducer,
     FriendInfo : FriendInfo.reducer,
     gameInfo : gameInfo.reducer,
-    videoInfo : videoInfo.reducer
+    videoInfo : videoInfo.reducer,
+    newPlayerBuffer : newPlayerBuffer.reducer,
+    exiterBuffer : exiterBuffer.reducer,
+    othersReadyBuffer : othersReadyBuffer.reducer
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -88,3 +141,6 @@ export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
 export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
+export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;
+export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
+export let { pushOthersReady, renewOthersReady, clearOthersReady } = othersReadyBuffer.actions;

@@ -7,16 +7,15 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
 let myStream;
 let peerConnections = {};
-const othersReadyStatus = {};
 
-const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame, needVideos}) => {
-    const [ othersReady, setOthersReady ] = useState(null);
+const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
+    // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -32,8 +31,12 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
         {userid: null, stream: null, image: null, isReady: false},
         {userid: null, stream: null, image: null, isReady: false}
     ]);
+
+    const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
+    const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
+    const exiterBuffer = useSelector(state => state.exiterBuffer);
     
-    const setVideo = (index, userid, stream, image, isReady) => {
+    const setVideo = (index , userid, stream, image, isReady) => {
         ASSERT(`(0 <= ${index}) && (${index} < 8)`);
         let copyVideos = [...videos];
         copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
@@ -70,6 +73,7 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
             return video;
         });
         setVideos(videosCleared);
+        dispatch(clearOthersReady());
     }
     
     async function getCameras() {
@@ -186,13 +190,15 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 // data : userId : 입장 유저의 userId
                 //        isReady : userId의 Ready info (binary)
                 console.log("debug : notifyReady :", data);
-                if (othersReadyStatus[data.userId]) {
-                    othersReadyStatus[data.userId].isReady = data.isReady;
-                    othersReadyStatus[data.userId].isSet = false;
-                } else {
-                    othersReadyStatus[data.userId] = {isReady: data.isReady, isSet: false}
-                }
-                setOthersReady({...othersReadyStatus});
+                dispatch(pushOthersReady({userId: data.userId, isReady: data.isReady}));
+
+                // if (othersReadyStatus[data.userId]) {
+                //     othersReadyStatus[data.userId].isReady = data.isReady;
+                //     othersReadyStatus[data.userId].isSet = false;
+                // } else {
+                //     othersReadyStatus[data.userId] = {isReady: data.isReady, isSet: false}
+                // }
+                // setOthersReady({...othersReadyStatus});
             });
 
             socket.on("streamStart", async (userId, userSocket) => {
@@ -238,9 +244,11 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
                 peerConnections[userId].connection?.close();
                 delete peerConnections[userId];
             });
+            peerConnections = {};
             myStream?.getTracks()?.forEach((track) => {
                 track.stop();
             });
+            dispatch(clearOthersReady());
             socket.off("notifyReady");
             socket.off("streamStart");
             socket.off("offer");
@@ -250,33 +258,47 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
     }, []);
 
     useEffect(()=>{
-        console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayer));
-        if (newPlayer != null) {
-            const players = Object.keys(newPlayer);
-            for (let i = 0; i < players.length; i++) {
-                const playerId = players[i]
-                if (peerConnections[playerId]) {
-                    continue;
-                }
-                let j = 0;
-                for (;j<8 && videos[j].userid;j++) {}
-                peerConnections[playerId] = {vIdx: j, connection: null};
-                console.log(`peerConnections[${playerId}] = `, peerConnections[playerId]);
-                setVideo(j, playerId, "asis", newPlayer[playerId].userImg, newPlayer[playerId].isReady);
-            }
+        console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayerBuffer));
+        if (newPlayerBuffer.VideoWindow.length) {
+            newPlayerBuffer.VideoWindow.forEach(newPlayer => {
+                let i = 0;
+                for ( ; i < 8 && videos[i].userid; i++) {}
+                peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
+                console.log(`peerConnections[${newPlayer.userId}] = `, peerConnections[newPlayer.userId]);
+                setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
+            });
+            dispatch(clearVideoWindowNewPlayer());
         }
-    }, [newPlayer]);
+    }, [newPlayerBuffer.VideoWindow]);
 
     useEffect(()=>{
-        exiter && (()=>{
-            const vIdx = peerConnections[exiter].vIdx;
-            setVideo(vIdx, null, null, null, false);
-            // console.log(`debug_exiter ${exiter} - connection close`);
-            peerConnections[exiter].connection?.close();
-            delete peerConnections[exiter];
-            // console.log(peerConnections);
-        })();
-    }, [exiter]);
+        if (othersReadyBuffer.length) {
+            const notSetBuffer = [];
+            othersReadyBuffer.forEach(others => {
+                if (!peerConnections[others.userId]) {
+                    notSetBuffer.push(others);
+                    return null;
+                }
+                console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
+                const usersIdx = peerConnections[others.userId].vIdx;
+                setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
+            });
+            dispatch(renewOthersReady(notSetBuffer));
+        }
+    }, [othersReadyBuffer]);
+
+    useEffect(()=>{
+        if (exiterBuffer.VideoWindow.length) {
+            console.log("exiterBuffer", exiterBuffer);
+            exiterBuffer.VideoWindow.forEach(exiterId => {
+                const vIdx = peerConnections[exiterId].vIdx;;
+                setVideo(vIdx, null, null, null, false);
+                peerConnections[exiterId].connection?.close();
+                delete peerConnections[exiterId];
+            });
+            dispatch(clearVideoWindowExiter());
+        }
+    }, [exiterBuffer.VideoWindow]);
 
     useEffect(()=>{
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
@@ -305,22 +327,6 @@ const VideoWindow = ({readyAlert, newPlayer, isReady, isStarted, exiter, endGame
             changeVideo(peerConnections[myId].vIdx, 1);
         })();
     }, [endGame]);
-
-    useEffect(()=>{
-        othersReady && (()=>{
-            const others = Object.keys(othersReady);
-            for (let i = 0; i < others.length; i++) {
-                const othersId = others[i];
-                if ( othersReady[othersId].isSet || !peerConnections[othersId] ) {
-                    continue;
-                }
-                console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[othersId]);
-                const usersIdx = peerConnections[othersId].vIdx;
-                setVideo(usersIdx, "asis", "asis", "asis", othersReady[othersId].isReady);
-                othersReadyStatus[othersId].isSet = true;
-            }
-        })();
-    }, [othersReady]);
     
     // console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
     useEffect(() => {

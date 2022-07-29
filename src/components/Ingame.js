@@ -5,25 +5,23 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import { turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset } from '../store';
+import { turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } from '../store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EvilLoader from "../subitems/EvilLoader"
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 import { ASSERT } from '../script/debug';
 
-let word = null;
-const newPlayerBuffer = {};
-
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
-    const [ newPlayer, setNewPlayer ] = useState(null);
-    const [ exiter, setExiter ] = useState(null);
+    // const [ newPlayer, setNewPlayer ] = useState(null);
+    // const [ exiter, setExiter ] = useState(null);
     const [ isHost, setHost ] = useState(false);
     const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
     const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
     const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
     const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
+    const [ word, setWord ] = useState({category: "", word: ""});
     const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
 
     let [ becomeNight, becomeNightState ] = useState(false); // 밤 Event (투표, 제시어 제출)
@@ -41,6 +39,7 @@ const Ingame = ({roomId}) => {
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
     const videoList = useSelector(state => state.videoInfo.stream);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -62,28 +61,19 @@ const Ingame = ({roomId}) => {
         socket.on("notifyNew", (data) => {
             // data : userId : 입장 유저의 userId
             console.log("debug : notifyNew :", data);
-            if (!newPlayerBuffer[data.userId]) {
-                newPlayerBuffer[data.userId] = {userId: data.userId, userImg: data.userImg, isReady: data.isReady, isSet: false};
-                console.log(newPlayerBuffer);
-                setNewPlayer({...newPlayerBuffer});
-                socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
-            }
+            dispatch(pushNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady}));
+            socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
         });
 
         socket.on("notifyOld", (data) => {
             console.log("debug : notifyOld : ", data);
-            if (!newPlayerBuffer[data.userId]) {
-                newPlayerBuffer[data.userId] = data;
-                newPlayerBuffer[data.userId]["isSet"] = false;
-                console.log(newPlayerBuffer);
-                setNewPlayer({...newPlayerBuffer});
-            }
+            dispatch(pushNewPlayer(data));
         });
 
         // start 가능 알림 : for host 
         socket.on("readyToStart", (data) => {
             // data : readyToStart : true
-            // console.log("debug : reayToStart :", data);
+            console.log("debug : reayToStart :", data);
             setReadyToStart(data.readyToStart);
         });
 
@@ -100,7 +90,8 @@ const Ingame = ({roomId}) => {
         socket.on("gameStarted", (data) => {
             // data : {turnInfo : turn info Array, word : {category, word} Object}
             // console.log("debug : gameStarted :", data);
-            word = data.word;
+            setWord(data.word);
+            // word = data.word;
             setStart(2);
             setTurnQue(data.turnInfo);
             setTimeout(()=>{
@@ -197,8 +188,9 @@ const Ingame = ({roomId}) => {
         // 게임중, 대기상태 모두 같은 이벤트
         socket.on("someoneExit", (exiterId) => {
             // data : exit user Id
-            // console.log(`debug : ${exiterId} exit :`);
-            setExiter(exiterId);
+            console.log(`debug : ${exiterId} exit`);
+            dispatch(pushExiter(exiterId));
+            // setExiter(exiterId);
         });
 
         /*** for game : hyeRexx : end ***/
@@ -227,6 +219,10 @@ const Ingame = ({roomId}) => {
 
         return () => {
             // 기존에 등록된 event listner 삭제
+            dispatch(clearChatNewPlayer());
+            dispatch(clearVideoWindowNewPlayer());
+            dispatch(clearChatExiter());
+            dispatch(clearVideoWindowExiter());
             socket.off("notifyNew");
             socket.off("notifyOld");
             socket.off("readyToStart");
@@ -243,12 +239,9 @@ const Ingame = ({roomId}) => {
     },[]);
 
     useEffect(() => {
-        exiter && (delete newPlayerBuffer[exiter]);
-    }, [exiter]);
-
-    useEffect(() => {
         endGame && (() => {
-            word = null;
+            setWord({category: "", word: ""});
+            // word = null;
             setStart(0);
             dispatch(turnStatusChange([null, null]));
             dispatch(surviveStatusChange(1));
@@ -311,7 +304,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow readyAlert={readyAlert} newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow readyAlert={readyAlert} isReady={isReady} isStarted={isStarted} endGame={endGame} needVideos={needVideos}/>
                               </div>
   
                               <div className={style.item2}>
@@ -321,7 +314,7 @@ const Ingame = ({roomId}) => {
                                       </div>
   
                                       <div className={style.chat}>
-                                          <Chat roomId={roomId} newPlayer={newPlayer} newPlayerBuffer={newPlayerBuffer} exiter={exiter} endGame={endGame} />
+                                          <Chat roomId={roomId} endGame={endGame} />
                                       </div>
                                   </div>       
                                    {
