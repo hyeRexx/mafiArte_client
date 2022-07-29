@@ -31,7 +31,7 @@ const Ingame = ({roomId}) => {
     let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
     let [ deadMan, setDeadMan ] = useState(null);
     let [ readyAlert, setReadyAlert] = useState(0);
-    let [ ripList, setRipList ] = useState(null);                               // 무고하게 죽은 사람 리스트
+    let [ ripList, setRipList ] = useState([]);                 // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -116,12 +116,6 @@ const Ingame = ({roomId}) => {
         /* 밤이 되었습니다 화면 띄우고 투표 / 정답 입력 띄우기 */
         // 한 사이클이 끝났음에 대한 알림
         // data 없음! : turn info도 전달하지 않음
-        socket.on("cycleClosed", () => {
-            // console.log('밤이 되었습니다');
-            setNeedVideos(true); // 비디오 필요하다는 신호 전송
-            becomeNightState(true);
-        });
-
         socket.on("cycleClosed", (data) => {
             console.log('죽은 사람 리스트', data);
             setRipList(data);
@@ -397,7 +391,7 @@ const Ingame = ({roomId}) => {
                       {/* design : role card : Mafia */}
                       {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                       {/* night event */}
-                      { (becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
+                      { (!ripList.includes(myId) && becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
                       {ingameStates.isLoaded? null: <GameLoader/>}
                   </div>

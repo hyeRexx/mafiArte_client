@@ -9,7 +9,7 @@ const NightEventForCitizen = (props) => {
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
     console.log(videoList);
     const len = videoList.stream.length;
-
+    
     return(
         <div className={style.nightEvent}>
             <div className={style.backgroundObj}>
