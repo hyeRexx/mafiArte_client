@@ -135,6 +135,21 @@ let othersReadyBuffer = createSlice({
   }
 })
 
+let gameLoadState = createSlice({
+    name : 'gameLoadState',
+    initialState : false,
+    reducers : {
+      setUserId(state, action){
+          state.id = action.payload;
+          // console.log('redux setUserId: ', current(state));
+      },
+      setProfileImg(state, action){
+          state.profile_img = action.payload;
+          // console.log('redux setProfileImg: ', current(state));
+      }
+  }
+  });
+
 
 
 const store = configureStore({
