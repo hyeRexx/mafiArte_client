@@ -246,6 +246,7 @@ const Ingame = ({roomId}) => {
             setWord({category: "", word: ""});
             // word = null;
             setStart(0);
+            setDeadMan(null);
             dispatch(turnStatusChange([null, null]));
             dispatch(surviveStatusChange(1));
             // redux에 저장해둔 video stream array 초기화 필요
@@ -307,7 +308,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow readyAlert={readyAlert} isStarted={isStarted} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow readyAlert={readyAlert} isStarted={isStarted} endGame={endGame} needVideos={needVideos} deadMan={deadMan}/>
                               </div>
   
                               <div className={style.item2}>

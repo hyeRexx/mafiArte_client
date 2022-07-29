@@ -9,6 +9,10 @@
     animation: blink 0.5s ease-in-out alternate infinite;
 }
 
+.grayfilter {
+    filter: grayscale(100%);
+}
+
 .nightVideo {
     /* outline: 1rem solid; */
     /* border: 5px solid red; */
