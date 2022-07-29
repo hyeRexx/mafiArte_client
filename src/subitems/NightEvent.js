@@ -7,6 +7,7 @@ import Video from '../components/Video';
 const NightEventForCitizen = (props) => {
     const videoList = useSelector((state) => state.videoInfo);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
+    console.log(videoList);
     const len = videoList.stream.length;
 
     return(
@@ -40,7 +41,7 @@ function VoteTimer(props){
     const [voteTimer, setVoteTimer] = useState(1);
     useEffect(() => {
         if (props.becomeNight) {
-            setVoteTimer(20);
+            setVoteTimer(15);
         }
     }, [props.becomeNight])
 
@@ -58,7 +59,7 @@ function VoteTimer(props){
                     console.log('뽑힌 사람', props.submitVote);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
                 } else {
-                    console.log('제출한 제시어', props.submitWord);
+                    // console.log('제출한 제시어', props.submitWord);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitWord}});
                 }
                 props.becomeNightState(false); // 투표 창이 사라짐 setTimeout?
@@ -78,9 +79,8 @@ const NightEventForMafia = (props) => {
       const [ submitWord, submitWordState ] = useState(null); // 제시어 제출 @ 타이머
 
       const submitTmp = () => {
-          console.log(`마피아 정답 : ${inputValue}`);
+        //   console.log(`마피아 정답 : ${inputValue}`);
           submitWordState(inputValue);
-        socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: inputValue}});
       }
   
       const onKeyPress = (e) => {
@@ -122,20 +122,26 @@ const NightEventForMafia = (props) => {
 
 // player : 4  ~한 줄로 들어감. 정렬 자동으로 맞춰져 있음
 const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
+    const [ isClicked, setClick ] = useState(false);
 
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
+    }
+
+    const click = (e) => {
+        e.preventDefault();
+        setClick(true);
     }
 
     return (
         <div className={style.nightVideo4}>
             <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} />
+                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true} />
                         </div>))
                 }
             </div>
@@ -145,20 +151,27 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 
 // player : 5 ~ 6  ~두 줄로 들어감(2:3, 3:3 비율). 정렬 자동으로 맞춰져 있음 
 const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
+    const [ isClicked, setClick ] = useState(false);
     
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
+    }
+
+    const click = (e) => {
+        e.preventDefault();
+        setClick(true);
     }
 
     return (
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
+                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
+                            {/* style={{width: 330, height: 210, border: 5px solid red}} */}
                         </div>))
                 }
             </div>
@@ -169,20 +182,26 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
 
 // player : 7 ~ 8  ~두 줄로 들어감(3:4, 4:4 비율). 정렬 자동으로 맞춰져 있음 
 const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
+    const [ isClicked, setClick ] = useState(false);
     
     const submitAnswer = (answer) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         submitVoteState(answer);
         // socket.emit("nightEvent", {gameId: roomId, userId: myId, gamedata: {submit: answer}});
+    }
+
+    const click = (e) => {
+        e.preventDefault();
+        setClick(true);
     }
 
     return (
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
+                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId) => (
                         <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true}/>
+                            <Video stream={streamId.stream} onClick={click} width={"330px"} height={"210px"} style={isClicked? {border: "5px solid red"} : null} muted={true}/>
                         </div>))
                 }
             </div>

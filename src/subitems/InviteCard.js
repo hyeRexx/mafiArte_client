@@ -12,7 +12,7 @@ const InviteCard = (props) => {
     // MAKE A GAME 버튼 - 초대 보내는 버튼
     const btnSend = () => {
         var friendLength = document.getElementsByName("friends").length;
-        console.log('되나', document.getElementsByName("friends"));
+        // console.log('되나', document.getElementsByName("friends"));
 
         // 초대 userid 리스트
         let listuserid = new Array();
@@ -23,7 +23,7 @@ const InviteCard = (props) => {
             }
         }
         
-        console.log(`체크박스로 선택된 친구 리스트 ${listuserid}`);
+        // console.log(`체크박스로 선택된 친구 리스트 ${listuserid}`);
 
         // 초대 인원 제한 (추후 주석 제거 하기)
         if (listuserid.length == 0) {
@@ -39,7 +39,7 @@ const InviteCard = (props) => {
         // } 
 
         socket.emit("listuserinfo", listuserid, (listsocketid) => {
-            console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
+            // console.log(`초대하고 싶은 사람의 socketid 리스트 ${listsocketid}`);
 
             let roomId = + new Date();
 
@@ -55,7 +55,7 @@ const InviteCard = (props) => {
 
             // 초대장 전송
             socket.emit("sendinvite", listsocketid, roomId, props.sender,(roomId)=> {
-                console.log(`초대장 전송 시 ${roomId}`);
+                // console.log(`초대장 전송 시 ${roomId}`);
 
                 // HOST가 방으로 이동
                 navigate(`/ingame/${roomId}`, {state: {fromLobby: true}});

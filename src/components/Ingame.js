@@ -5,29 +5,23 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import { turnStatusChange, surviveStatusChange, FriendInfoChange } from '../store';
+import { turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } from '../store';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { paddr, reqHeaders } from '../proxyAddr';
-import { FriendInfoReset } from '../store';
-import IngameLoader from '../subitems/IngameLoader';
 import EvilLoader from "../subitems/EvilLoader"
-import RoleCardHotSpot from '../subitems/RoleCardHotSpot';
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
-import { InviteCard } from '../subitems/InviteCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 import { ASSERT } from '../script/debug';
 
-let word = null;
-
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
-    const [ newPlayer, setNewPlayer ] = useState(null);
-    const [ exiter, setExiter ] = useState(null);
+    // const [ newPlayer, setNewPlayer ] = useState(null);
+    // const [ exiter, setExiter ] = useState(null);
     const [ isHost, setHost ] = useState(false);
     const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
     const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
     const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
     const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
+    const [ word, setWord ] = useState({category: "", word: ""});
     const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
 
     let [ becomeNight, becomeNightState ] = useState(false); // 밤 Event (투표, 제시어 제출)
@@ -44,6 +38,8 @@ const Ingame = ({roomId}) => {
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
+    const videoList = useSelector(state => state.videoInfo.stream);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -58,14 +54,6 @@ const Ingame = ({roomId}) => {
             alert("비정상적인 접근입니다. 메인페이지로 이동합니다.");
             window.location.replace("/");
         }
-        console.log("Ingame Mounted");
-        console.log("myId, socketId, roomId");
-        console.log(`${myId}, ${socket.id}, ${roomId}`);
-        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
-            (myId === host) && setHost(true);
-            setRoomEntered(true);
-            console.log("Ingame Room Enter Success");
-        });
 
         /*** for game : hyeRexx ***/
 
@@ -73,14 +61,13 @@ const Ingame = ({roomId}) => {
         socket.on("notifyNew", (data) => {
             // data : userId : 입장 유저의 userId
             console.log("debug : notifyNew :", data);
-            setNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady});
-            setTimeout(()=>{
-                socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
-            }, 200);
+            dispatch(pushNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady}));
+            socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
         });
 
         socket.on("notifyOld", (data) => {
-            setNewPlayer(data);
+            console.log("debug : notifyOld : ", data);
+            dispatch(pushNewPlayer(data));
         });
 
         // start 가능 알림 : for host 
@@ -92,7 +79,7 @@ const Ingame = ({roomId}) => {
 
         socket.on("waitStart", () => {
             // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
-            console.log("waitStart event received");
+            // console.log("waitStart event received");
             setEndGame(false);
             setStart(1);
             setReady(false);
@@ -102,8 +89,9 @@ const Ingame = ({roomId}) => {
         // game 시작 알림, 첫 번째 턴을 제공받음
         socket.on("gameStarted", (data) => {
             // data : {turnInfo : turn info Array, word : {category, word} Object}
-            console.log("debug : gameStarted :", data);
-            word = data.word;
+            // console.log("debug : gameStarted :", data);
+            setWord(data.word);
+            // word = data.word;
             setStart(2);
             setTurnQue(data.turnInfo);
             setTimeout(()=>{
@@ -121,16 +109,16 @@ const Ingame = ({roomId}) => {
             // data : userId : 진행할 플레이어 userId
             //        isMafia : 진행할 플레이여 mafia binary
             dispatch(turnStatusChange(data.userId));
-            console.log("debug : singleTurnInfo :", data);
+            // console.log("debug : singleTurnInfo :", data);
         });
 
         /* 밤이 되었습니다 화면 띄우고 투표 / 정답 입력 띄우기 */
         // 한 사이클이 끝났음에 대한 알림
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", () => {
-            console.log('밤이 되었습니다');
-            becomeNightState(true);
+            // console.log('밤이 되었습니다');
             setNeedVideos(true); // 비디오 필요하다는 신호 전송
+            becomeNightState(true);
         });
 
         /* nightResult 결과를 받음 */
@@ -138,27 +126,30 @@ const Ingame = ({roomId}) => {
         socket.on("nightResult", (data) => {
             setTimeout(() => {
                 setNeedVideos(false); // 비디오 필요하다는 신호 초기화
+                
+                dispatch(VideoStreamReset());
+                
                 voteNumberState(data.voteData); // 투표 수치
                 voteResultState(true); // 투표 결과 모달
-                console.log('결과', data.win);
+                // console.log('결과', data.win);
     
                 let end = 0;
                 if (data.win == "mafia") {
-                    console.log("마피아 승!");  
+                    // console.log("마피아 승!");  
                     setResult(1);
                     end = 1;
                 } else if (data.win == "citizen") {
-                    console.log("시민 승!");
+                    // console.log("시민 승!");
                     setResult(2);
                     end = 1;
                 } else if (data.elected) {
-                    console.log("무고하게 죽은 시민", data.elected); // 다음 판 다시 시작
+                    // console.log("무고하게 죽은 시민", data.elected); // 다음 판 다시 시작
                     setDeadMan(data.elected);
                     ripList.push(data.elected);
                     setResult(3);
                     if (data.elected === myId){ dispatch(surviveStatusChange(0)); } 
                 } else {
-                    console.log("오늘 밤은 아무도 죽지 않았습니다"); // 다음 판 다시 시작
+                    // console.log("오늘 밤은 아무도 죽지 않았습니다"); // 다음 판 다시 시작
                     setResult(4);
                 }
                 setTimeout(()=> {
@@ -172,7 +163,7 @@ const Ingame = ({roomId}) => {
                     }, 7000);
                 }, 4000);
             }, 1000);
-            console.log("debug : nightResult :", data);
+            // console.log("debug : nightResult :", data);
         });
 
         // 누군가의 exit에 의해 host가 바뀌었는데 자신일 경우 setHost
@@ -197,14 +188,15 @@ const Ingame = ({roomId}) => {
         // 게임중, 대기상태 모두 같은 이벤트
         socket.on("someoneExit", (exiterId) => {
             // data : exit user Id
-            console.log(`debug : ${exiterId} exit :`);
-            setExiter(exiterId);
+            console.log(`debug : ${exiterId} exit`);
+            dispatch(pushExiter(exiterId));
+            // setExiter(exiterId);
         });
 
         /*** for game : hyeRexx : end ***/
 
         socket.on("friendList", (userid, status) => {
-            console.log("friend수정확인",userid, status);
+            // console.log("friend수정확인",userid, status);
             if (userid === myId) {
                 (status === 0) && (()=>{
                     // doUnMount(true);
@@ -219,8 +211,18 @@ const Ingame = ({roomId}) => {
             }
         });
 
+        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
+            (myId === host) && setHost(true);
+            setRoomEntered(true);
+            // console.log("Ingame Room Enter Success");
+        });
+
         return () => {
             // 기존에 등록된 event listner 삭제
+            dispatch(clearChatNewPlayer());
+            dispatch(clearVideoWindowNewPlayer());
+            dispatch(clearChatExiter());
+            dispatch(clearVideoWindowExiter());
             socket.off("notifyNew");
             socket.off("notifyOld");
             socket.off("readyToStart");
@@ -238,7 +240,8 @@ const Ingame = ({roomId}) => {
 
     useEffect(() => {
         endGame && (() => {
-            word = null;
+            setWord({category: "", word: ""});
+            // word = null;
             setStart(0);
             dispatch(turnStatusChange([null, null]));
             dispatch(surviveStatusChange(1));
@@ -301,7 +304,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow readyAlert={readyAlert} newPlayer={newPlayer} isReady={isReady} isStarted={isStarted} exiter={exiter} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow readyAlert={readyAlert} isReady={isReady} isStarted={isStarted} endGame={endGame} needVideos={needVideos}/>
                               </div>
   
                               <div className={style.item2}>
@@ -311,7 +314,7 @@ const Ingame = ({roomId}) => {
                                       </div>
   
                                       <div className={style.chat}>
-                                          <Chat roomId={roomId} newPlayer={newPlayer} exiter={exiter} endGame={endGame} />
+                                          <Chat roomId={roomId} endGame={endGame} />
                                       </div>
                                   </div>       
                                    {
@@ -385,7 +388,7 @@ const Ingame = ({roomId}) => {
                       {/* design : role card : Mafia */}
                       {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                       {/* night event */}
-                      { becomeNight ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
+                      { (becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
                   </div>
                   ); 
@@ -402,7 +405,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(8);
+            setTimer(15);
         }
     }, [props.nowplayer])
 
@@ -421,7 +424,7 @@ function Timer(props){
             // console.log("timer 값 얼마니? ", timer);
             if (timer !== 0) {
                 if (timer === 3){
-                    console.log('timer==3 인 경우', timer);
+                    // console.log('timer==3 인 경우', timer);
                     props.changeReadyAlert(1)
                 }
                 const tick = setInterval(() => {
@@ -468,7 +471,7 @@ function Timer(props){
   function ResultModal(props) {
       const finalResult = props.result;
       const deadMan = props.deadMan;
-      console.log('최종 결과', finalResult);
+    //   console.log('최종 결과', finalResult);
       return (
       <>
           <div  className={style.totalResult} style={{width: "500px", textAlign: "center"}}>

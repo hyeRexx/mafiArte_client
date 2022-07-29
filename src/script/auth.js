@@ -44,7 +44,7 @@ const RequireAuth = ({ Component }) => {
     const location = useLocation();
     const dispatch = useDispatch();
 
-    const ret = {null: <></>, true: (Component == Ingame? <Component roomId={params.roomId}/> :<Component />), false: <Navigate to="/" state={{ from: location }} replace />}
+    const ret = {null: <></>, true: (Component == Ingame? <Component roomId={params.roomId}/> :<Component />), false: <Navigate to="/" />}
     useEffect(() => {
         axios.get(`${paddr}api/auth`, reqHeaders)
         .then((res)=>{

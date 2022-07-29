@@ -21,9 +21,6 @@ const Login = () => {
 
     const userId = useDeferredValue(id);
     const userPw = useDeferredValue(pw);
-
-    // 로그인 필요한 페이지로 접근해서 넘어온 경우
-    const from = location.state?.from?.pathname || "/lobby";
     
     const onSubmit = (e) => {
         e.preventDefault();
@@ -31,7 +28,7 @@ const Login = () => {
             .then( (res)=>{
                 if (res.data === 'success') {
                     // dispatch(setUserId(userId));          // login 정보 redux에 저장
-                    navigate(from, { replace: true });      // 접근했던 페이지 또는 로비로 이동
+                    navigate("/lobby");      // 접근했던 페이지 또는 로비로 이동
                 } else if (res.data === 'INVALID_ID') {
                     setLableId('ID : 유효하지 않은 ID 입니다');
                 } else if (res.data === 'INVALID_PW') {

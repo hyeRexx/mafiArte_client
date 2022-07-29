@@ -1,0 +1,7 @@
+/* .actualVideo:focus {
+    border: 5px solid red;
+} */
+
+#actualVideo:focus {
+    border: 5px solid red;
+}

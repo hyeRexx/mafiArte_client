@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import style from '../css/Video.module.css'
 
 const Video = ({stream, width, height, muted}) => {
   const ref = useRef();
