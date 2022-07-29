@@ -31,6 +31,25 @@ let gameInfo = createSlice({
 }
 });
 
+let ingameStates = createSlice({
+  name : 'ingameStates',
+  initialState : {isReady: false, isLoaded: false},
+  reducers : {
+    clickReady(state, action){
+      state.isReady = !state.isReady;
+    },
+    clearReady(state, action){
+      state.isReady = false;
+    },
+    loadComplete(state, action){
+      state.isLoaded = true;
+    },
+    clearLoad(state, action){
+      state.isLoaded = false;
+    }
+  }
+})
+
 let FriendInfo = createSlice({
   name : 'friendInfo',
   initialState: {},
@@ -138,6 +157,7 @@ const store = configureStore({
     user : user.reducer,
     FriendInfo : FriendInfo.reducer,
     gameInfo : gameInfo.reducer,
+    ingameStates : ingameStates.reducer,
     videoInfo : videoInfo.reducer,
     newPlayerBuffer : newPlayerBuffer.reducer,
     exiterBuffer : exiterBuffer.reducer,
@@ -155,6 +175,7 @@ export {store};
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
+export let { clickReady, clearReady, loadComplete, clearLoad } = ingameStates.actions;
 export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
 export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;
 export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
