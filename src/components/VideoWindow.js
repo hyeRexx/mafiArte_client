@@ -7,14 +7,14 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
+const VideoWindow = ({readyAlert, isStarted, endGame, needVideos}) => {
     // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
@@ -32,6 +32,7 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
         {userid: null, stream: null, image: null, isReady: false}
     ]);
 
+    const ingameStates = useSelector(state => state.ingameStates);
     const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
     const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
     const exiterBuffer = useSelector(state => state.exiterBuffer);
@@ -99,7 +100,8 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
                 audio: true,
                 video: deviceId ? { deviceId } : true
             });
-            setVideo(1, "asis", myStream, "asis", isReady);
+            setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
+            dispatch(loadComplete());
         } catch (e) {
             alert(e);
             console.log(e);
@@ -302,8 +304,8 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
 
     useEffect(()=>{
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
-        setVideo(myIdx, "asis", "asis", "asis", isReady);
-    }, [isReady]);
+        setVideo(myIdx, "asis", "asis", "asis", ingameStates.isReady);
+    }, [ingameStates.isReady]);
 
     // console.log('VideoWindow Before useEffect[isStarted]');
     useEffect(()=>{
@@ -347,7 +349,8 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
 
     useEffect(() => {
         if ((endGame === false) && (gameUserInfo[1] !== null)){
-            let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx;
+            // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
+            let turnIdx = peerConnections[gameUserInfo[1]].vIdx; 
             // console.log("turnIdx: ", turnIdx);
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
             // console.log("nextTurn: ", nextTurn);
@@ -386,7 +389,7 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
                     :<img style={{opacity:videos[0].userid? "100%": "0%"}} height="100%" src={videos[0].image}/>}
                 </div>
             </div>
-            <div className= {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}>
+            <div className= {style.videoObserving}>
                 <div className={style.videoLabel}>
                     {videos[1].userid === myId? "ME": "OBSERVING - " + videos[1].userid}  
                 </div>
@@ -394,7 +397,7 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
                     {/* READY 표시 확인 필요! */}
                     {videos[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[1].stream?   
-                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"100%"} height={"290px"} />
+                    <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"100%"} height={"290px"} isTurn={nextTurn === 1} />
                     :<img style={{opacity:videos[1].userid? "100%": "0%"}} height="100%" src={videos[1].image}/>}
                 </div>
             </div>
@@ -403,48 +406,48 @@ const VideoWindow = ({readyAlert, isReady, isStarted, endGame, needVideos}) => {
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
-                    <div className={nextTurn === 2 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[2].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[2].stream? 
-                        <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"}/>
+                        <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 2}/>
                         :<img style={{opacity:videos[2].userid? "100%": "0%"}} height="100%" src={videos[2].image}/>}
                     </div>
-                    <div className={nextTurn === 3 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[3].stream? 
-                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"}/> 
+                        <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 3}/> 
                         :<img style={{opacity:videos[3].userid? "100%": "0%"}} height="100%" src={videos[3].image}/>}
                     </div>
-                    <div className={nextTurn === 4 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[4].stream? 
-                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"}/> 
+                        <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 4}/> 
                         :<img style={{opacity:videos[4].userid? "100%": "0%"}} height="100%" src={videos[4].image}/>}
                     </div>
                 </div>
                 <div className={style.videoMiniRow} onClick={() => (videos[5].stream? changeVideo(5, 1): null)}>
-                    <div className={nextTurn === 5 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini}>
+                    <div className={style.videoMini}>
                         {/* READY 표시 확인 필요! */}
                         {videos[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[5].stream? 
-                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"}/>
+                        <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 5}/>
                         :<img style={{opacity:videos[5].userid? "100%": "0%"}} height="100%" src={videos[5].image}/>}
                     </div>
-                    <div className={nextTurn === 6 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[6].stream? 
-                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"}/> 
+                        <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 6}/> 
                         :<img style={{opacity:videos[6].userid? "100%": "0%"}} height="100%" src={videos[6].image}/>}
                     </div>
-                    <div className={nextTurn === 7 ? `${style.gradientborder} ${style.videoMini}` : style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
                         {/* READY 표시 확인 필요! */}
                         {videos[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[7].stream? 
-                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"}/> 
+                        <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 7}/> 
                         :<img style={{opacity:videos[7].userid? "100%": "0%"}} height="100%" src={videos[7].image}/>}
                     </div>
                 </div>
