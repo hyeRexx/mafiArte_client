@@ -5,7 +5,7 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import { turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } from '../store';
+import { clickReady, clearReady, turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer, clearLoad } from '../store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EvilLoader from "../subitems/EvilLoader"
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
@@ -14,11 +14,8 @@ import { ASSERT } from '../script/debug';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
-    // const [ newPlayer, setNewPlayer ] = useState(null);
-    // const [ exiter, setExiter ] = useState(null);
     const [ isHost, setHost ] = useState(false);
     const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
-    const [ isReady, setReady ] = useState(false);              // 내가 레드 눌렀나?
     const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
     const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
     const [ word, setWord ] = useState({category: "", word: ""});
@@ -39,6 +36,7 @@ const Ingame = ({roomId}) => {
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지 여부
     const videoList = useSelector(state => state.videoInfo.stream);
+    const ingameStates = useSelector(state => state.ingameStates); // ready상태, myStream load상태
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -62,7 +60,7 @@ const Ingame = ({roomId}) => {
             // data : userId : 입장 유저의 userId
             console.log("debug : notifyNew :", data);
             dispatch(pushNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady}));
-            socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: isReady}, data.socketId);
+            socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: ingameStates.isReady}, data.socketId);
         });
 
         socket.on("notifyOld", (data) => {
@@ -82,7 +80,7 @@ const Ingame = ({roomId}) => {
             // console.log("waitStart event received");
             setEndGame(false);
             setStart(1);
-            setReady(false);
+            dispatch(clearReady());
             setReadyToStart(false);
         });
 
@@ -211,7 +209,7 @@ const Ingame = ({roomId}) => {
             }
         });
 
-        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: isReady}, Number(roomId), (host)=>{
+        socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: ingameStates.isReady}, Number(roomId), (host)=>{
             (myId === host) && setHost(true);
             setRoomEntered(true);
             // console.log("Ingame Room Enter Success");
@@ -219,6 +217,7 @@ const Ingame = ({roomId}) => {
 
         return () => {
             // 기존에 등록된 event listner 삭제
+            dispatch(clearReady());
             dispatch(clearChatNewPlayer());
             dispatch(clearVideoWindowNewPlayer());
             dispatch(clearChatExiter());
@@ -235,6 +234,7 @@ const Ingame = ({roomId}) => {
             socket.off("abnormalClose");
             socket.off("someoneExit");
             socket.off("friendList");
+            dispatch(clearLoad());
         };
     },[]);
 
@@ -262,7 +262,7 @@ const Ingame = ({roomId}) => {
     }, []);
 
     const readyBtn = () => {
-        setReady(!isReady);
+        dispatch(clickReady());
         socket.emit("singleReady", {gameId: roomId, userId: myId});
     };
 
@@ -304,7 +304,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow readyAlert={readyAlert} isReady={isReady} isStarted={isStarted} endGame={endGame} needVideos={needVideos}/>
+                                  <VideoWindow readyAlert={readyAlert} isStarted={isStarted} endGame={endGame} needVideos={needVideos}/>
                               </div>
   
                               <div className={style.item2}>
@@ -330,7 +330,7 @@ const Ingame = ({roomId}) => {
                                           :
                                               /* design : ready button */
                                               <button className=
-                                                  {isReady ? `${style.holdBtn} ${style.readyBtn}`: style.readyBtn} onClick={readyBtn}> {isReady ? 'READY!' : 'READY?'}
+                                                  {ingameStates.isReady ? `${style.holdBtn} ${style.readyBtn}`: style.readyBtn} onClick={readyBtn}> {ingameStates.isReady ? 'READY!' : 'READY?'}
                                               </button>
                                       :
                                       <></>
@@ -390,6 +390,7 @@ const Ingame = ({roomId}) => {
                       {/* night event */}
                       { (becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
+                      {ingameStates.isLoaded? null: <GameLoader/>}
                   </div>
                   ); 
               }() : null

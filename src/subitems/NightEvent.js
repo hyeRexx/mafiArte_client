@@ -106,8 +106,11 @@ const NightEventForMafia = (props) => {
                 </dic>
             </div>
             <div className={style.nightEventObj}>
-                <div className={style.nightEventInfo} style={{marginBottom: 10}}>
-                    밤이 되었습니다.<span id={style.empty}/>추측한 제시어를 입력하세요.
+                <div className={style.nightEventInfo} style={{marginBottom: 10, fontSize: (submitWord? "30px": "26px")}}>
+                    {submitWord? 
+                        <>"{submitWord}" 입력되었습니다. 시민들의 투표를 기다려주세요.</> 
+                    :
+                        <>밤이 되었습니다. <span id={style.empty}/> 추측한 제시어를 입력하세요.</>}
                 </div>
             </div>
             <div className={style.nightEventObj}>
