@@ -1,21 +1,54 @@
 .Main {
-    width: 100%;
-    height: 100%;
-    background-color: #121212;
+    width: 1920px;
+    height: 1080px;
+    background-color: #202020;
+    background-image: url(../../public/img/main_title.png);
+    background-size: cover;
+    position: relative; /*side*/
 }
 
-.mainLogo {
-    display: block;
-    margin: auto ;
-    padding-top: 150px;
-    width: 1350px;
-    margin-bottom: 90px;
+.windowFrame {
+    position: absolute;
+    width: 1920px;
+    height: 133px;
+    z-index: 30;
+    background-image: url(../../public/img/main_window_line.png);
+    background-size: cover;
+    /* bottom: 44px; */
+    top: 900px;
+}
+
+.window1 {
+    position: absolute;
+    width: 1920px;
+    height: 133px;
+    z-index: 20;
+    animation: blink 2s alternate infinite ease-in-out;
+    background-image: url(../../public/img/main_window_1.png);
+    background-size: cover;
+    /* bottom: 44px; */
+    top: 900px;
+}
+
+.window2 {
+    position: absolute;
+    width: 1920px;
+    height: 133px;
+    z-index: 20;
+    animation: blink 2.5s alternate-reverse infinite ease-in-out;
+    background-image: url(../../public/img/main_window_2.png);
+    background-size: cover;
+    /* bottom: 44px; */
+    top: 900px;
 }
 
 .mainBtns {
     width: 100%;
     display: block;
     text-align: center;
+    top: 800px;
+    position: absolute;
+    z-index: 999;
 }
 
 .mainBtn {
@@ -31,4 +64,9 @@
 
 .mainBtn:hover {
     background-color: #FFE600;
+}
+
+@keyframes blink {
+    0% {opacity: 0%}
+    100% {opacity: 100%}
 }

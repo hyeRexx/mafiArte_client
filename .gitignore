@@ -27,3 +27,9 @@ react.basic.md
 
 package-lock.json
 yarn.lock
+package.json
+.env
+
+/src/proxyAddr.js
+/src/script/socket.js
+

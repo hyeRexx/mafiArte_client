@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useDeferredValue } from 'react';
 import { useState } from 'react';
 import { Button, Form, FloatingLabel } from 'react-bootstrap';
 // import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { paddr, reqHeaders } from '../proxyAddr';
 import { setUserId } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { NotRequireAuth } from '../script/auth';
@@ -17,18 +18,17 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    
-    // 로그인 필요한 페이지로 접근해서 넘어온 경우
-    const from = location.state?.from?.pathname || "/lobby";
 
+    const userId = useDeferredValue(id);
+    const userPw = useDeferredValue(pw);
+    
     const onSubmit = (e) => {
         e.preventDefault();
-        axios.post('/api/auth/login', {userid: id, password: pw})
-            .then(async (res)=>{
+        axios.post(`${paddr}api/auth/login`, {userid: userId, password: userPw}, reqHeaders)
+            .then( (res)=>{
                 if (res.data === 'success') {
-                    await dispatch(setUserId(id));          // login 정보 redux에 저장
-                    sessionStorage.setItem('userid', id);   // login 정보 sessionStorage에 저장
-                    navigate(from, { replace: true });      // 접근했던 페이지 또는 로비로 이동
+                    // dispatch(setUserId(userId));          // login 정보 redux에 저장
+                    navigate("/lobby");      // 접근했던 페이지 또는 로비로 이동
                 } else if (res.data === 'INVALID_ID') {
                     setLableId('ID : 유효하지 않은 ID 입니다');
                 } else if (res.data === 'INVALID_PW') {

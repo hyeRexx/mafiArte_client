@@ -1,0 +1,132 @@
+.loadBox {
+    width: 200px; height: 100px;
+    top: -10%;
+    left: 50%;
+    background-color: #202020;
+    z-index: 1;
+}
+
+.eye{
+    width: 25%; height: 10%;
+    background-color: rgba(240,220,220,1);
+    border-radius:0px 0px 20px 20px;
+    position: relative;
+    left: 15%; top: 40%;
+    box-shadow:  70px 0px 0px 0px rgba(240,220,220,1);              
+}
+
+.head{
+    backface-visibility: hidden;
+    position: relative;
+    margin: -95% auto;
+    width: 48%; height: 48%;
+    background-color: #111;
+    border-radius:150px;
+    box-shadow: inset -4px 2px 0px 0px rgba(240,220,220,1);
+    animation:headAnim 1.5s infinite alternate;
+    animation-timing-function:ease-out;
+}
+
+.body{ 
+    position: relative;
+    margin: 35% auto 10%;
+    width: 80%; height: 55%;
+    background-color: #111;
+    border-radius: 80px/25px ;
+    box-shadow: inset -5px 2px 0px 0px rgba(240,220,220,1);
+    animation:bodyAnim 1.5s infinite alternate;
+    animation-timing-function:ease-out;  
+}
+
+@keyframes headAnim{
+    0%{ top:0px; }
+    50%{ top:10px; }
+    100% { top:0px;} 
+}
+
+@keyframes bodyAnim{
+    0%{ top:-5px; }
+    50%{ top:10px; }
+    100% { top:-5px;} 
+}
+
+.circ{
+    backface-visibility: hidden;
+    margin: 60px auto;
+    width: 300px; height: 330px;
+    background-color: #111;
+    border-radius: 0px 0px 50px 50px;
+    position: fixed;
+    z-index: 1;
+    top: 240px; left: 1050px;  
+    overflow: hidden;
+}
+
+.hands{
+    backface-visibility: hidden;
+    margin-top:62%;
+    width: 59%;height: 38%;
+    position: absolute;
+    background-color: #111;
+    border-radius:20px;
+    box-shadow:-1px -4px 0px 0px rgba(240,220,220,1);
+    transform:rotate(45deg);
+    top:67%;left: 26%;
+    z-index: 1;
+    animation:bodyAnim 1.5s infinite alternate;
+    animation-timing-function:ease-out;
+}
+
+.loadingText {
+    position: absolute;
+    z-index: 3;
+    top: 73%;
+    font-size: 20px;
+    margin: auto;
+    text-align: center;
+    width: 100%;
+    height: 100px;
+    line-height: 100px;
+}
+.loadingText span {
+    display: inline-block;
+    margin: 0 5px;
+    color: #fff;
+}
+.loadingText span:nth-child(1) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 0s infinite linear alternate;
+}
+.loadingText span:nth-child(2) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 0.2s infinite linear alternate;
+}
+.loadingText span:nth-child(3) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 0.4s infinite linear alternate;
+}
+.loadingText span:nth-child(4) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 0.6s infinite linear alternate;
+}
+.loadingText span:nth-child(5) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 0.8s infinite linear alternate;
+}
+.loadingText span:nth-child(6) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 1s infinite linear alternate;
+}
+.loadingText span:nth-child(7) {
+  filter: blur(0px);
+  animation: blur-text 1.5s 1.2s infinite linear alternate;
+}
+
+@keyframes blur-text {
+  0% {
+    filter: blur(0px);
+  }
+  100% {
+    filter: blur(4px);
+  }
+}

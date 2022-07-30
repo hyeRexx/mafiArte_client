@@ -1,6 +1,7 @@
 /* join */
 import {React, useState, useEffect} from 'react';
 import axios from 'axios';
+import {paddr, reqHeaders} from '../proxyAddr';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
@@ -35,39 +36,39 @@ const Join = () => {
     
     // submit > post + 중복 검사
     const handleOnSubmit = async () => {
-        console.log(cId, cPass, cPassCheck, cNickname, cEmail)
+        // console.log(cId, cPass, cPassCheck, cNickname, cEmail)
         if (cId && cPass && cPassCheck && cNickname && cEmail){
             try {
-                await axios.post('/api/auth/user/join', {
+                await axios.post(`${paddr}api/auth/user/join`, {
                     id: id,
                     pass: pass,
                     nickname: nickname,
                     email: email
-                })
+                }, reqHeaders)
                 .then((res) => {
                     const data = res.data
                     if (data.result) {
                         alert("가입이 완료되었습니다. 지금 바로 Mafia가 되어 보세요!")
                         handleClose()
                     } else {
-                        console.log("join failed", data)
+                        // console.log("join failed", data)
                         if (!data.idCheck) { setEId('이미 가입되어 있는 아이디입니다. 다른 아이디를 입력하세요.')}
                         if (!data.nickCheck) {setENickname('이미 사용하고 있는 닉네임입니다. 다른 닉네임을 입력하세요.')}
                         if (!data.emailCheck) {setEEmail('이미 사용하고 있는 이메일 주소입니다. 다른 이메일을 입력하세요.')}
                     }
                 })
             } catch {
-                console.log('error')
+                console.log('error');
             }
         }
     }
 
     // 유효성 검사 : id, pass, passcheck(일치), nickname, 
     useEffect (() => {
-        const idRegex = /^(?=.*[a-zA-Z0-9-_]).{8,16}$/
+        const idRegex = /^(?=.*[a-zA-Z0-9-_]).{4,16}$/
         // idRegex.test(id) ? setCId(true) : setCId(false)
         if (!idRegex.test(id)) {
-            setEId('8~16 자리의 영문자 또는 숫자를 입력하세요.')
+            setEId('4~16 자리의 영문자 또는 숫자를 입력하세요.')
             setCId(false)
         } else {
             setEId('')
@@ -76,9 +77,11 @@ const Join = () => {
     }, [id])
     
     useEffect (() => {
-        const passwordRegex = /^(?=.*[a-zA-Z]*[!@#$%^*+=-]*[0-9]).{8,25}$/
+        const passwordRegex = /^(?=.*[a-zA-Z0-9]).{3,25}$/
+        // const passwordRegex = /^(?=.*[a-zA-Z]*[!@#$%^*+=-]*[0-9]).{8,25}$/
         if (!passwordRegex.test(pass)) {
-            setEPass('숫자와 영문자, 특수문자를 조합해 8자리 이상 입력하세요.')
+            setEPass('3자리 이상은 성의')
+            // setEPass('숫자와 영문자, 특수문자를 조합해 8자리 이상 입력하세요.')
             setCPass(false)
 
         } else {

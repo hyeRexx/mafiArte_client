@@ -1,13 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import style from '../css/Video.module.css'
 
-const Video = ({stream, width, height}) => {
+const Video = ({stream, width, height, muted, isTurn, isClicked, isDead}) => {
   const ref = useRef();
+
   useEffect(()=>{
     ref.current.srcObject = stream;
-  }, []);
+    ref.current.muted = muted;
+  }, [stream, muted]);
+
   return (
     <div>
-      <video ref={ref} autoPlay playsInline style={{objectFit: "cover"}} width={width} height={height} />
+      <video className={`${isClicked? style.nightVideo: null} ${isTurn? style.gradientborder: null} ${isDead? style.grayfilter: null}`} ref={ref} autoPlay playsInline style={{objectFit: "cover", transform:"scaleX(-1)", borderRadius: 3}} width={width} height={height} />
     </div>
   );
 };
