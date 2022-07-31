@@ -164,6 +164,7 @@ let videosStore = createSlice({
       state[action.payload[0]].stream = action.payload[2] === "asis" ? state[action.payload[0]].stream : action.payload[2];
       state[action.payload[0]].image = action.payload[3] === "asis" ? state[action.payload[0]].image : action.payload[3];
       state[action.payload[0]].isReady = action.payload[4] === "asis" ? state[action.payload[0]].isReady : action.payload[4];
+      console.log(current(state));
     },
     attributeChangeStore(state, action){
       state[action.payload[0]][action.payload[1]] = action.payload[2];
@@ -172,6 +173,7 @@ let videosStore = createSlice({
       let tempVideo = state[action.payload[0]];
       state[action.payload[0]] = state[action.payload[1]];
       state[action.payload[1]] = tempVideo;
+      console.log(current(state));
     },
     attributeMultiChangeStore(state, action){
       state.map((video) => {
