@@ -7,7 +7,7 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
@@ -20,38 +20,43 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
+    const videosStore = useSelector(state => state.videosStore);
     const [nextTurn, setNextTurn] = useState(null);
-    const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: myId, stream: null, image: myImg, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false},
-        {userid: null, stream: null, image: null, isReady: false, isDead: false}
-    ]);
+
+    // const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: myId, stream: null, image: myImg, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    //     {userid: null, stream: null, image: null, isReady: false, isDead: false}
+    // ]);
+
+    dispatch(setVideosStore([1, myId, "asis", myImg, "asis"]));
 
     const ingameStates = useSelector(state => state.ingameStates);
     const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
     const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
     const exiterBuffer = useSelector(state => state.exiterBuffer);
     
-    const setVideo = (index , userid, stream, image, isReady) => {
-        ASSERT(`(0 <= ${index}) && (${index} < 8)`);
-        let copyVideos = [...videos];
-        copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
-        copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
-        copyVideos[index].image = image==="asis"? copyVideos[index].image: image;
-        copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
-        setVideos(copyVideos);
-    }
+    // const setVideo = (index , userid, stream, image, isReady) => {
+    //     ASSERT(`(0 <= ${index}) && (${index} < 8)`);
+    //     let copyVideos = [...videos];
+    //     copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
+    //     copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
+    //     copyVideos[index].image = image==="asis"? copyVideos[index].image: image;
+    //     copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
+    //     setVideos(copyVideos);
+    // }
 
     const setDeadManGray = (userid) => {
         const deadManIdx = peerConnections[userid].vIdx;
-        const copyVideos = [...videos];
-        copyVideos[deadManIdx].isDead = true;
-        setVideos(copyVideos);
+        // const copyVideos = [...videos];
+        // copyVideos[deadManIdx].isDead = true;
+        // setVideos(copyVideos);
+        dispatch(attributeChangeStore([deadManIdx, "isDead", true]));
     }
 
     const changeVideo = (vIdx1, vIdx2) => {
@@ -60,27 +65,36 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         if (vIdx1 === vIdx2) {
             return null;
         }
-        const copyVideos = [...videos];
+        // const copyVideos = [...videos];
         const userid1 = copyVideos[vIdx1].userid;
         const userid2 = copyVideos[vIdx2].userid;
 
         userid1 && (peerConnections[userid1].vIdx = vIdx2);
         userid2 && (peerConnections[userid2].vIdx = vIdx1);
 
-        const tempVideoIdx1 = copyVideos[vIdx1];
-        copyVideos[vIdx1] = copyVideos[vIdx2];
-        copyVideos[vIdx2] = tempVideoIdx1;
+        dispatch(videoChangeStore([vIdx1, vIdx2]));
 
-        setVideos(copyVideos);
+        // const tempVideoIdx1 = copyVideos[vIdx1];
+        // copyVideos[vIdx1] = copyVideos[vIdx2];
+        // copyVideos[vIdx2] = tempVideoIdx1;
+
+        // setVideos(copyVideos);
     }
 
     const clearReady = () => {
-        const copyVideos = [...videos];
-        const videosCleared = copyVideos.map((video)=>{
-            video.isReady = false;
-            return video;
-        });
-        setVideos(videosCleared);
+        // const copyVideos = [...videos];
+        // const videosCleared = copyVideos.map((video)=>{
+        //     video.isReady = false;
+        //     return video;
+        // });
+        // setVideos(videosCleared);
+
+        // for (let i = 0; i < 8; i++){
+        //     dispatch(attributeChangeStore([i, "isReady", false]));
+        // }
+
+        dispatch(attributeMultiChangeStore(["isReady", false]))
+
         dispatch(clearOthersReady());
     }
     
@@ -107,7 +121,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 audio: true,
                 video: deviceId ? { deviceId } : true
             });
-            setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
+            // setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
+            dispatch(setVideosStore([1, "asis", myStream, "asis", ingameStates.isReady]));
             dispatch(loadComplete());
         } catch (e) {
             alert(e);
@@ -132,7 +147,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         // stream을 받아오면, 비디오를 새로 생성하고 넣어준다.
         // console.log("got others video: ", data.stream);
         const vIdx = peerConnections[othersId].vIdx;
-        setVideo(vIdx, "asis", data.stream, "asis", "asis");
+        // setVideo(vIdx, "asis", data.stream, "asis", "asis");
+        dispatch(setVideosStore([vIdx, "asis", data.stream, "asis", "asis"]));
         // console.log(videos);
     }
 
@@ -258,6 +274,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 track.stop();
             });
             dispatch(clearOthersReady());
+            dispatch(clearVideoStore()); // unmount 시 redux의 video 초기화
             socket.off("notifyReady");
             socket.off("streamStart");
             socket.off("offer");
@@ -271,10 +288,11 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         if (newPlayerBuffer.VideoWindow.length) {
             newPlayerBuffer.VideoWindow.forEach(newPlayer => {
                 let i = 0;
-                for ( ; i < 8 && videos[i].userid; i++) {}
+                for ( ; i < 8 && videosStore[i].userid; i++) {}
                 peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
                 console.log(`peerConnections[${newPlayer.userId}] = `, peerConnections[newPlayer.userId]);
-                setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
+                // setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
+                dispatch(setVideosStore([i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady]));
             });
             dispatch(clearVideoWindowNewPlayer());
         }
@@ -289,7 +307,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 } else {
                     console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
                     const usersIdx = peerConnections[others.userId].vIdx;
-                    setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
+                    // setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
+                    dispatch(setVideosStore([usersIdx, "asis", "asis", "asis", others.isReady]));
                 }
             });
             dispatch(renewOthersReady(notSetBuffer));
@@ -301,7 +320,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
             console.log("exiterBuffer", exiterBuffer);
             exiterBuffer.VideoWindow.forEach(exiterId => {
                 const vIdx = peerConnections[exiterId].vIdx;;
-                setVideo(vIdx, null, null, null, false);
+                // setVideo(vIdx, null, null, null, false);
+                dispatch(setVideosStore([vIdx, null, null, null, false]));
                 peerConnections[exiterId].connection?.close();
                 delete peerConnections[exiterId];
             });
@@ -311,7 +331,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
 
     useEffect(()=>{
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
-        setVideo(myIdx, "asis", "asis", "asis", ingameStates.isReady);
+        // setVideo(myIdx, "asis", "asis", "asis", ingameStates.isReady);
+        dispatch(setVideosStore([myIdx, "asis", "asis", "asis", ingameStates.isReady]));
     }, [ingameStates.isReady]);
 
     // console.log('VideoWindow Before useEffect[isStarted]');
@@ -352,7 +373,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
             // console.log("nextTurn: ", nextTurn);
         }
-    }, [readyAlert, videos]);
+    }, [readyAlert, videosStore]);
 
     // 투표 시 비디오 전송
     // const videoList = useSelector((state) => state.videoInfo);
@@ -361,8 +382,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         if ( needVideos ) {
             let streamArray = new Array();
             for (let i = 0; i < 8; i++) {
-                if (videos[i].userid != null) {
-                    streamArray.push({userId: videos[i].userid, stream: videos[i].stream});
+                if (videosStore[i].userid != null) {
+                    streamArray.push({userId: videosStore[i].userid, stream: videosStore[i].stream});
                 }
             }
             console.log('streamArray', streamArray);
@@ -374,43 +395,46 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     useEffect(()=>{
         // console.log("VideoWindow : useEffect - endGame? ", endGame);
         endGame && (()=>{
-            const copyVideos = [...videos];
-            console.log(JSON.stringify(copyVideos));
+            // const copyVideos = [...videos];
+            console.log(JSON.stringify(videosStore));
             Object.keys(peerConnections).forEach((userId) => {
                 if (userId != myId) {
                     peerConnections[userId].connection?.close();
                     const vIdx = peerConnections[userId].vIdx;
-                    copyVideos[vIdx].stream = null;
-                    copyVideos[vIdx].isDead = false;
+                    // copyVideos[vIdx].stream = null;
+                    dispatch(attributeChangeStore([vIdx, "stream", null]));
+                    // copyVideos[vIdx].isDead = false;
+                    dispatch(attributeChangeStore([vIdx, "isDead", false]));
                 } else {
                     const vIdx = peerConnections[userId].vIdx;
-                    copyVideos[vIdx].isDead = false;
+                    // copyVideos[vIdx].isDead = false;
+                    dispatch(attributeChangeStore([vIdx, "isDead", false]));
                 }
             });
             setNextTurn(null);
-            console.log(JSON.stringify(copyVideos));
-            setVideos(copyVideos);
-            console.log(copyVideos);
+            console.log(JSON.stringify(videosStore));
+            // setVideos(copyVideos);
+            console.log(videosStore);
             setTimeout(()=>{
                 changeVideo(peerConnections[myId].vIdx, 1);
-                console.log(videos);
-                console.log(JSON.stringify(videos));
+                console.log(videosStore);
+                console.log(JSON.stringify(videosStore));
             }, 100);
-            console.log(videos);
+            // console.log(videos);
         })();
     }, [endGame]);
 
     // 디버깅용 임시. videos 변경 확인
-    useEffect(()=>{
-        console.log("videos 변경시 mount 후");
-        console.log(JSON.stringify(peerConnections));
-        console.log(JSON.stringify(videos));
-        return () => {
-            console.log("videos 변경시 cleanup 시");
-            console.log(JSON.stringify(peerConnections));
-            console.log(JSON.stringify(videos));
-        }
-    }, [videos]); 
+    // useEffect(()=>{
+    //     console.log("videos 변경시 mount 후");
+    //     console.log(JSON.stringify(peerConnections));
+    //     console.log(JSON.stringify(videos));
+    //     return () => {
+    //         console.log("videos 변경시 cleanup 시");
+    //         console.log(JSON.stringify(peerConnections));
+    //         console.log(JSON.stringify(videos));
+    //     }
+    // }, [videos]); 
     
     // {style.videoNow}
     // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}

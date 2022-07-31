@@ -138,6 +138,50 @@ let othersReadyBuffer = createSlice({
   }
 })
 
+let videosStore = createSlice({
+  name : 'videosStore',
+  initialState: [{userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false},
+    {userid: null, stream: null, image: null, isReady: false, isDead: false}],
+  reducers : {
+    clearVideoStore(state, action) {
+      return [{userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false},
+        {userid: null, stream: null, image: null, isReady: false, isDead: false}];
+    },
+    setVideosStore(state, action){
+      state[action.payload[0]].userid = action.payload[1] === "asis" ? state[action.payload[0]].userid : action.payload[1];
+      state[action.payload[0]].stream = action.payload[2] === "asis" ? state[action.payload[0]].stream : action.payload[2];
+      state[action.payload[0]].image = action.payload[3] === "asis" ? state[action.payload[0]].image : action.payload[3];
+      state[action.payload[0]].isReady = action.payload[4] === "asis" ? state[action.payload[0]].isReady : action.payload[4];
+    },
+    attributeChangeStore(state, action){
+      state[action.payload[0]][action.payload[1]] = action.payload[2];
+    },
+    videoChangeStore(state, action){
+      let tempVideo = state[action.payload[0]];
+      state[action.payload[0]] = state[action.payload[1]];
+      state[action.payload[1]] = tempVideo;
+    },
+    attributeMultiChangeStore(state, action){
+      state.map((video) => {
+        video[action.payload[0]] = action.payload[1]; 
+      })
+    }
+    
+  }
+})
+
 
 const store = configureStore({
   reducer: {
@@ -148,7 +192,8 @@ const store = configureStore({
     videoInfo : videoInfo.reducer,
     newPlayerBuffer : newPlayerBuffer.reducer,
     exiterBuffer : exiterBuffer.reducer,
-    othersReadyBuffer : othersReadyBuffer.reducer
+    othersReadyBuffer : othersReadyBuffer.reducer,
+    videosStore : videosStore.reducer
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -167,3 +212,4 @@ export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
 export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;
 export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
 export let { pushOthersReady, renewOthersReady, clearOthersReady } = othersReadyBuffer.actions;
+export let { clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore } = videosStore.actions;
