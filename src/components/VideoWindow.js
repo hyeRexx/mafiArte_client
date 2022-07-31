@@ -14,7 +14,7 @@ import { ASSERT } from '../script/debug';
 let myStream;
 let peerConnections = {};
 
-const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
+const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
@@ -381,19 +381,19 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
 
     // 투표 시 비디오 전송
     // const videoList = useSelector((state) => state.videoInfo);
-    useEffect(()=> {
-        // stream array
-        if ( needVideos ) {
-            let streamArray = new Array();
-            for (let i = 0; i < 8; i++) {
-                if (videosStore[i].userid != null) {
-                    streamArray.push({userId: videosStore[i].userid, stream: videosStore[i].stream});
-                }
-            }
-            console.log('streamArray', streamArray);
-            dispatch(VideoStreamChange(streamArray));
-        };
-    }, [needVideos]);
+    // useEffect(()=> {
+    //     // stream array
+    //     if ( needVideos ) {
+    //         let streamArray = new Array();
+    //         for (let i = 0; i < 8; i++) {
+    //             if (videosStore[i].userid != null) {
+    //                 streamArray.push({userId: videosStore[i].userid, stream: videosStore[i].stream});
+    //             }
+    //         }
+    //         console.log('streamArray', streamArray);
+    //         dispatch(VideoStreamChange(streamArray));
+    //     };
+    // }, [needVideos]);
 
     // console.log('VideoWindow Before useEffect[endGame]');
     useEffect(()=>{

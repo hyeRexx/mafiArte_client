@@ -31,12 +31,13 @@ const Ingame = ({roomId}) => {
     let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
     let [ deadMan, setDeadMan ] = useState(null);
     let [ readyAlert, setReadyAlert] = useState(0);
-    let [ ripList, setRipList ] = useState([]);                 // 무고하게 죽은 사람 리스트
+    // let [ ripList, setRipList ] = useState([]);                 // 무고하게 죽은 사람 리스트
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo);  // 현재 turn인 user id, 살았는지 여부
-    const videoList = useSelector(state => state.videoInfo.stream);
+    // const videoList = useSelector(state => state.videoInfo.stream);
+    const videoList = useSelector(state => state.videosStore);
     const ingameStates = useSelector(state => state.ingameStates); // ready상태, myStream load상태
 
     const dispatch = useDispatch();
@@ -117,9 +118,9 @@ const Ingame = ({roomId}) => {
         // 한 사이클이 끝났음에 대한 알림
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", (data) => {
-            console.log('죽은 사람 리스트', data);
-            setRipList(data);
-            setNeedVideos(true); // 비디오 필요하다는 신호 전송
+            // console.log('죽은 사람 리스트', data);
+
+            // setNeedVideos(true); // 비디오 필요하다는 신호 전송, 필요없음.
             becomeNightState(true);
         });
 
@@ -307,7 +308,7 @@ const Ingame = ({roomId}) => {
                       <div>
   
                       {/* vote result */}
-                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber} ripList={ripList} /> : null }
+                      { voteResultModal ? <VoteResultModal voteNumber={voteNumber}/> : null }
   
                       {/* total result */}
                       { resultModal ? <ResultModal result={result} deadMan={deadMan}/> : null }
@@ -399,8 +400,8 @@ const Ingame = ({roomId}) => {
                       {/* design : role card : Mafia */}
                       {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                       {/* night event */}
-                      { (!ripList.includes(myId) && becomeNight && videoList) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight}  ripList={ripList} word={word.word}/> : 
-                      <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} ripList={ripList} word={word.word}/>) : null }
+                      { (!videoList.filter(user => user.userid === myId)[0]?.isDead && becomeNight) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} word={word.word}/> : 
+                      <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} word={word.word}/>) : null }
                       {ingameStates.isLoaded? null: <GameLoader/>}
                   </div>
                   ); 
@@ -409,7 +410,6 @@ const Ingame = ({roomId}) => {
           </>
       );
   }
-
   
 function Timer(props){
 
@@ -455,14 +455,15 @@ function Timer(props){
         </>
     )
 }
-  
+// voteNumber.filter(voteNumber => videoList.filter(user => user.userid === voteNumber[0])[0]?.isDead === false)
   // 투표 결과 모달
   function VoteResultModal(props) {
-      const voteNumber = Object.entries(props.voteNumber);
+      const voteNumber = Object.entries(props.voteNumber);// voteNumber => userid, 득표수
+      const videoList = useSelector(state => state.videosStore);
       return (
             <div className={style.turnBoard}>
                 <div className={style.turnBoardTitle}> VOTE RESULT </div>
-                {voteNumber.filter(voteNumber => !props.ripList.includes(voteNumber[0])).map((voteNumber)=> {
+                {voteNumber.filter(voteNumber => videoList.filter(user => user.userid === voteNumber[0])[0]?.isDead === false).map((voteNumber)=> {
                     return (
                         <div className={style.singleTurnInfo}>
                             <span className={style.turnNum}>{voteNumber[0]}</span>

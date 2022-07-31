@@ -5,10 +5,10 @@ import { useSelector } from 'react-redux';
 import Video from '../components/Video';
 
 const NightEventForCitizen = (props) => {
-    const videoList = useSelector((state) => state.videoInfo);
+    const videoList = useSelector((state) => state.videosStore);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
     console.log(videoList);
-    const len = videoList.stream.length;
+    const len = videoList.filter(x => x.userid && x.isDead === 'false').length;
     
     return(
         <div className={style.nightEvent}>
@@ -20,9 +20,9 @@ const NightEventForCitizen = (props) => {
                 <div className={style.nightEventTitle}></div>
             </div>
             <div className={style.nightEventObj}>
-                { len <= 4 ? <VoteVideoFor4 videoList={videoList} ripList={props.ripList} submitVoteState={submitVoteState}/> : null }
-                { len >= 5 && len <= 6 ? <VoteVideoFor6 videoList={videoList} ripList={props.ripList} submitVoteState={submitVoteState}/> : null }
-                { len >= 7 && len <= 8 ? <VoteVideoFor8 videoList={videoList} ripList={props.ripList} submitVoteState={submitVoteState}/> : null }
+                { len <= 4 ? <VoteVideoFor4 submitVoteState={submitVoteState}/> : null }
+                { len >= 5 && len <= 6 ? <VoteVideoFor6 submitVoteState={submitVoteState}/> : null }
+                { len >= 7 && len <= 8 ? <VoteVideoFor8 submitVoteState={submitVoteState}/> : null }
             </div>
             <div className={style.nightEventObj}>
                 <div className={style.nightEventInfo}>
@@ -124,7 +124,8 @@ const NightEventForMafia = (props) => {
 // 아랫줄 윗줄 기준 맞춰 넣어야 함
 
 // player : 4  ~한 줄로 들어감. 정렬 자동으로 맞춰져 있음
-const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
+const VoteVideoFor4 = ({submitVoteState}) => {
+    const videoList = useSelector((state) => state.videosStore);
     const [ isClicked, setClick ] = useState(false);
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
@@ -135,14 +136,13 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
         submitVoteState(answer);
     }
 
-
     return (
         <div className={style.nightVideo4}>
             <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
-                            <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                    videoList.filter(x => x.userid && x.isDead === false)?.map((user, index) => (
+                        <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
+                            <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                         </div>))
                 }
             </div>
@@ -151,7 +151,8 @@ const VoteVideoFor4 = ({videoList, ripList, submitVoteState}) => {
 }
 
 // player : 5 ~ 6  ~두 줄로 들어감(2:3, 3:3 비율). 정렬 자동으로 맞춰져 있음 
-const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
+const VoteVideoFor6 = ({submitVoteState}) => {
+    const videoList = useSelector((state) => state.videosStore);
     const [ isClicked, setClick ] = useState(false);
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
@@ -166,9 +167,9 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
-                        <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                    videoList["stream"] && videoList.filter(x => x.userid && x.isDead === 'false').map((user, index) => (
+                        <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
+                        <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>
@@ -178,7 +179,8 @@ const VoteVideoFor6 = ({videoList, ripList, submitVoteState}) => {
 
 
 // player : 7 ~ 8  ~두 줄로 들어감(3:4, 4:4 비율). 정렬 자동으로 맞춰져 있음 
-const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
+const VoteVideoFor8 = ({submitVoteState}) => {
+    const videoList = useSelector((state) => state.videosStore);
     const [ isClicked, setClick ] = useState(false);
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
@@ -193,9 +195,9 @@ const VoteVideoFor8 = ({videoList, ripList, submitVoteState}) => {
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.stream.filter(streamId => !ripList.includes(streamId.userId)).map((streamId, index) => (
-                        <div id={streamId.userId} onClick={() => { submitAnswer(streamId.userId, index) }} className={style.singleVideo}>
-                        <Video stream={streamId.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                    videoList["stream"] && videoList.filter(x => x.userid && x.isDead === 'false').map((user, index) => (
+                        <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
+                        <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>
