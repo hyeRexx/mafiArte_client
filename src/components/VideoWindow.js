@@ -105,8 +105,9 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
             myStream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
                 video: {
-                    noiseSuppression: true,
-                    echoCancellation: true
+                    width: {min: 320, ideal: 320, max: 320}, 
+                    height: {min: 240, ideal: 240, max: 240},
+                    frameRate: {min: 18, ideal: 21, max: 24}
                 }
             });
             // setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
@@ -274,14 +275,14 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     }, []);
 
     useEffect(()=>{
-        console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayerBuffer));
+        // console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayerBuffer));
         if (newPlayerBuffer.VideoWindow.length) {
             let copyVideos = [...videosStore];
             newPlayerBuffer.VideoWindow.forEach(newPlayer => {
                 let i = 0;
                 for ( ; i < 8 && copyVideos[i].userid; i++) {}
                 peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
-                console.log(`peerConnections[${newPlayer.userId}] = `, peerConnections[newPlayer.userId]);
+                // console.log(`peerConnections[${newPlayer.userId}] = `, peerConnections[newPlayer.userId]);
                 // setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
                 copyVideos[i] = {userid: newPlayer.userId, stream: null, image: newPlayer.userImg, isReady: newPlayer.isReady, isDead: false}
             });
@@ -297,7 +298,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 if (!peerConnections[others.userId]) {
                     notSetBuffer.push(others);
                 } else {
-                    console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
+                    // console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
                     const usersIdx = peerConnections[others.userId].vIdx;
                     dispatch(setVideosStore([usersIdx, "asis", "asis", "asis", others.isReady]));
                 }
@@ -308,7 +309,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
 
     useEffect(()=>{
         if (exiterBuffer.VideoWindow.length) {
-            console.log("exiterBuffer", exiterBuffer);
+            // console.log("exiterBuffer", exiterBuffer);
             exiterBuffer.VideoWindow.forEach(exiterId => {
                 const vIdx = peerConnections[exiterId].vIdx;;
                 // setVideo(vIdx, null, null, null, false);

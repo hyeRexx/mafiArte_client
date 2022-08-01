@@ -7,7 +7,7 @@ import Video from '../components/Video';
 const NightEventForCitizen = (props) => {
     const videoList = useSelector((state) => state.videosStore);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
-    console.log(videoList);
+    // console.log(videoList);
     const len = videoList.filter(x => x.userid && x.isDead === 'false').length;
     
     return(
@@ -56,7 +56,7 @@ function VoteTimer(props){
             } 
             else if (voteTimer === 0) {
                 if (props.word != '?'){
-                    console.log('뽑힌 사람', props.submitVote);
+                    // console.log('뽑힌 사람', props.submitVote);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
                 } else {
                     // console.log('제출한 제시어', props.submitWord);
@@ -130,7 +130,7 @@ const VoteVideoFor4 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);
@@ -157,7 +157,7 @@ const VoteVideoFor6 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);
@@ -185,7 +185,7 @@ const VoteVideoFor8 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        console.log(`투표 결과 ${answer}`);
+        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);
