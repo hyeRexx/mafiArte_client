@@ -119,7 +119,7 @@ const Ingame = ({roomId}) => {
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", (data) => {
             // console.log('죽은 사람 리스트', data);
-
+            changeReadyAlert(0);
             // setNeedVideos(true); // 비디오 필요하다는 신호 전송, 필요없음.
             becomeNightState(true);
         });
@@ -188,6 +188,7 @@ const Ingame = ({roomId}) => {
             resultModalState(true);
             setTimeout(()=>{
                 resultModalState(false);
+                setResult(null);
             }, 5000);
         });
 
@@ -400,7 +401,7 @@ const Ingame = ({roomId}) => {
                       {/* design : role card : Mafia */}
                       {!showWord ? null : ((word.word === '?') ? <RoleCardMafia/> : <RoleCardCitizen word={word.word}/>)}
                       {/* night event */}
-                      { (!videoList.filter(user => user.userid === myId)[0]?.isDead && becomeNight) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} word={word.word}/> : 
+                      { (!videoList.filter(user => user.userid === myId)[0]?.isDead && becomeNight && !endGame) ? ((word.word === '?') ? <NightEventForMafia roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} word={word.word}/> : 
                       <NightEventForCitizen roomId={roomId} myId={myId} becomeNightState={becomeNightState} becomeNight={becomeNight} word={word.word}/>) : null }
                       {ingameStates.isLoaded? null: <GameLoader/>}
                   </div>
@@ -458,12 +459,14 @@ function Timer(props){
 // voteNumber.filter(voteNumber => videoList.filter(user => user.userid === voteNumber[0])[0]?.isDead === false)
   // 투표 결과 모달
   function VoteResultModal(props) {
+    //   console.log('voteNumber test debugging before ::', voteNumber);
       const voteNumber = Object.entries(props.voteNumber);// voteNumber => userid, 득표수
-      const videoList = useSelector(state => state.videosStore);
+    //   console.log('voteNumber test debugging after ::', voteNumber);
+
       return (
             <div className={style.turnBoard}>
                 <div className={style.turnBoardTitle}> VOTE RESULT </div>
-                {voteNumber.filter(voteNumber => videoList.filter(user => user.userid === voteNumber[0])[0]?.isDead === false).map((voteNumber)=> {
+                {voteNumber.map((voteNumber)=> {
                     return (
                         <div className={style.singleTurnInfo}>
                             <span className={style.turnNum}>{voteNumber[0]}</span>

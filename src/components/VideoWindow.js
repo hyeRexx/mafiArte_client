@@ -7,7 +7,7 @@ import {socket} from '../script/socket';
 import Video from './Video';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
@@ -99,29 +99,15 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
 
         dispatch(clearOthersReady());
     }
-    
-    async function getCameras() {
-        const cameras = []
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            const currentCamera = myStream.getVideoTracks()[0];
-            cameras.push(currentCamera.deviceId) // 현재 카메라를 맨 첫번째에 배치
-            videoDevices.forEach(camera => {
-                if(currentCamera.deviceId !== camera.deviceId) cameras.push(camera.deviceId); // 현재 카메라 빼고 나머지 뒤로 추가
-            });
-        }
-        catch(e) {
-            console.log(e);
-        }
-        return cameras;
-    }
 
-    async function getMedia(deviceId){
+    async function getMedia(){
         try {
             myStream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
-                video: deviceId ? { deviceId } : true
+                video: {
+                    noiseSuppression: true,
+                    echoCancellation: true
+                }
             });
             // setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
             dispatch(setVideosStore([1, "asis", myStream, "asis", ingameStates.isReady]));
@@ -208,7 +194,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     
     useEffect( ()=> {
         const initialize = async () => {
-            console.log("시작하자마자 뜨는거 test\n\n\n\n\n", videosStore);
+            // console.log("시작하자마자 뜨는거 test\n\n\n\n\n", videosStore);
             dispatch(setVideosStore([1, myId, "asis", myImg, "asis"]));
             peerConnections[myId] = {vIdx: 1};
             await initCall();
@@ -290,14 +276,16 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     useEffect(()=>{
         console.log("newPlayer -> peerConnection set : ", JSON.stringify(newPlayerBuffer));
         if (newPlayerBuffer.VideoWindow.length) {
+            let copyVideos = [...videosStore];
             newPlayerBuffer.VideoWindow.forEach(newPlayer => {
                 let i = 0;
-                for ( ; i < 8 && videosStore[i].userid; i++) {}
+                for ( ; i < 8 && copyVideos[i].userid; i++) {}
                 peerConnections[newPlayer.userId] = {vIdx: i, connection: null};
                 console.log(`peerConnections[${newPlayer.userId}] = `, peerConnections[newPlayer.userId]);
                 // setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
-                dispatch(setVideosStore([i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady]));
+                copyVideos[i] = {userid: newPlayer.userId, stream: null, image: newPlayer.userImg, isReady: newPlayer.isReady, isDead: false}
             });
+            dispatch(setAllVideoStore(copyVideos));
             dispatch(clearVideoWindowNewPlayer());
         }
     }, [newPlayerBuffer.VideoWindow]);
@@ -311,7 +299,6 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 } else {
                     console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
                     const usersIdx = peerConnections[others.userId].vIdx;
-                    // setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
                     dispatch(setVideosStore([usersIdx, "asis", "asis", "asis", others.isReady]));
                 }
             });
@@ -369,7 +356,9 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     }, [gameUserInfo[2]]);
 
     useEffect(() => {
-        // if ((endGame === false) && (gameUserInfo[1] !== null)){
+        if (!readyAlert){
+            setNextTurn(null);
+        }
         if ((gameUserInfo[1] !== null)){
             // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
             let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx; 
@@ -400,7 +389,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
         // console.log("VideoWindow : useEffect - endGame? ", endGame);
         endGame && (()=>{
             // const copyVideos = [...videos];
-            console.log(JSON.stringify(videosStore));
+            // console.log(JSON.stringify(videosStore));
             Object.keys(peerConnections).forEach((userId) => {
                 if (userId != myId) {
                     peerConnections[userId].connection?.close();
@@ -416,13 +405,13 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 }
             });
             setNextTurn(null);
-            console.log(JSON.stringify(videosStore));
+            // console.log(JSON.stringify(videosStore));
             // setVideos(copyVideos);
-            console.log(videosStore);
+            // console.log(videosStore);
             setTimeout(()=>{
                 changeVideo(peerConnections[myId].vIdx, 1);
-                console.log(videosStore);
-                console.log(JSON.stringify(videosStore));
+                // console.log(videosStore);
+                // console.log(JSON.stringify(videosStore));
             }, 100);
             // console.log(videos);
         })();

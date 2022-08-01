@@ -179,6 +179,9 @@ let videosStore = createSlice({
       state.map((video) => {
         video[action.payload[0]] = action.payload[1]; 
       })
+    },
+    setAllVideoStore(state, action){
+      return action.payload;
     }
     
   }
@@ -214,4 +217,4 @@ export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
 export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;
 export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
 export let { pushOthersReady, renewOthersReady, clearOthersReady } = othersReadyBuffer.actions;
-export let { clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore } = videosStore.actions;
+export let { clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore } = videosStore.actions;

@@ -167,7 +167,7 @@ const VoteVideoFor6 = ({submitVoteState}) => {
         <div className={style.nightVideo6}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.filter(x => x.userid && x.isDead === 'false').map((user, index) => (
+                    videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
                         <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
@@ -195,7 +195,7 @@ const VoteVideoFor8 = ({submitVoteState}) => {
         <div className={style.nightVideo8}>
              <div className={style.voteVideoRow}>
                 {   
-                    videoList["stream"] && videoList.filter(x => x.userid && x.isDead === 'false').map((user, index) => (
+                    videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
                         <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
