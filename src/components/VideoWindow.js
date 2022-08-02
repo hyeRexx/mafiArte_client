@@ -5,9 +5,10 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import {socket} from '../script/socket';
 import Video from './Video';
+import { EmojiBig, EmojiSmall } from '../subitems/emoji'
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore, pushEmoji, clearEmojiBuffer, clearEmoji, setEmoji, changeEmoji } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
@@ -15,7 +16,6 @@ let myStream;
 let peerConnections = {};
 
 const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
-    // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -23,25 +23,11 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     const videosStore = useSelector(state => state.videosStore);
     const [nextTurn, setNextTurn] = useState(null);
 
-    // const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: myId, stream: null, image: myImg, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false},
-    //     {userid: null, stream: null, image: null, isReady: false, isDead: false}
-    // ]);
-
-    // dispatch(setVideosStore([1, myId, "asis", myImg, "asis"]));
-
-    // console.log("시작하자마자 뜨는거 test\n\n\n\n\n", videosStore);
-
     const ingameStates = useSelector(state => state.ingameStates);
     const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
     const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
     const exiterBuffer = useSelector(state => state.exiterBuffer);
+    const emojiBuffer = useSelector(state => state.emojiBuffer);
     
     // const setVideo = (index , userid, stream, image, isReady) => {
     //     ASSERT(`(0 <= ${index}) && (${index} < 8)`);
@@ -65,9 +51,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
         ASSERT(`(0 <= ${vIdx1}) && (${vIdx1} < 8)`);
         ASSERT(`(0 <= ${vIdx2}) && (${vIdx2} < 8)`);
         if (vIdx1 === vIdx2) {
-            return null;
+            return true;
         }
-        // const copyVideos = [...videos];
         const userid1 = videosStore[vIdx1].userid;
         const userid2 = videosStore[vIdx2].userid;
 
@@ -76,41 +61,30 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
 
         dispatch(videoChangeStore([vIdx1, vIdx2]));
 
-        // const tempVideoIdx1 = copyVideos[vIdx1];
-        // copyVideos[vIdx1] = copyVideos[vIdx2];
-        // copyVideos[vIdx2] = tempVideoIdx1;
-
-        // setVideos(copyVideos);
+        dispatch(changeEmoji([vIdx1, vIdx2]));
+        return true;
     }
 
     const clearReady = () => {
-        // const copyVideos = [...videos];
-        // const videosCleared = copyVideos.map((video)=>{
-        //     video.isReady = false;
-        //     return video;
-        // });
-        // setVideos(videosCleared);
-
-        // for (let i = 0; i < 8; i++){
-        //     dispatch(attributeChangeStore([i, "isReady", false]));
-        // }
-
         dispatch(attributeMultiChangeStore(["isReady", false]))
-
         dispatch(clearOthersReady());
     }
 
     async function getMedia(){
         try {
             myStream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
+                audio: {
+                    sampleRate: 22050,
+                    sampleSize: 8,
+                    echoCancellation: true
+                },
                 video: {
-                    width: {min: 320, ideal: 320, max: 320}, 
-                    height: {min: 240, ideal: 240, max: 240},
+                    width: {min: 176, ideal: 320, max: 352}, 
+                    height: {min: 144, ideal: 240, max: 288},
                     frameRate: {min: 18, ideal: 21, max: 24}
                 }
             });
-            // setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
+            // myStream.getVideoTracks()[0].applyConstraints(constraints); // 초기 설정 이후 변경하는 방법.
             dispatch(setVideosStore([1, "asis", myStream, "asis", ingameStates.isReady]));
             dispatch(loadComplete());
         } catch (e) {
@@ -247,6 +221,10 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 // console.log(myId, othersId, videos);
                 peerConnections[othersId].connection.addIceCandidate(ice);
             });
+
+            socket.on("newEmoji", data => {
+                dispatch(pushEmoji(data));
+            });
         }
         
         try {
@@ -265,12 +243,15 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 track.stop();
             });
             dispatch(clearOthersReady());
+            dispatch(clearEmojiBuffer());
+            dispatch(clearEmoji());
             dispatch(clearVideoStore()); // unmount 시 redux의 video 초기화
             socket.off("notifyReady");
             socket.off("streamStart");
             socket.off("offer");
             socket.off("answer");
             socket.off("ice");
+            socket.off("newEmoji");
         };
     }, []);
 
@@ -309,10 +290,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
 
     useEffect(()=>{
         if (exiterBuffer.VideoWindow.length) {
-            // console.log("exiterBuffer", exiterBuffer);
             exiterBuffer.VideoWindow.forEach(exiterId => {
                 const vIdx = peerConnections[exiterId].vIdx;;
-                // setVideo(vIdx, null, null, null, false);
                 dispatch(setVideosStore([vIdx, null, null, null, false]));
                 peerConnections[exiterId].connection?.close();
                 delete peerConnections[exiterId];
@@ -323,13 +302,23 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
 
     useEffect(()=>{
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
-        // setVideo(myIdx, "asis", "asis", "asis", ingameStates.isReady);
         dispatch(setVideosStore([myIdx, "asis", "asis", "asis", ingameStates.isReady]));
     }, [ingameStates.isReady]);
 
-    // console.log('VideoWindow Before useEffect[isStarted]');
     useEffect(()=>{
-        // console.log("VideoWindow : useEffect - isStarted? ", isStarted);
+        console.log(JSON.stringify(emojiBuffer));
+        if ( emojiBuffer.buffer.length ) {
+            emojiBuffer.buffer.forEach(data => {
+                const idx = peerConnections[data.userId]?.vIdx;
+                if (idx !== undefined) {
+                    dispatch(setEmoji({idx: idx, emoji: data.emoji}));
+                }
+            });
+            dispatch(clearEmojiBuffer());
+        }
+    }, [emojiBuffer.buffer]);
+
+    useEffect(()=>{
         (isStarted === 1) && clearReady();
     }, [isStarted]);
 
@@ -339,7 +328,6 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
         }
     }, [deadMan]);
 
-    // console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
     useEffect(() => {
         console.log('VideoWindow useEffect - gameUserInfo? ', gameUserInfo);
         let turnIdx = ((endGame === false) && (gameUserInfo[0] !== null))? peerConnections[gameUserInfo[0]].vIdx : -1;
@@ -348,9 +336,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
         }
     }, [gameUserInfo[0]]);
 
-    // console.log('VideoWindow Before useEffect[gameUserInfo[1]]');
     useEffect(() => {
-        // console.log('VideoWindow useEffect - gameUserInfo[2]? ', gameUserInfo[2]);
         if ((endGame === false) && (gameUserInfo[0] !== null)){
             myStream.getAudioTracks()?.forEach((track) => (track.enabled = !track.enabled));
         }
@@ -363,75 +349,30 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
         if ((gameUserInfo[1] !== null)){
             // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
             let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx; 
-            // console.log("turnIdx: ", turnIdx);
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
-            // console.log("nextTurn: ", nextTurn);
         }
     }, [readyAlert, videosStore]);
 
-    // 투표 시 비디오 전송
-    // const videoList = useSelector((state) => state.videoInfo);
-    // useEffect(()=> {
-    //     // stream array
-    //     if ( needVideos ) {
-    //         let streamArray = new Array();
-    //         for (let i = 0; i < 8; i++) {
-    //             if (videosStore[i].userid != null) {
-    //                 streamArray.push({userId: videosStore[i].userid, stream: videosStore[i].stream});
-    //             }
-    //         }
-    //         console.log('streamArray', streamArray);
-    //         dispatch(VideoStreamChange(streamArray));
-    //     };
-    // }, [needVideos]);
-
-    // console.log('VideoWindow Before useEffect[endGame]');
     useEffect(()=>{
-        // console.log("VideoWindow : useEffect - endGame? ", endGame);
         endGame && (()=>{
-            // const copyVideos = [...videos];
-            // console.log(JSON.stringify(videosStore));
             Object.keys(peerConnections).forEach((userId) => {
                 if (userId != myId) {
                     peerConnections[userId].connection?.close();
                     const vIdx = peerConnections[userId].vIdx;
-                    // copyVideos[vIdx].stream = null;
                     dispatch(attributeChangeStore([vIdx, "stream", null]));
-                    // copyVideos[vIdx].isDead = false;
                     dispatch(attributeChangeStore([vIdx, "isDead", false]));
                 } else {
                     const vIdx = peerConnections[userId].vIdx;
-                    // copyVideos[vIdx].isDead = false;
                     dispatch(attributeChangeStore([vIdx, "isDead", false]));
                 }
             });
             setNextTurn(null);
-            // console.log(JSON.stringify(videosStore));
-            // setVideos(copyVideos);
-            // console.log(videosStore);
             setTimeout(()=>{
                 changeVideo(peerConnections[myId].vIdx, 1);
-                // console.log(videosStore);
-                // console.log(JSON.stringify(videosStore));
             }, 100);
-            // console.log(videos);
         })();
     }, [endGame]);
 
-    // 디버깅용 임시. videos 변경 확인
-    // useEffect(()=>{
-    //     console.log("videos 변경시 mount 후");
-    //     console.log(JSON.stringify(peerConnections));
-    //     console.log(JSON.stringify(videos));
-    //     return () => {
-    //         console.log("videos 변경시 cleanup 시");
-    //         console.log(JSON.stringify(peerConnections));
-    //         console.log(JSON.stringify(videos));
-    //     }
-    // }, [videos]); 
-    
-    // {style.videoNow}
-    // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}
     return (
         <>
         <div className={style.videoSection}>
@@ -441,6 +382,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
+                    <EmojiBig newEmoji={emojiBuffer.emoji[0]} idx={0} />
                     {videosStore[0].isReady? <ReadyOnVideoBig/>: null}  
                     {videosStore[0].stream? 
                     <Video stream={videosStore[0].stream} muted={videosStore[0].userid === myId? true: false} width={"540px"} height={"290px"}/>
@@ -453,6 +395,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
+                    <EmojiBig newEmoji={emojiBuffer.emoji[1]} idx={1} />
                     {videosStore[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videosStore[1].stream?   
                     <Video stream={videosStore[1].stream} muted={videosStore[1].userid === myId? true: false} width={"540px"} height={"290px"} isTurn={nextTurn === 1} isDead={videosStore[1].isDead}/>
@@ -466,6 +409,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 <div className={style.videoMiniRow}>
                     <div className={style.videoMini} onClick={() => (videosStore[2].stream? changeVideo(2, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[2]} idx={2} />
                         {videosStore[2].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[2].stream? 
                         <Video stream={videosStore[2].stream} muted={videosStore[2].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 2} isDead={videosStore[2].isDead}/>
@@ -473,6 +417,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                     </div>
                     <div className={style.videoMini} onClick={() => (videosStore[3].stream? changeVideo(3, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[3]} idx={3} />
                         {videosStore[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[3].stream? 
                         <Video stream={videosStore[3].stream} muted={videosStore[3].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 3} isDead={videosStore[3].isDead}/> 
@@ -480,6 +425,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                     </div>
                     <div className={style.videoMini} onClick={() => (videosStore[4].stream? changeVideo(4, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[4]} idx={4} />
                         {videosStore[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[4].stream? 
                         <Video stream={videosStore[4].stream} muted={videosStore[4].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 4} isDead={videosStore[4].isDead}/> 
@@ -489,6 +435,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 <div className={style.videoMiniRow} onClick={() => (videosStore[5].stream? changeVideo(5, 1): null)}>
                     <div className={style.videoMini}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[5]} idx={5} />
                         {videosStore[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[5].stream? 
                         <Video stream={videosStore[5].stream} muted={videosStore[5].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 5} isDead={videosStore[5].isDead}/>
@@ -496,6 +443,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                     </div>
                     <div className={style.videoMini} onClick={() => (videosStore[6].stream? changeVideo(6, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[6]} idx={6} />
                         {videosStore[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[6].stream? 
                         <Video stream={videosStore[6].stream} muted={videosStore[6].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 6} isDead={videosStore[6].isDead}/> 
@@ -503,6 +451,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                     </div>
                     <div className={style.videoMini} onClick={() => (videosStore[7].stream? changeVideo(7, 1): null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[7]} idx={7} />
                         {videosStore[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videosStore[7].stream? 
                         <Video stream={videosStore[7].stream} muted={videosStore[7].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 7} isDead={videosStore[7].isDead}/> 

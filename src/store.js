@@ -138,6 +138,33 @@ let othersReadyBuffer = createSlice({
   }
 })
 
+let emojiBuffer = createSlice({
+  name : 'emojiBuffer',
+  initialState : {buffer: [], emoji: [null, null, null, null, null, null, null, null]},
+  reducers : {
+    pushEmoji(state, action) {
+      state.buffer.push(action.payload); // payload : {userId: @@@, emoji: smile}
+    },
+    clearEmojiBuffer(state, action) {
+      state.buffer = [];
+    },
+    setEmoji(state, action) { // payload : {idx: vIdx, emoji: smile}
+      state.emoji[action.payload.idx] = action.payload.emoji;
+    },
+    changeEmoji(state, action) { // payload : [idx1, idx2]
+      const tempEmoji = state.emoji[action.payload[0]];
+      state.emoji[action.payload[0]] = state.emoji[action.payload[1]];
+      state.emoji[action.payload[1]] = tempEmoji;
+    },
+    eraseEmoji(state, action) {
+      state.emoji[action.payload] = null;
+    },
+    clearEmoji(state, action) {
+      state.emoji = [null, null, null, null, null, null, null, null];
+    }
+  }
+})
+
 let videosStore = createSlice({
   name : 'videosStore',
   initialState: [{userid: null, stream: null, image: null, isReady: false, isDead: false},
@@ -198,7 +225,8 @@ const store = configureStore({
     newPlayerBuffer : newPlayerBuffer.reducer,
     exiterBuffer : exiterBuffer.reducer,
     othersReadyBuffer : othersReadyBuffer.reducer,
-    videosStore : videosStore.reducer
+    videosStore : videosStore.reducer,
+    emojiBuffer : emojiBuffer.reducer
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -218,3 +246,4 @@ export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = ne
 export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
 export let { pushOthersReady, renewOthersReady, clearOthersReady } = othersReadyBuffer.actions;
 export let { clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore } = videosStore.actions;
+export let { pushEmoji, changeEmoji, eraseEmoji, clearEmojiBuffer, setEmoji, clearEmoji } = emojiBuffer.actions;
