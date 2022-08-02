@@ -9,7 +9,7 @@
     animation-fill-mode: forwards;
     width: 70px;
     -webkit-mask-size: 70px;
-    top: 227px;
+    top: 215px;
     left: 430px;
 }
 
@@ -20,8 +20,8 @@
         opacity: 0;
     }
     12%, 88% {
-        transform: scale(2.0) translateY(0px);
-        -webkit-transform: scale(2.0) translateY(0px);
+        transform: scale(2.7) translateY(0px);
+        -webkit-transform: scale(2.7) translateY(0px);
         opacity: 1;
     }
     100% {
@@ -42,7 +42,7 @@
     animation-fill-mode: forwards;
     width: 30px;
     -webkit-mask-size: 30px;
-    top: 78px;
+    top: 73px;
     left: 127px;
 }
 
@@ -53,8 +53,8 @@
         opacity: 0;
     }
     12%, 88% {
-        transform: scale(1.5) translateY(0px);
-        -webkit-transform: scale(1.5) translateY(0px);
+        transform: scale(2.0) translateY(0px);
+        -webkit-transform: scale(2.0) translateY(0px);
         opacity: 1;
     }
     100% {

@@ -142,7 +142,7 @@ const VoteVideoFor4 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false)?.map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                            <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                            <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                         </div>))
                 }
             </div>
@@ -169,7 +169,7 @@ const VoteVideoFor6 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                        <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                        <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>
@@ -197,7 +197,7 @@ const VoteVideoFor8 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                        <Video stream={user.stream} width={"330px"} height={"210px"} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                        <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>
@@ -208,4 +208,4 @@ const VoteVideoFor8 = ({submitVoteState}) => {
 
 
 
-export {NightEventForCitizen, NightEventForMafia}
+export {NightEventForCitizen, NightEventForMafia};

@@ -32,7 +32,7 @@ const Ingame = ({roomId}) => {
     let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
     let [ deadMan, setDeadMan ] = useState(null);
     let [ readyAlert, setReadyAlert] = useState(0);
-    // let [ ripList, setRipList ] = useState([]);                 // 무고하게 죽은 사람 리스트
+    let [ mafiaIs, setMafia ] = useState("");
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -140,10 +140,12 @@ const Ingame = ({roomId}) => {
                 let end = 0;
                 if (data.win == "mafia") {
                     // console.log("마피아 승!");  
+                    setMafia(data.mafia);
                     setResult(1);
                     end = 1;
                 } else if (data.win == "citizen") {
                     // console.log("시민 승!");
+                    setMafia(data.mafia);
                     setResult(2);
                     end = 1;
                 } else if (data.elected) {
@@ -313,7 +315,7 @@ const Ingame = ({roomId}) => {
                       { voteResultModal ? <VoteResultModal voteNumber={voteNumber}/> : null }
   
                       {/* total result */}
-                      { resultModal ? <ResultModal result={result} deadMan={deadMan}/> : null }
+                      { resultModal ? <ResultModal result={result} mafia={mafiaIs} deadMan={deadMan}/> : null }
   
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
@@ -490,13 +492,19 @@ function Timer(props){
   function ResultModal(props) {
       const finalResult = props.result;
       const deadMan = props.deadMan;
+      const mafia = props.mafia;
     //   console.log('최종 결과', finalResult);
       return (
       <>
           <div  className={style.totalResult} style={{width: "500px", textAlign: "center"}}>
           <div className={style.turnBoardTitle}> TOTAL RESULT </div>
-          { finalResult === 1? <span className={style.turnId}>마피아가 승리했습니다!</span>: null }
-          { finalResult === 2? <span className={style.turnId}>시민이 승리했습니다!</span>: null }
+          { finalResult === 1? <span className={style.turnId}>마피아 {mafia}가 승리했습니다!</span>: null }
+          { finalResult === 2? 
+            <>
+                <span className={style.turnId}>시민이 승리했습니다!</span>
+                <span className={style.turnId}>마피아는 {mafia} 였습니다!</span>
+            </>
+          : null }
           { finalResult === 3? <span className={style.turnId}>무고한 시민 {deadMan}이 죽었습니다...</span>: null }
           { finalResult === 4? <span className={style.turnId}>오늘 밤은 아무도 죽지 않았습니다...</span>: null }
           </div> 

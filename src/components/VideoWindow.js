@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
 import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore, pushEmoji, clearEmojiBuffer, clearEmoji, setEmoji, changeEmoji } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
+import { constraints, limits } from '../script/constraints';
 import { ASSERT } from '../script/debug';
 
 let myStream;
@@ -78,11 +79,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                     sampleSize: 8,
                     echoCancellation: true
                 },
-                video: {
-                    width: {min: 176, ideal: 320, max: 352}, 
-                    height: {min: 144, ideal: 240, max: 288},
-                    frameRate: {min: 18, ideal: 21, max: 24}
-                }
+                video: constraints[1]
             });
             // myStream.getVideoTracks()[0].applyConstraints(constraints); // 초기 설정 이후 변경하는 방법.
             dispatch(setVideosStore([1, "asis", myStream, "asis", ingameStates.isReady]));
@@ -163,6 +160,15 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
             answer = await myPeerConnection.createAnswer();
             myPeerConnection.setLocalDescription(answer);
         }
+
+        // 게임 시작시 인원수에 따라 bitrate 유동적 적용
+        // const playerCnt = 1;
+        const playerCnt = Object.keys(peerConnections).length;
+        const videoSender = myPeerConnection.getSenders()[1];
+        const videoParameters = videoSender.getParameters();
+        videoParameters.encodings[0].maxBitrate = limits[playerCnt].maxBitrate;
+        videoParameters.encodings[0].maxFramerate = limits[playerCnt].maxFramerate;
+        videoSender.setParameters(videoParameters);
 
         return answer || offer;
     }
@@ -267,6 +273,11 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 // setVideo(i, newPlayer.userId, "asis", newPlayer.userImg, newPlayer.isReady);
                 copyVideos[i] = {userid: newPlayer.userId, stream: null, image: newPlayer.userImg, isReady: newPlayer.isReady, isDead: false}
             });
+            
+            // 인원 변동에 따른 해상도/framerate 변경
+            // const playerCnt = 1;
+            const playerCnt = Object.keys(peerConnections).length;
+            myStream?.getVideoTracks()[0].applyConstraints(constraints[playerCnt]); // 초기 설정 이후 변경하는 방법.
             dispatch(setAllVideoStore(copyVideos));
             dispatch(clearVideoWindowNewPlayer());
         }
@@ -296,6 +307,12 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 peerConnections[exiterId].connection?.close();
                 delete peerConnections[exiterId];
             });
+
+            // 퇴장한 사람에 의한 인원수 변동에 따라 내 해상도 변경
+            // const playerCnt = 1;
+            const playerCnt = Object.keys(peerConnections).length;
+            myStream.getVideoTracks()[0].applyConstraints(constraints[playerCnt]); // 초기 설정 이후 변경하는 방법.
+            
             dispatch(clearVideoWindowExiter());
         }
     }, [exiterBuffer.VideoWindow]);
