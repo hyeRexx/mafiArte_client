@@ -58,18 +58,22 @@ let FriendInfo = createSlice({
   initialState: {},
   reducers : {
     FriendInfoSet(state, action){
-      state[action.payload[0]] = action.payload[1];
+      return action.payload;
+      // state[action.payload[0]] = action.payload[1];
       // console.log('redux FriendInfoSet: ', current(state))
     },
     FriendInfoChange(state, action){
       if (state[action.payload[0]] !== undefined){
-        state[action.payload[0]] = action.payload[1];
+        state[action.payload[0]][0] = action.payload[1];
         // console.log('redux FriendInfoChange: ',current(state));
       }
     },
     FriendInfoReset(state, action){
       // console.log('redux FriendInfoReset');
       return {};
+    },
+    FriendInfoDelete(state, action){
+      delete state[action.payload];
     }
   }
 })
@@ -238,7 +242,7 @@ const store = configureStore({
 export {store};
 
 export let { setUserId, setProfileImg } = user.actions;
-export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
+export let { FriendInfoSet, FriendInfoChange, FriendInfoReset, FriendInfoDelete } = FriendInfo.actions;
 export let { turnStatusChange, surviveStatusChange, clearGameInfo } = gameInfo.actions;
 export let { clickReady, clearReady, loadComplete, clearLoad } = ingameStates.actions;
 export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
