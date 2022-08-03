@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import CloseBtn from './CloseBtn';
 import style from './css/InviteCard.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +9,9 @@ const InviteCard = (props) => {
     const navigate = useNavigate();
     const [show, setShow] = useState(true);
     const handleClose = () => {setShow(false); props.btnClose();};
+
+    const FriendInfo = useSelector((FriendInfo) => FriendInfo.FriendInfo);
+    const Friends = Object.keys(FriendInfo);
 
     // MAKE A GAME 버튼 - 초대 보내는 버튼
     const btnSend = () => {
@@ -78,8 +82,8 @@ const InviteCard = (props) => {
                  <div className={style.myCitizen}>
                      <li className={style.checkList}>
                      {
-                        props.friends.length > 0 ? 
-                        props.friends.map((friendId, index) => (
+                        Friends.length > 0 ? 
+                        Friends.filter(id => FriendInfo[id][0]).map((friendId, index) => (
                             <>
                                 <input className={style.checkInput} type="checkbox" name="friends" id={index} value={friendId} key={friendId}/>
                                 <label className={style.checkLabel} for={index}>{friendId}</label>

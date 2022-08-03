@@ -23,16 +23,7 @@ const Lobby = () => {
     let [invite, invitestate] = useState(false);   // 초대 알람 모달 생성
     let [newRoomId,roomidstate] = useState(0);
     let [sender, senderstate] = useState("");
-    const firstFriends = Object.entries(useSelector((FriendInfo) => FriendInfo.FriendInfo));
-    const friends = [];
-
-    // 현재 접속 중인 친구만 friends 리스트에 넣어주기
-    for (var i = 0; i < firstFriends.length; i++){
-        if (firstFriends[i][1] === 1 && firstFriends[i][0] != myId) {
-            friends.push(firstFriends[i][0]);
-        }
-    }
-
+    
     // console.log('리덕스 친구리스트', friends);
 
     // START 버튼 - 랜덤 매칭 
@@ -142,18 +133,9 @@ const Lobby = () => {
 
         axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
         .then((res) => {
-            let friList = res.data[0]; // user의 전체 친구 목록
-            let onlineList = res.data[1]; // 현재 접속중인 user 목록
-            // console.log(friList);
-            // console.log('onlinelist', onlineList);
-            for (var i = 0; i < Object.keys(friList).length; i++){
-                let key = friList[i].userid;
-                if (!onlineList[key]){
-                    dispatch(FriendInfoSet([key, 0]));
-                } else {
-                    dispatch(FriendInfoSet([key, 1]));
-                }
-            }
+            let friendList = res.data;
+            console.log("서버에서 받은 친구 목록:   ", friendList);
+            dispatch(FriendInfoSet(friendList));
         })
         .catch((e) => {
             console.log(e);
@@ -190,43 +172,21 @@ const Lobby = () => {
 
                 </div>
 
-                <div className={style.MainLobbyContent}>
-                    
-                    <div className={style.MainLobbyTap}>
-                    
-                        {/* <button id="rank" className={style.TapButton} onClick={() => {tapChange(0)}}>RANKING</button>
-                        <button id="citizen" className={style.TapButton} onClick={() => {tapChange(1)}}>CITIZEN</button>
-                        <button id="citizen" className={style.TapButton} onClick={() => {tapChange(2)}}>Setting</button> */}
-                        <Link to="/lobby/">
-                            <button className={style.utilityBtn} id="rank">RANKING</button>
-                        </Link>
-                        <Link to="/lobby/citizen">
-                            <button className={style.utilityBtn} id="citizen">CITIZEN</button>
-                        </Link>
-                        <Link to="/lobby/setting">
-                            <button className={style.utilityBtn} id="setting">SETTING</button>
-                        </Link>
-                        <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
-                    
-                    </div>
-
-
-                    <div className={style.MainLobbyTapContents}>
-                        <Routes>
-                            <Route path="/" element={<Rank/>}/>
-                            <Route path="citizen" element={<Citizen/>}/>
-                            <Route path="setting" element={<Setting/>}/>
-                        </Routes>
-                    </div>
-                        
+                <div className={style.lobbyMiddle}> 
+                    <MyFriend/>
                 </div>
+
+                {/* <div className={style.lobbyRight}>
+                    <GameRoom/>
+                </div> */}
                 
-                {/*side*/}
-                {/* <div className={style.rank}></div> */}
+            </div>
+            <div className={style.MainLobbyTap}>
+                <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
             </div>
 
             {/* 친구 초대 모달 */}
-            { choose === true ? <InviteCard sender={sender} friends={friends} choose={choose} 
+            { choose === true ? <InviteCard sender={sender} choose={choose} 
             className={style.inviteModal} btnClose={btnClose} /> : null }
             {/* 초대 받은 모달 */}
             { invite === true ? <InvitationCard myId={myId} sender={sender} roomId={newRoomId} className={style.inviteModal} 
