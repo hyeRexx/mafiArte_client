@@ -1,0 +1,178 @@
+.friendBox {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #222222;
+    border-radius: 0 10px 10px 0;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.friendTitle {
+    width: 100%;
+    position: inherit;
+    margin: auto;
+    text-align: left;
+    color: #6e6e6e;
+    font-size: 25px;
+    font-weight: 800;
+    font-style: italic;
+    flex: 1;
+}
+
+.friendList {
+    width: 100%;
+    height: 92%;
+    position: inherit;
+    overflow-y: auto;
+    flex: 15;
+}
+
+.addNewFriend {
+    flex: 1;
+    width: 100%;
+    display: flex;
+}
+
+.singleFriendBox {
+    display: flex;
+    flex-flow: wrap;
+    justify-content: center;
+    row-gap: 10px;
+}
+
+.singleFriend {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    width: 100%;
+    height: 100px;
+}
+
+.friendProfile {
+    flex: 1;
+    flex-grow: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    margin-right: 20px;
+    box-shadow: 2px 2px 10px #202020;
+}
+
+.friendId {
+    flex: 4;
+    color: #cdcdcd;
+    font-size: 23px;
+    font-weight: 400;
+}
+
+.deleteFriend {
+    flex: 1;
+    height: 100%;
+    /* background-image: url(../../../public/img/ico_delete_friend.svg); */
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.deleteFriend:hover {
+    /* background-image: url(../../../public/img/ico_delete_friend_hover.svg); */
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.friendOn {
+    background-color: #00ff4c;
+    border-radius: 50%;
+    height: 10px;
+    position: relative;
+    top: -35px;
+    width: 10px;
+    left: 7px;
+}
+
+.friendOff {
+    background-color: #222222;
+    border-radius: 50%;
+    height: 10px;
+    position: relative;
+    top: -35px;
+    width: 10px;
+    left: 7px;
+}
+
+
+
+
+
+
+/* design : search box */
+
+.searchBox {
+    left: 475px;
+    padding: 0;
+    position: absolute;
+    top: 26px;
+    z-index: 5;
+  }
+  
+.searchInput {
+    height: 40px;
+    font-size: 20px;
+    display: inline-block;
+    font-weight: 300;
+    border: none;
+    outline: none;
+    color: rgb(126, 126, 126);
+    padding: 3px;
+    padding-right: 60px;
+    width: 0px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    z-index: 3;
+    transition: width .4s cubic-bezier(0.000, 0.795, 0.000, 1.000);
+    cursor: pointer;
+}
+
+.searchInput::placeholder {
+    font-size: 16px;
+    color: rgb(79, 79, 79);
+    padding-bottom: 3px;
+}
+
+.searchInput:focus:hover {
+    border-bottom: 1px solid rgb(131, 131, 131);
+}
+  
+.searchInput:focus {
+    width: 230px;
+    z-index: 1;
+    border-bottom: 1px solid #BBB;
+    cursor: text;
+}
+.submitInput {
+    height: 40px;
+    width: 40px;
+    display: inline-block;
+    color:red;
+    background: url(../../../public/img/ico_search_white.svg) center center no-repeat;
+    text-indent: -10000px;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity .4s ease;
+}
+  
+.submitInput:hover {
+    opacity: 0.8;
+}
+
+

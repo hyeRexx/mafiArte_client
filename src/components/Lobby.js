@@ -11,6 +11,7 @@ import connectSocket, {socket} from '../script/socket';
 import style from '../css/Lobby.module.css';
 import { InvitationCard } from '../subitems/InvitationCard';
 import { InviteCard } from '../subitems/InviteCard';
+import MyFriend from '../subitems/MyFriend';
 
 const Lobby = () => {
 
@@ -209,8 +210,8 @@ const Lobby = () => {
                     
                     </div>
 
+
                     <div className={style.MainLobbyTapContents}>
-                        
                         <Routes>
                             <Route path="/" element={<Rank/>}/>
                             <Route path="citizen" element={<Citizen/>}/>
