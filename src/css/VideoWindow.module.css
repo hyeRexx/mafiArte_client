@@ -80,6 +80,8 @@
     color : #fff;
     position: relative;
     justify-content: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 

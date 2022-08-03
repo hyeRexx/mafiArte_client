@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import style from './css/MyFriend.module.css';
 import CloseBtn from './CloseBtn';
-import axios from 'axios';
-import { paddr, reqHeaders } from '../proxyAddr';
 import { FriendInfoDelete } from '../store';
 
 const MyFriend = ({showFriendAddModal, choosestate}) => {
@@ -51,7 +49,7 @@ const MyFriend = ({showFriendAddModal, choosestate}) => {
                                 {/* for jinho : img src에 profile img 넣어 주세요 */}
                                 <img src={`/img/${FriendInfo[id][1]}`} className={style.friendProfile}></img>
                                 <div className={style.friendId}>{id}</div>
-                                <div className={style.deleteFriend} style={{color : "white"}} onClick={() => {FriendDelete(id)}}>딜리트</div>
+                                <div className={style.deleteFriend} style={{color : "white"}} onClick={() => {FriendDelete(id)}}></div>
                             </div>
                         );
                     })} </> : <h2 style={{color : "white"}}> 친구를 추가해주세요. </h2>}
@@ -87,6 +85,7 @@ const FriendAddModal = ({showFriendAddModal}) => {
             axios.post(`${paddr}api/lobby/addfriend`, {userid: inputText}, reqHeaders).then(res => {
                 if (res.data === "SUCCESS") {
                     alert(`${inputText} 님이 친구로 추가되었습니다`);
+                    window.location.reload();
                 } else if (res.data === "INVALID_USER") {
                     alert(`존재하지 않는 유저입니다.`);
                 } else if (res.data === "ALREADY_EXIST") {

@@ -7,9 +7,7 @@ import Video from '../components/Video';
 const NightEventForCitizen = (props) => {
     const videoList = useSelector((state) => state.videosStore);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
-    // console.log(videoList);
-    const len = videoList.filter(x => x.userid && x.isDead === 'false').length;
-    
+    const len = videoList.filter(x => x.userid && x.isDead === false).length;
     return(
         <div className={style.nightEvent}>
             <div className={style.backgroundObj}>
@@ -142,7 +140,7 @@ const VoteVideoFor4 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false)?.map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                            <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                            <Video stream={user.stream} width={330} height={210} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                         </div>))
                 }
             </div>
@@ -169,7 +167,7 @@ const VoteVideoFor6 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                        <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                        <Video stream={user.stream}  width={330} height={210} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>
@@ -197,7 +195,7 @@ const VoteVideoFor8 = ({submitVoteState}) => {
                 {   
                     videoList.filter(x => x.userid && x.isDead === false).map((user, index) => (
                         <div id={user.userid} onClick={() => { submitAnswer(user.userid, index) }} className={style.singleVideo}>
-                        <Video stream={user.stream} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
+                        <Video stream={user.stream}  width={330} height={210} muted={true} isClicked={clickedIndex == index ? isClicked : false} />
                     </div>))
                 }
             </div>

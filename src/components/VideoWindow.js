@@ -293,7 +293,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
             // 퇴장한 사람에 의한 인원수 변동에 따라 내 해상도 변경
             // const playerCnt = 1;
             const playerCnt = Object.keys(peerConnections).length;
-            myStream.getVideoTracks()[0].applyConstraints(constraints[playerCnt]); // 초기 설정 이후 변경하는 방법.
+            myStream && myStream.getVideoTracks()[0].applyConstraints(constraints[playerCnt]); // 초기 설정 이후 변경하는 방법.
             
             dispatch(clearVideoWindowExiter());
         }

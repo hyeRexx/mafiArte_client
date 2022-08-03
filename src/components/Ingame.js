@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
+import Video from './Video';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
@@ -356,7 +357,7 @@ const Ingame = ({roomId}) => {
                       <div className={style.topSection}>
                           {/* design : utility buttons */}
                           <div className={style.utility}>
-                              <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button>
+                              {/* <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button> */}
                               <button className={`${style.utilityBtn} ${style.exit}`} onClick={btnExit}>EXIT</button>
                           </div>                    
                           {/* design : utility buttons : END */}
@@ -424,7 +425,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(12);
+            setTimer(6);
         }
     }, [props.nowplayer])
 
@@ -491,19 +492,23 @@ function Timer(props){
       const finalResult = props.result;
       const deadMan = props.deadMan;
       const mafia = props.mafia;
-    //   console.log('최종 결과', finalResult);
+      const mafiaStream = useSelector((state) => state.videosStore).filter(x => x.userid === mafia);
+
       return (
       <>
-          <div  className={style.totalResult} style={{width: "500px", textAlign: "center"}}>
+          <div  className={style.totalResult} style={{width: "680px", textAlign: "center"}}>
           <div className={style.turnBoardTitle}> TOTAL RESULT </div>
-          { finalResult === 1? <span className={style.turnId}>마피아 {mafia}가 승리했습니다!</span>: null }
+          { finalResult === 1? <span className={style.turnId}>마피아 {mafia}이(가) 승리했습니다!</span>: null }
           { finalResult === 2? 
             <>
-                <span className={style.turnId}>시민이 승리했습니다!</span>
-                <span className={style.turnId}>마피아는 {mafia} 였습니다!</span>
+                <p><span className={style.turnId}>시민이 승리했습니다!</span></p>
+                <div>
+                    { mafiaStream.length ?  <Video stream={mafiaStream[0].stream} muted={true}/> : null }
+                </div>
+                <p><span className={style.turnId}>마피아는 {mafia}이었습니다!</span></p>
             </>
           : null }
-          { finalResult === 3? <span className={style.turnId}>무고한 시민 {deadMan}이 죽었습니다...</span>: null }
+            { finalResult === 3? <span className={style.turnId}>무고한 시민 {deadMan}이(가) 죽었습니다...</span>: null }
           { finalResult === 4? <span className={style.turnId}>오늘 밤은 아무도 죽지 않았습니다...</span>: null }
           </div> 
       </>

@@ -99,6 +99,7 @@ const Lobby = () => {
                 });
             });
         } else {
+            setSocketConnected(true);
             socket.on("friendList", (userid, status) => {
                 if (userid === myId) {
                     (status === 0) && (()=>{
@@ -108,10 +109,6 @@ const Lobby = () => {
                 } else {
                     dispatch(FriendInfoChange([userid, status]));
                 }
-            });
-
-            socket.emit('roomList', (games) => {
-                setRooms(games);
             });
 
             socket.on("getinvite", (roomId, myId)=> {
@@ -149,8 +146,7 @@ const Lobby = () => {
                     <div className={style.profileSection}>
                         <img className={style.lobbyLogo} src='/img/smallLogo.png'></img>
                         <div className={style.prifileImg}>
-                            {/* imgURL 갈아야 함 */}
-                            {/* <img src={profile_img} className={style.test}/> */}
+                            <img src={profile_img} className={style.realProfileImg}/>
                         </div>
 
                         <div className={style.nickname}>

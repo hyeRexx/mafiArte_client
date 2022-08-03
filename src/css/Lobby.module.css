@@ -51,12 +51,18 @@
 }
 
 .prifileImg {
-    background-image: url('../../public/img/AudreyHepburnToyFace.jpg');
-    background-size: contain;
+    margin-top: 175px;
     margin: 200px auto 0;
     height: 490px;
     width: 490px;
     border: 15px solid #000000;
+    overflow-x: hidden;
+}
+
+.realProfileImg{
+    width: auto;
+    height: 100%;
+    margin-left: -44%;
 }
 
 .nickname {
