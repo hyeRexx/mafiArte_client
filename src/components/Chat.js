@@ -3,7 +3,6 @@ import style from "../css/Chat.module.css"
 import {socket} from '../script/socket';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearChatExiter, clearChatNewPlayer } from '../store';
-import { ASSERT } from '../script/debug';
 
 const Chat = ({roomId, endGame}) => {
     const [ newMsg, setNewMsg ] = useState(null);

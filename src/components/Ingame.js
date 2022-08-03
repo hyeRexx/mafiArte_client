@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Canvas from './Canvas';
 import VideoWindow from './VideoWindow';
@@ -10,7 +10,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import EvilLoader from "../subitems/EvilLoader"
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
-import { ASSERT } from '../script/debug';
 import GameLoader from '../subitems/GameLoader';
 import EmojiBox from '../subitems/EmojiBox';
 
@@ -37,7 +36,6 @@ const Ingame = ({roomId}) => {
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
     const gameUserInfo = useSelector(state => state.gameInfo);  // 현재 turn인 user id, 살았는지 여부
-    // const videoList = useSelector(state => state.videoInfo.stream);
     const videoList = useSelector(state => state.videosStore);
     const ingameStates = useSelector(state => state.ingameStates); // ready상태, myStream load상태
 
