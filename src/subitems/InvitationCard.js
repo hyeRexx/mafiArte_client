@@ -16,7 +16,7 @@ const InvitationCard = (props) => {
             if (thisGameId) {
                 navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
             } else {
-                alert('게임이 이미 시작되어 참가할 수 없습니다.'); // 일단은 이런 경우가 거의 없을 것이므로, 따로 만들지는 않고 alert으로 처리함.
+                alert('게임에 입장이 불가합니다. 다른 방으로 참여해주세요!');
             }
         });
     }

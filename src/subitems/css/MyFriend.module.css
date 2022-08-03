@@ -33,6 +33,8 @@
     flex: 1;
     width: 100%;
     display: flex;
+    justify-content: end;
+    align-items: center;
 }
 
 .singleFriendBox {
@@ -71,13 +73,13 @@
 .deleteFriend {
     flex: 1;
     height: 100%;
-    /* background-image: url(../../../public/img/ico_delete_friend.svg); */
+    background-image: url(../../../public/img/ico_delete_friend.svg);
     background-position: center;
     background-repeat: no-repeat;
 }
 
 .deleteFriend:hover {
-    /* background-image: url(../../../public/img/ico_delete_friend_hover.svg); */
+    background-image: url(../../../public/img/ico_delete_friend_hover.svg);
     background-position: center;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -104,8 +106,45 @@
 }
 
 
+/* add new friend section */
+.friendAddBtn {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: left;
+    align-items: center;
+    width: 125px;
+    height: 50px;
+    background-color: #121212;
+    color: #fff;
+    border-radius: 50px;
+    border: none;
+    font-weight: 700;
+}
 
+.friendAddBtn:hover {
+    background-color: #f7f7f7;
+    box-shadow: 2px 2px 2px #121212;
+    color: #202020;
+    border: none;
+    transition: all .5s ease-in-out;
+}
 
+.addIco {
+    flex: 1;
+    height: 50%;
+    background-image: url(../../../public/img/ico_add_friend.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 100% 50%;
+}
+
+.addText {
+    flex: 2;
+}
+
+.friendAddBtn:hover .addIco {
+    background-image: url(../../../public/img/ico_add_friend_hover.svg);
+}
 
 
 /* design : search box */
@@ -176,3 +215,89 @@
 }
 
 
+/* add button */
+.FriendAddModal {
+    position: relative;
+    display: inline-block;
+    width: 550px;
+    height: 180px;
+    background-color: #2b2b2b;
+    background-size: cover;
+    bottom: 650px;
+    left: 950px;
+    box-shadow: 0 0 5px rgba(113, 113, 113, 0.107);
+    border: 1px solid #202020;
+    border-radius: 5px;
+    animation: fadein 1.5s;
+}
+
+.FriendAddModalClose {
+    position: absolute;
+    top: -140px;
+    right: 5px;
+}
+
+.FriendAddModalTitle {
+    position: absolute;
+    color: rgb(220, 220, 220);
+    width: 100%;
+    margin: 30px 0 0 35px;
+    text-align: left;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+@keyframes fadein {
+    0% {opacity: 0}
+    100% {opacity: 100}
+}
+
+/* design : search box */
+
+.inputBox {
+    left: 300px;
+    top: 60px;
+    margin: 40px 40px;
+    display: inline-block;
+    position: relative;
+    height: 60px;
+    padding: 0;
+    position: relative;
+    z-index: 5
+  }
+  
+.input {
+    height: 40px;
+    font-size: 20px;
+    display: inline-block;
+    font-weight: 300;
+    border: none;
+    outline: none;
+    color: rgb(126, 126, 126);
+    padding: 3px;
+    padding-right: 60px;
+    width: 300px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    z-index: 3;
+    transition: width .4s cubic-bezier(0.000, 0.795, 0.000, 1.000);
+    cursor: pointer;
+}
+
+.input::placeholder {
+    font-size: 16px;
+    color: rgb(79, 79, 79);
+    padding-bottom: 3px;
+}
+
+.input:focus:hover {
+    border-bottom: 1px solid rgb(131, 131, 131);
+}
+  
+.input:focus {
+    z-index: 1;
+    border-bottom: 1px solid #BBB;
+    cursor: text;
+}

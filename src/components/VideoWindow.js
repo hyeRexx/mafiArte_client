@@ -8,10 +8,9 @@ import Video from './Video';
 import { EmojiBig, EmojiSmall } from '../subitems/emoji'
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore, pushEmoji, clearEmojiBuffer, clearEmoji, setEmoji, changeEmoji } from '../store';
+import { clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, clearVideoStore, setVideosStore, videoChangeStore, attributeChangeStore, attributeMultiChangeStore, setAllVideoStore, pushEmoji, clearEmojiBuffer, clearEmoji, setEmoji, changeEmoji } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { constraints, limits } from '../script/constraints';
-import { ASSERT } from '../script/debug';
 
 let myStream;
 let peerConnections = {};
@@ -29,28 +28,13 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
     const exiterBuffer = useSelector(state => state.exiterBuffer);
     const emojiBuffer = useSelector(state => state.emojiBuffer);
-    
-    // const setVideo = (index , userid, stream, image, isReady) => {
-    //     ASSERT(`(0 <= ${index}) && (${index} < 8)`);
-    //     let copyVideos = [...videos];
-    //     copyVideos[index].userid = userid==="asis"? copyVideos[index].userid: userid;
-    //     copyVideos[index].stream = stream==="asis"? copyVideos[index].stream: stream;
-    //     copyVideos[index].image = image==="asis"? copyVideos[index].image: image;
-    //     copyVideos[index].isReady = isReady==="asis"? copyVideos[index].isReady: isReady;
-    //     setVideos(copyVideos);
-    // }
 
     const setDeadManGray = (userid) => {
         const deadManIdx = peerConnections[userid].vIdx;
-        // const copyVideos = [...videos];
-        // copyVideos[deadManIdx].isDead = true;
-        // setVideos(copyVideos);
         dispatch(attributeChangeStore([deadManIdx, "isDead", true]));
     }
 
     const changeVideo = (vIdx1, vIdx2) => {
-        ASSERT(`(0 <= ${vIdx1}) && (${vIdx1} < 8)`);
-        ASSERT(`(0 <= ${vIdx2}) && (${vIdx2} < 8)`);
         if (vIdx1 === vIdx2) {
             return true;
         }
@@ -113,8 +97,6 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     }
 
     async function makeConnection(othersId, othersSocket, _offer) {
-        // ASSERT(`${othersId} !== null`);
-        // ASSERT(`${othersSocket} !== null`);
         const myPeerConnection = new RTCPeerConnection({
             iceServers: [
                 {
