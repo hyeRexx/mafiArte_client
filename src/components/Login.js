@@ -18,13 +18,10 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-
-    const userId = useDeferredValue(id);
-    const userPw = useDeferredValue(pw);
     
     const onSubmit = (e) => {
         e.preventDefault();
-        axios.post(`${paddr}api/auth/login`, {userid: userId, password: userPw}, reqHeaders)
+        axios.post(`${paddr}api/auth/login`, {userid: id, password: pw}, reqHeaders)
             .then( (res)=>{
                 if (res.data === 'success') {
                     // dispatch(setUserId(userId));          // login 정보 redux에 저장
