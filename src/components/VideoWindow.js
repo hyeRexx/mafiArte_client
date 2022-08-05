@@ -316,7 +316,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
             dispatch(clearEmojiBuffer());
         }
     }, [emojiBuffer.buffer]);
-
+ 
     useEffect(()=>{
         (isStarted === 1) && clearReady();
     }, [isStarted]);
@@ -342,10 +342,10 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
     }, [gameUserInfo[2]]);
 
     useEffect(() => {
-        if (!readyAlert){
+        if (!readyAlert) {
             setNextTurn(null);
         }
-        if ((gameUserInfo[1] !== null)){
+        if ((gameUserInfo[1] !== null)) {
             // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
             let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx; 
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
@@ -379,6 +379,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, deadMan}) => {
                 <div className={style.videoLabel}>
                     {(isStarted===2) && gameUserInfo[0] ? "NOW DRAWING - " + videosStore[0].userid : "USER - " + videosStore[0].userid}
                 </div>
+                <div className={style.nowFrame} style={{display: (isStarted == 2 ? 'block' : 'none')}}></div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
                     <EmojiBig newEmoji={emojiBuffer.emoji[0]} idx={0} />

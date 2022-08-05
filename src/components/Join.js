@@ -148,17 +148,20 @@ const Join = () => {
 
                 <Form.Group className={style.mb3}>
                     <Form.Label className={style.label}>비밀번호</Form.Label>
-                    <Form.Control 
+                    <Form.Control
+                        type="password"
                         className={style.joinForm} 
                         placeholder="비밀번호를 입력하세요" 
                         autoFocus 
                         onChange={(e) => setPass(e.target.value)}
                     />
                     <Form.Control 
+                        type="password"
                         className={style.joinForm} 
                         placeholder="비밀번호를 한번 더 입력하세요" 
                         autoFocus 
                         onChange={(e) => setPassCheck(e.target.value)}
+                        
                     />
                     { pass.length > 0 && !cPass ? 
                         <span className={style.errMsg}> {ePass} </span> : 

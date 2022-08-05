@@ -425,6 +425,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
+            props.changeReadyAlert(0)
             setTimer(17);
         }
     }, [props.nowplayer])
