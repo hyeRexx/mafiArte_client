@@ -425,7 +425,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(20);
+            setTimer(17);
         }
     }, [props.nowplayer])
 
@@ -492,13 +492,29 @@ function Timer(props){
       const finalResult = props.result;
       const deadMan = props.deadMan;
       const mafia = props.mafia;
-      const mafiaStream = useSelector((state) => state.videosStore).filter(x => x.userid === mafia);
+      const userStream = useSelector((state) => state.videosStore);
+      const mafiaStream = userStream.filter(x => x.userid === mafia);
+      const dieStream = userStream.filter(x => x.userid === deadMan);
+      const [greyValue, setGreyValue] = useState(false);
+
+      useEffect(() => {
+        setTimeout(() => {
+            setGreyValue(true);
+        }, 2000)
+      }, [deadMan])
 
       return (
       <>
           <div  className={style.totalResult} style={{width: "680px", textAlign: "center"}}>
           <div className={style.turnBoardTitle}> TOTAL RESULT </div>
-          { finalResult === 1? <span className={style.turnId}>마피아 {mafia}이(가) 승리했습니다!</span>: null }
+          { finalResult === 1? 
+            <>
+                <div>
+                    { mafiaStream.length ?  <Video stream={mafiaStream[0].stream} muted={true}/> : null }
+                </div>
+                <p><span className={style.turnId}>마피아 {mafia}이(가) 승리했습니다!</span></p>
+            </>
+            : null }
           { finalResult === 2? 
             <>
                 <p><span className={style.turnId}>시민이 승리했습니다!</span></p>
@@ -507,8 +523,15 @@ function Timer(props){
                 </div>
                 <p><span className={style.turnId}>마피아는 {mafia}이었습니다!</span></p>
             </>
-          : null }
-            { finalResult === 3? <span className={style.turnId}>무고한 시민 {deadMan}이(가) 죽었습니다...</span>: null }
+            : null }
+            { finalResult === 3? 
+            <> 
+                <p><span className={style.turnId}>무고한 시민 {deadMan}이(가) 죽었습니다...</span></p>
+                <div>
+                    { dieStream.length ?  <Video isDead={greyValue} stream={dieStream[0].stream} muted={true}/> : null }
+                </div>
+            </>
+            : null }
           { finalResult === 4? <span className={style.turnId}>오늘 밤은 아무도 죽지 않았습니다...</span>: null }
           </div> 
       </>

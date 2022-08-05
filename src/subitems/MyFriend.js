@@ -24,7 +24,7 @@ const MyFriend = ({showFriendAddModal, choosestate}) => {
             if (res.data == "SUCCESS"){
                 dispatch(FriendInfoDelete(id));
             }
-            console.log("서버에서 받은 userId:   ", res.data);
+            // console.log("서버에서 받은 userId:   ", res.data);
         })
         .catch((e) => {
             console.log(e);

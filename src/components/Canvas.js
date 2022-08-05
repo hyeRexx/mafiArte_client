@@ -46,7 +46,7 @@ const Canvas = ({roomId, endGame}) => {
                     <button onClick={()=> (colorChange('#f0e73a'))} className={style.colorButtons3}></button>
                     <button onClick={()=> (colorChange('#9bf03a'))} className={style.colorButtons4}></button>
                     <button onClick={()=> (colorChange('#ff7f00'))} className={style.colorButtons5}></button>
-                    <button onClick={()=> (colorChange('#a243ff'))} className={style.colorButtons6}></button>
+                    <button onClick={()=> (colorChange('#964B00'))} className={style.colorButtons6}></button>
                     <button onClick={()=> (colorChange('#000000'))} className={style.colorButtons7}></button>
                     <button onClick={()=> (colorChange('#ffffff'))} className={style.colorButtons8}></button>
                     {/* <button onClick={()=> {whiteboard.clear()}} className={style.colorButtons8}></button> */}

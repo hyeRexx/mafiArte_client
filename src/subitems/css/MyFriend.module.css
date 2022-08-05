@@ -27,6 +27,11 @@
     position: inherit;
     overflow-y: auto;
     flex: 15;
+    scrollbar-width: none;
+}
+
+.friendList::-webkit-scrollbar {
+    display: none;
 }
 
 .addNewFriend {

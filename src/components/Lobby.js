@@ -124,7 +124,7 @@ const Lobby = () => {
         axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
         .then((res) => {
             let friendList = res.data;
-            console.log("서버에서 받은 친구 목록:   ", friendList);
+            // console.log("서버에서 받은 친구 목록:   ", friendList);
             dispatch(FriendInfoSet(friendList));
         })
         .catch((e) => {
@@ -166,13 +166,17 @@ const Lobby = () => {
                 </div>
 
                 <div className={style.lobbyRight}>
+                    <div className={style.MainLobbyTap}>
+                        <span className={style.roomTitle}>room list</span>
+                        <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
+                    </div>
                     <GameRoom socketConnected={socketConnected}/>
                 </div>
 
             </div>
-            <div className={style.MainLobbyTap}>
+            {/* <div className={style.MainLobbyTap}>
                 <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
-            </div>
+            </div> */}
 
             {/* 친구 초대 모달 */}
             { choose === true ? <InviteCard sender={sender} choose={choose} 
